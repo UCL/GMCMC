@@ -15,13 +15,13 @@
  * 64-bit parallel RNG type.
  */
 typedef struct {
-  const char * name;            /**< Name of PRNG algorithm */
-  void (*seed)(int, uint64_t);  /**< Seed function */
-  uint64_t (*get)(int);         /**< Integer generation function on [min,max] */
-  double (*get_double)(int);    /**< Uniform real generation function on [0,1) */
-  uint64_t min, max;            /**< Limits of integer generation function */
-  size_t size;                  /**< Size of state */
-  unsigned int max_id;          /**< Number of independent substreams */
+  const char * name;                    /**< Name of PRNG algorithm */
+  void (*seed)(void *, int, uint64_t);  /**< Seed function */
+  uint64_t (*get)(void *, int);         /**< Integer generation function on [min,max] */
+  double (*get_double)(void *, int);    /**< Uniform real generation function on [0,1) */
+  uint64_t min, max;                    /**< Limits of integer generation function */
+  size_t size;                          /**< Size of state */
+  unsigned int max_id;                  /**< Number of independent substreams */
 } gmcmc_prng64_type;
 
 /**
@@ -34,9 +34,9 @@ typedef struct gmcmc_prng64 gmcmc_prng64;
 /**
  * Creates a new parallel RNG and allocates memory to store the state.
  *
- * @param rng   the RNG to create
- * @param type  the type of RNG to create
- * @param id    the index of the parallel RNG substream to use
+ * @param [out] rng   the RNG to create
+ * @param [in]  type  the type of RNG to create
+ * @param [in]  id    the index of the parallel RNG substream to use
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory available to allocate
@@ -48,18 +48,21 @@ int gmcmc_prng64_create(gmcmc_prng64 **, const gmcmc_prng64_type *, int);
 /**
  * Creates a new parallel RNG which is a copy of an existing RNG.
  *
- * @param rng  the rng to copy
+ * @param [out] dest  the destination of the copy
+ * @param [in]  src   the source of the copy
  *
- * @return the new RNG, or NULL if an error occurred.
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory available to allocate
+ *                      another RNG.
  */
-gmcmc_prng64 * gmcmc_prng64_create_copy(const gmcmc_prng64 *);
+int gmcmc_prng64_create_copy(gmcmc_prng64 **, const gmcmc_prng64 *);
 
 /**
  * Copies the state and ID of one RNG into another.  Both RNGs must be the same
  * type.
  *
- * @param dest  the destination of the copy
- * @param src   the source of the copy
+ * @param [out] dest  the destination of the copy
+ * @param [in]  src   the source of the copy
  *
  * @return 0 on success, GMCMC_EINVAL if the RNGs are of different types.
  */
@@ -68,23 +71,25 @@ int gmcmc_prng64_memcpy(gmcmc_prng64 *, const gmcmc_prng64 *);
 /**
  * Destroys an RNG.
  *
- * @param rng  the RNG to destroy
+ * @param [in] rng  the RNG to destroy
  */
 void gmcmc_prng64_destroy(gmcmc_prng64 *);
 
 /**
  * Writes the RNG state to a file.
  *
- * @param rng   the RNG
- * @param file  the file
+ * @param [in]     rng   the RNG
+ * @param [in,out] file  the file
+ *
+ * @return 0 on success, GMCMC_EIO on error.
  */
 int gmcmc_prng64_fwrite(const gmcmc_prng64 *, FILE *);
 
 /**
  * Reads the RNG state from a file.
  *
- * @param rng   the RNG
- * @param file  the file
+ * @param [out]    rng   the RNG
+ * @param [in,out] file  the file
  *
  * @return 0 on success, GMCMC_EIO on error.
  */
@@ -93,8 +98,8 @@ int gmcmc_prng64_fread(gmcmc_prng64 *, FILE *);
 /**
  * Seeds a parallel RNG.
  *
- * @param rng     the RNG
- * @param seed    the seed value
+ * @param [in,out] rng     the RNG
+ * @param [in]     seed    the seed value
  *
  * @return 0 on success, GMCMC_EINVAL if the stream argument is out of range.
  */
@@ -104,7 +109,7 @@ void gmcmc_prng64_seed(gmcmc_prng64 *, uint64_t);
  * Generates a 64-bit unsigned integer uniformly distributed between [min,max]
  * inclusive.
  *
- * @param rng     the RNG
+ * @param [in] rng  the RNG
  *
  * @return a random unsigned integer.
  */
@@ -113,7 +118,7 @@ uint64_t gmcmc_prng64_get(const gmcmc_prng64 *);
 /**
  * Generates a real uniformly distributed between [0,1).
  *
- * @param rng     the RNG
+ * @param [in] rng  the RNG
  *
  * @return a random real.
  */

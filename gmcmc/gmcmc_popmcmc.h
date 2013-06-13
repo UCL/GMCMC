@@ -10,19 +10,31 @@
 
 #include <gmcmc/gmcmc_model.h>
 
+/**
+ * MCMC simulation options.
+ */
 typedef struct {
-  const char * outputID;
-  bool save_burn_in;
-  unsigned int num_temps;
-  const double * temperatures;
-  unsigned long num_burn_in_samples;
-  unsigned long num_posterior_samples;
-  unsigned long posterior_save_size;
-  double adapt_rate;
-  double upper;
-  double lower;
+  const char * outputID;                /**< Output file base name */
+  bool save_burn_in;                    /**< Whether or not to save samples from burn-in */
+  unsigned int num_temps;               /**< Number of temperatures for population MCMC */
+  const double * temperatures;          /**< Population MCMC temperature scale */
+  unsigned long num_burn_in_samples;    /**< Number of samples required to burn-in the sampler */
+  unsigned long num_posterior_samples;  /**< Number of posterior samples to simulate after burn-in */
+  unsigned long posterior_save_size;    /**< How often to write the posterior samples to file */
+  double adapt_rate;                    /**< Step size adapt rate */
+  double upper;                         /**< Upper bound for step size */
+  double lower;                         /**< Lower bound for step size */
 } gmcmc_popmcmc_options;
 
-int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *, gmcmc_prng64 *);
+/**
+ * Performs a population MCMC simulation in parallel using MPI.
+ *
+ * @param [in] options  MCMC options struct
+ * @param [in] model    the model to use in the simulation
+ * @param [in] rng      a parallel RNG to use
+ *
+ * @return 0 on success, non-zero on error.
+ */
+int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *, const gmcmc_prng64 *);
 
 #endif /* GMCMC_POPMCMC_H */

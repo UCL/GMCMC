@@ -34,10 +34,14 @@ typedef struct {
  * Creates a new probability distribution and allocates memory to store the
  * parameters.
  *
- * @param type    the type of distribution to create
- * @param params  the distribution parameters
+ * @param [out] dist    the distribution to create
+ * @param [in]  type    the type of distribution to create
+ * @param [in]  params  the distribution parameters
  *
- * @return the new distribution, or NULL if an error occurred.
+ * @return 0 on success,
+ *         GMCMC_EINVAL if the distribution parameters are invalid,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the
+ *                      distribution or parameter vector.
  */
 int gmcmc_distribution_create(gmcmc_distribution **, const gmcmc_distribution_type *, ...);
 
@@ -45,18 +49,21 @@ int gmcmc_distribution_create(gmcmc_distribution **, const gmcmc_distribution_ty
  * Creates a new probability distribution which is a copy of an existing
  * probability distribution.
  *
- * @param dist  the distribution to copy
+ * @param [out] dest  the distribution to create
+ * @param [in]  src   the distribution to copy
  *
- * @return the new distribution, or NULL if an error occurred.
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the
+ *                      distribution or parameter vector.
  */
-gmcmc_distribution * gmcmc_distribution_create_copy(const gmcmc_distribution *);
+int gmcmc_distribution_create_copy(gmcmc_distribution **, const gmcmc_distribution *);
 
 /**
  * Copies the parameters of one probability distribution into another.  Both
  * distributions must be the same type.
  *
- * @param dest  the destination of the copy
- * @param src   the source of the copy
+ * @param [out] dest  the destination of the copy
+ * @param [in]  src   the source of the copy
  *
  * @return 0 on success, GMCMC_EINVAL if the RNGs are of different types.
  */
@@ -65,15 +72,15 @@ int gmcmc_distribution_memcpy(gmcmc_distribution *, const gmcmc_distribution *);
 /**
  * Destroys a probability distribution.
  *
- * @param dist  the probability distribution to destroy
+ * @param [in] dist  the probability distribution to destroy
  */
 void gmcmc_distribution_destroy(gmcmc_distribution *);
 
 /**
  * Writes the parameters of a probability distribution to a file.
  *
- * @param dist  the probability distribution
- * @param file  the file
+ * @param [in]     dist  the probability distribution
+ * @param [in,out] file  the file
  *
  * @return 0 on success, GMCMC_EIO on error.
  */
@@ -82,8 +89,8 @@ int gmcmc_distribution_fwrite(const gmcmc_distribution *, FILE *);
 /**
  * Reads the parameters of a probability distribution from a file.
  *
- * @param dist  the probability distribution
- * @param file  the file
+ * @param [out]     dist  the probability distribution
+ * @param [in,out]  file  the file
  *
  * @return 0 on success, GMCMC_EIO on error.
  */
@@ -92,8 +99,8 @@ int gmcmc_distribution_fread(gmcmc_distribution *, FILE *);
 /**
  * Generates a sample from the distribution.
  *
- * @param dist  the probability distribution
- * @param rng   the random number generator to use to generate the sample
+ * @param [in] dist  the probability distribution
+ * @param [in] rng   the random number generator to use to generate the sample
  *
  * @return a sample from the distribution.
  */
@@ -102,8 +109,8 @@ double gmcmc_distribution_sample(const gmcmc_distribution *, const gmcmc_prng64 
 /**
  * Evaluates the probability density function of the distribution.
  *
- * @param dist  the probability distribution
- * @param x     the point at which to evaluate the PDF
+ * @param [in] dist  the probability distribution
+ * @param [in] x     the point at which to evaluate the PDF
  *
  * @return the value of the probability density function at x.
  */
@@ -112,8 +119,8 @@ double gmcmc_distribution_pdf(const gmcmc_distribution *, double);
 /**
  * Evaluates the 1st order derivative of the probability density function.
  *
- * @param dist  the probability distribution
- * @param x     the point at which to evaluate the PDF
+ * @param [in] dist  the probability distribution
+ * @param [in] x     the point at which to evaluate the PDF
  *
  * @return the value of the 1st order derivative of the probability density
  * function at x.
@@ -123,8 +130,8 @@ double gmcmc_distribution_pdf_1st_order(const gmcmc_distribution *, double);
 /**
  * Evaluates the 2nd order derivative of the probability density function.
  *
- * @param dist  the probability distribution
- * @param x     the point at which to evaluate the PDF
+ * @param [in] dist  the probability distribution
+ * @param [in] x     the point at which to evaluate the PDF
  *
  * @return the value of the 2nd order derivative of the probability density
  * function at x.

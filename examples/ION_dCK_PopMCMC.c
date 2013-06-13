@@ -201,6 +201,7 @@ int main(int argc, char * argv[]) {
     return -5;
   }
 
+#if 0
   // Set up parameter names for reference
   const char * param_names[] = { "K_1", "K_2", "Beta", "Alpha" };
   if ((error = gmcmc_model_set_param_names(model, param_names)) != 0) {
@@ -232,15 +233,13 @@ int main(int argc, char * argv[]) {
   // or 'random'
   /*int block_sizes[] = { 1, 1, 1 };
   gmcmc_model_set_blocking(model, 3, block_sizes, NULL);*/
+#endif
 
   /*
    * ION model settings
    */
-  int closed_states[] = { 1, 2 };
-  int open_states[] = { 3 };
-
   gmcmc_ion_model * ion_model;
-  if ((error = gmcmc_ion_model_create(&ion_model, closed_states, 2, open_states, 1, calculate_Q_matrix)) != 0) {
+  if ((error = gmcmc_ion_model_create(&ion_model, 2, 1, calculate_Q_matrix)) != 0) {
     // Clean up
     for (int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);

@@ -34,11 +34,11 @@ const char * gmcmc_strerror(int);
 /**
  * Geometric MCMC error handler type.
  *
- * @param msg    error message
- * @param errno  error code
- * @param func   function containing the error
- * @param file   source file containing the error
- * @param line   source line number
+ * @param [in] msg    error message
+ * @param [in] errno  error code
+ * @param [in] func   function containing the error
+ * @param [in] file   source file containing the error
+ * @param [in] line   source line number
  */
 typedef void (*gmcmc_error_handler_t)(const char *, int, const char *,
     const char *, int);
