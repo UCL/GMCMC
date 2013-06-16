@@ -132,8 +132,8 @@ void gmcmc_dataset_destroy(gmcmc_dataset * dataset) {
  *
  * @return a pointer to the time values.
  */
-const double * gmcmc_dataset_xs(const gmcmc_dataset * dataset) {
-  return dataset->xs;
+double gmcmc_dataset_x(const gmcmc_dataset * dataset, size_t i) {
+  return dataset->xs[i];
 }
 
 /**
@@ -143,8 +143,8 @@ const double * gmcmc_dataset_xs(const gmcmc_dataset * dataset) {
  *
  * @return a pointer to the data values.
  */
-const double * gmcmc_dataset_ys(const gmcmc_dataset * dataset) {
-  return dataset->ys;
+double gmcmc_dataset_y(const gmcmc_dataset * dataset, size_t i) {
+  return dataset->ys[i];
 }
 
 /**

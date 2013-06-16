@@ -9,6 +9,7 @@
 #define GMCMC_POPMCMC_H
 
 #include <gmcmc/gmcmc_model.h>
+#include <gmcmc/gmcmc_dataset.h>
 
 /**
  * MCMC simulation options.
@@ -31,10 +32,11 @@ typedef struct {
  *
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation
+ * @param [in] data     the data to use in the simulation
  * @param [in] rng      a parallel RNG to use
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *, const gmcmc_prng64 *);
+int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *, const gmcmc_dataset *, const gmcmc_prng64 *);
 
 #endif /* GMCMC_POPMCMC_H */

@@ -14,12 +14,12 @@ typedef struct gmcmc_ion_model gmcmc_ion_model;
 /**
  * Ion Channel model proposal function using Metropolis-Hastings.
  */
-extern gmcmc_proposal_function gmcmc_ion_proposal_mh;
+extern const gmcmc_proposal_function gmcmc_ion_proposal_mh;
 
 /**
  * Ion Channel model likelihood function using Metropolis-Hastings.
  */
-extern gmcmc_likelihood_function gmcmc_ion_likelihood_mh;
+extern const gmcmc_likelihood_function gmcmc_ion_likelihood_mh;
 
 /**
  * Creates an Ion Channel model-specific data object.

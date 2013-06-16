@@ -35,22 +35,24 @@ int gmcmc_dataset_load_matlab(gmcmc_dataset **, const char *);
 void gmcmc_dataset_destroy(gmcmc_dataset *);
 
 /**
- * Gets a pointer to the x (time) values.
+ * Gets an x (time) value.
  *
  * @param [in] dataset  the dataset
+ * @param [in] i        the index of the value
  *
- * @return a pointer to the time values.
+ * @return a time value.
  */
-const double * gmcmc_dataset_xs(const gmcmc_dataset *);
+double gmcmc_dataset_x(const gmcmc_dataset *, size_t);
 
 /**
- * Gets a pointer to the y (data) values.
+ * Gets a y (data) value.
  *
  * @param [in] dataset  the dataset
+ * @param [in] i        the index of the value
  *
- * @return a pointer to the data values.
+ * @return a data value.
  */
-const double * gmcmc_dataset_ys(const gmcmc_dataset *);
+double gmcmc_dataset_ys(const gmcmc_dataset *, size_t);
 
 /**
  * Gets the number of (x,y) data points.

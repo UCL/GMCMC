@@ -8,7 +8,6 @@
 #ifndef GMCMC_MODEL_H
 #define GMCMC_MODEL_H
 
-#include <gmcmc/gmcmc_dataset.h>
 #include <gmcmc/gmcmc_distribution.h>
 
 /**
@@ -22,8 +21,13 @@ typedef struct gmcmc_model gmcmc_model;
 typedef struct gmcmc_likelihood gmcmc_likelihood;
 struct gmcmc_likelihood {
   void (*destroy)(gmcmc_likelihood *);  /**< function to destroy the likelihood object */
-  double log_likelihood;                /**< value of the log likelihood */
+  double * ll;                          /**< value of the log likelihood */
 };
+
+/**
+ * Default destructor for likelihood object.
+ */
+void gmcmc_likelihood_destroy(gmcmc_likelihood *);
 
 /**
  * Proposal function.
@@ -39,26 +43,25 @@ struct gmcmc_likelihood {
  *
  * @return 0 on success, non-zero on error.
  */
-typedef int (*gmcmc_proposal_function)(const gmcmc_likelihood *, size_t, const double *, double, double *, double *, size_t);
+typedef int (*gmcmc_proposal_function)(const gmcmc_likelihood *, size_t, const double *, double, double, double *, double *, size_t);
 
 /**
  * Likelihood function.
  *
- * @param [in]  modelspecific  model specific functions and data
- * @param [in]  n              size of parameter vector
- * @param [in]  params         parameter vector
- * @param [in]  data           data
- * @param [out] likelihood     likelihood object to allocate and populate
+ * @param [in]  model       model specific functions and data
+ * @param [in]  n           size of parameter vector
+ * @param [in]  params      parameter vector
+ * @param [in]  data        data
+ * @param [out] likelihood  likelihood object to allocate and populate
  *
  * @return 0 on success, non-zero on error.
  */
-typedef int (*gmcmc_likelihood_function)(const void *, size_t, const double *, const gmcmc_dataset *, gmcmc_likelihood **);
+typedef int (*gmcmc_evaluate_function)(const gmcmc_model *, size_t, const double *, const gmcmc_dataset *, gmcmc_likelihood **);
 
 /**
  * Creates a model.
  *
  * @param [out] model       the model to create
- * @param [in]  data        the data
  * @param [in]  n           the number of parameters in the model
  * @param [in]  priors      an array of prior distributions for each parameter
  * @param [in]  proposal    a function to calculate the proposal mean and variance
@@ -66,9 +69,8 @@ typedef int (*gmcmc_likelihood_function)(const void *, size_t, const double *, c
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_create(gmcmc_model **, const gmcmc_dataset *, unsigned int,
-                       gmcmc_distribution **, gmcmc_proposal_function,
-                       gmcmc_likelihood_function);
+int gmcmc_model_create(gmcmc_model **, unsigned int, gmcmc_distribution **,
+                       gmcmc_proposal_function, gmcmc_likelihood_function);
 
 /**
  * Destroys a model.
