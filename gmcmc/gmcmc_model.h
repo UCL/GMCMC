@@ -62,7 +62,7 @@ typedef int (*gmcmc_likelihood_function)(const gmcmc_model *, size_t, const doub
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_create(gmcmc_model **, unsigned int, gmcmc_distribution **,
+int gmcmc_model_create(gmcmc_model **, size_t, gmcmc_distribution **,
                        gmcmc_proposal_function, gmcmc_likelihood_function);
 
 /**

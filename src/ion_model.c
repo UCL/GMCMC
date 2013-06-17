@@ -6,6 +6,23 @@
 #include <cblas.h>
 #include <fenv.h>
 
+// External Fortran LAPACK functions
+void dgeev_(const char *, const char *, const int *, const double *, const int *,
+            double *, double *, double *, const int *, double *, const int *,
+            double *, const int *, int *);
+void dgetrf_(const int *, const int *, double *, const int *, int *, int *);
+void dgetri_(const int *, double *, const int *, int *, double *, const int *, int *);
+
+// Forward declarations of utility functions
+static int calculate_specmat_eigenvectors(size_t, const double *, size_t,
+                                          double *, double *, size_t);
+static int idealised_transition_probability(size_t, double,
+                                            const double *,
+                                            const double *, size_t,
+                                            const double *, size_t,
+                                            double *);
+static double log_sum(size_t, double *);
+
 /**
  * Ion Channel model-specific data.
  *
@@ -17,16 +34,6 @@ struct gmcmc_ion_model {
   void (*calculate_Q_matrix)(const double *, size_t,    /**< Function to update Q matrix based*/
                              double *, size_t);         /* on current parameter values */
 };
-
-// Forward declarations of utility functions
-static int calculate_specmat_eigenvectors(size_t, const double *, size_t,
-                                          double *, double *, size_t);
-static int idealised_transition_probability(size_t, double,
-                                            const double *,
-                                            const double *, size_t,
-                                            const double *, size_t,
-                                            double *);
-static double log_sum(size_t, double *);
 
 /**
  * Ion Channel model proposal function using Metropolis-Hastings.
@@ -127,13 +134,8 @@ static int ion_likelihood_mh(const gmcmc_model * model, size_t n,
 
   // Check for numerical instability in the inverse
   feclearexcept(FE_ALL_EXCEPT);
-  if (clapack_dgesv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, num_states,
-                    S, lds, eq_states, 1) != 0) {
-    free(S);
-    free(Q);
-    free(eq_states);
-    GMCMC_ERROR("S is singular", GMCMC_ELINAL);
-  }
+  cblas_dtrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, num_states,
+                    S, lds, eq_states, 1);
   if (fetestexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INVALID) != 0) {
     free(S);
     free(Q);
@@ -400,7 +402,7 @@ static double log_sum(size_t n, double * x) {
  */
 static int eig(size_t n, const double * Q, size_t ldq, double * V, double * X, size_t ldx) {
   double * wi, * work, size;
-  int ldvl = 1, lwork = -1;
+  int ldvl = 1, lwork = -1, info = 0;
 
   // Create a copy of Q so it is not overwritten by the dgeev routine
   double * P;
@@ -411,7 +413,8 @@ static int eig(size_t n, const double * Q, size_t ldq, double * V, double * X, s
     memcpy(&P[j * ldp], &Q[j * ldq], n * sizeof(double));
 
   // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
-  if (clapack_dgeev(CblasColMajor, "N", "V", n, P, ldp, V, NULL, NULL, ldvl, X, ldx, &size, &lwork) != 0) {
+  dgeev_("N", "V", (const int *)&n, P, (const int *)&ldp, V, NULL, NULL, &ldvl, X, (const int *)&ldx, &size, &lwork, &info);
+  if (info != 0) {
     free(P);
     GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
   }
@@ -429,7 +432,7 @@ static int eig(size_t n, const double * Q, size_t ldq, double * V, double * X, s
   }
 
   // Calculate the eigenvalues and (right) eigenvectors
-  int info = clapack_dgeev(CblasColMajor, "N", "V", n, Q, ldq, V, wi, NULL, ldvl, X, ldx, work, &lwork);
+  dgeev_("N", "V", (const int *)&n, P, (const int *)&ldp, V, wi, NULL, &ldvl, X, (const int *)&ldx, work, &lwork, &info);
 
   free(P);
   free(wi);
@@ -464,12 +467,13 @@ static int inv(size_t n, const double * A, size_t lda, double * B, size_t ldb) {
     memcpy(&B[j * ldb], &A[j * lda], n * sizeof(double));
 
   // Pivot array
-  int * ipiv;
+  int * ipiv, info = 0;
   if ((ipiv = malloc(n * sizeof(int))) == NULL)
     GMCMC_ERROR("Unable to allocate pivot array", GMCMC_ENOMEM);
 
-  // Calculate the LU decomposition of Y
-  if (clapack_dgetrf(CblasColMajor, n, n, B, ldb, ipiv) != 0) {
+  // Calculate the LU decomposition of B
+  dgetrf_((const int *)&n, (const int *)&n, B, (const int *)&ldb, ipiv, &info);
+  if (info != 0) {
     free(ipiv);
     GMCMC_ERROR("Unable to calculate LU decomposition", GMCMC_ELINAL);
   }
@@ -477,7 +481,8 @@ static int inv(size_t n, const double * A, size_t lda, double * B, size_t ldb) {
   // Calling DGETRI with lwork = -1 causes it to return the optimal workspace size in work[0]
   double size;
   int lwork = -1;
-  if (clapack_dgetri(CblasColMajor, n, NULL, ldb, NULL, &size, lwork) != 0) {
+  dgetri_((const int *)&n, NULL, (const int *)&ldb, NULL, &size, &lwork, &info);
+  if (info != 0) {
     free(ipiv);
     GMCMC_ERROR("Unable to calculate optimal workspace size", GMCMC_ELINAL);
   }
@@ -491,7 +496,7 @@ static int inv(size_t n, const double * A, size_t lda, double * B, size_t ldb) {
   }
 
   // Calculate the inverse
-  int info = clapack_dgetri(CblasColMajor, n, B, ldb, ipiv, work, lwork);
+  dgetri_((const int *)&n, B, (const int *)&ldb, ipiv, work, &lwork, &info);
 
   free(ipiv);
   free(work);
