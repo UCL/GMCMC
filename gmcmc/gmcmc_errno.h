@@ -22,6 +22,10 @@
 #define GMCMC_EIO 3
 /** IPC error. */
 #define GMCMC_EIPC 4
+/** BLAS/LAPACK error */
+#define GMCMC_ELINAL 5
+/** Floating point exception */
+#define GMCMC_EFP 6
 
 /**
  * Maps Geometric MCMC error codes to textual descriptions.

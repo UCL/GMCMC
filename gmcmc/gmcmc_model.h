@@ -9,20 +9,13 @@
 #define GMCMC_MODEL_H
 
 #include <gmcmc/gmcmc_distribution.h>
+#include <gmcmc/gmcmc_dataset.h>
+#include <gmcmc/gmcmc_likelihood.h>
 
 /**
  * A model.
  */
 typedef struct gmcmc_model gmcmc_model;
-
-/**
- * Likelihood object.
- */
-typedef struct gmcmc_likelihood gmcmc_likelihood;
-struct gmcmc_likelihood {
-  void (*destroy)(gmcmc_likelihood *);  /**< function to destroy the likelihood object */
-  double * ll;                          /**< value of the log likelihood */
-};
 
 /**
  * Default destructor for likelihood object.
@@ -56,7 +49,7 @@ typedef int (*gmcmc_proposal_function)(const gmcmc_likelihood *, size_t, const d
  *
  * @return 0 on success, non-zero on error.
  */
-typedef int (*gmcmc_evaluate_function)(const gmcmc_model *, size_t, const double *, const gmcmc_dataset *, gmcmc_likelihood **);
+typedef int (*gmcmc_likelihood_function)(const gmcmc_model *, size_t, const double *, const gmcmc_dataset *, gmcmc_likelihood **);
 
 /**
  * Creates a model.

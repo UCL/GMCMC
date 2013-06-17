@@ -37,7 +37,7 @@ extern const gmcmc_likelihood_function gmcmc_ion_likelihood_mh;
  *         EINVAL if calculate_Q_matrix is NULL, or
  *         ENOMEM if there is not enough memory to create the data object.
  */
-int gmcmc_ion_model_create(gmcmc_ion_model **, unsigned int, unsigned int, void (*)(const double *, double *, size_t));
+int gmcmc_ion_model_create(gmcmc_ion_model **, unsigned int, unsigned int, void (*)(const double *, size_t, double *, size_t));
 
 /**
  * Destroys the Ion Channel model-specific data.

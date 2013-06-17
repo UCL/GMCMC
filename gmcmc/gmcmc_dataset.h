@@ -52,7 +52,7 @@ double gmcmc_dataset_x(const gmcmc_dataset *, size_t);
  *
  * @return a data value.
  */
-double gmcmc_dataset_ys(const gmcmc_dataset *, size_t);
+double gmcmc_dataset_y(const gmcmc_dataset *, size_t);
 
 /**
  * Gets the number of (x,y) data points.
