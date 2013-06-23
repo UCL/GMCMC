@@ -8,18 +8,6 @@
 #include <stdio.h>
 
 /**
- * Geometric MCMC error codes.
- */
-/** Out of memory. */
-#define GMCMC_ENOMEM 1
-/** Invalid argument passed to function. */
-#define GMCMC_EINVAL 2
-/** Input/Output error. */
-#define GMCMC_EIO 3
-/** IPC error. */
-#define GMCMC_EIPC 4
-
-/**
  * Maps Geometric MCMC error codes to textual descriptions.
  *
  * @param errno  a GMCMC error code
@@ -31,6 +19,8 @@ const char * gmcmc_strerror(int errno) {
     case GMCMC_EINVAL: return "Invalid argument";
     case GMCMC_EIO:    return "Input/Output error";
     case GMCMC_EIPC:   return "IPC error";
+    case GMCMC_ELINAL: return "BLAS/LAPACK error";
+    case GMCMC_EFP:    return "Floating point exception";
     default:           return "Unknown error";
   }
 }

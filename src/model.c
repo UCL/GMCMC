@@ -12,6 +12,7 @@ struct gmcmc_model {
   gmcmc_proposal_function proposal;     /**< Proposal function */
   gmcmc_likelihood_function likelihood; /**< Likelihood function */
   size_t n;                             /**< Number of parameters in model */
+  double stepsize;                      /**< Parameter stepsize (default 0.05) */
   void * modelspecific;                 /**< Model specific parameters and data (may be NULL) */
 };
 
@@ -51,6 +52,8 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
   (*model)->params = NULL;
   (*model)->proposal = proposal;
   (*model)->likelihood = likelihood;
+  (*model)->n = n;
+  (*model)->stepsize = 0.05;
   (*model)->modelspecific = NULL;
 
   return 0;
@@ -67,6 +70,17 @@ void gmcmc_model_destroy(gmcmc_model * model) {
   free(model->priors);
   free(model->params);
   free(model);
+}
+
+/**
+ * Gets the number of parameters in the model.
+ *
+ * @param [in] model  the model
+ *
+ * @return the number of parameters in the model.
+ */
+size_t gmcmc_model_get_num_params(const gmcmc_model * model) {
+  return model->n;
 }
 
 /**
@@ -100,6 +114,20 @@ int gmcmc_model_set_params(gmcmc_model * model, const double * params) {
  */
 const double * gmcmc_model_get_params(const gmcmc_model * model) {
   return model->params;
+}
+
+/**
+ * Gets a pointer to the priors for each parameter.
+ *
+ * @param [in] model  the model
+ * @param [in] i      the parameter index
+ *
+ * @return the prior for the parameter or NULL if the i is out of range.
+ */
+const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size_t i) {
+  if (i > model->n)
+    return NULL;
+  return model->priors[i];
 }
 
 // int gmcmc_model_set_blocking(gmcmc_model *, int **, const int *, int);

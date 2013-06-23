@@ -8,6 +8,7 @@
 #ifndef GMCMC_POPMCMC_H
 #define GMCMC_POPMCMC_H
 
+#include <stdbool.h>
 #include <gmcmc/gmcmc_model.h>
 #include <gmcmc/gmcmc_dataset.h>
 

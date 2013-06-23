@@ -4,17 +4,6 @@
 #include <string.h>
 
 /**
- * 64-bit parallel RNG.
- *
- * A parallel RNG consists of multiple independent substreams of random numbers.
- */
-struct gmcmc_prng64 {
-  const gmcmc_prng64_type * type;       /**< RNG type */
-  void * state;                         /**< RNG state */
-  int id;                               /**< Parallel RNG stream id */
-};
-
-/**
  * Creates a new parallel RNG and allocates memory to store the state.
  *
  * @param [out] rng   the RNG to create
@@ -135,39 +124,4 @@ int gmcmc_prng64_fread(gmcmc_prng64 * rng, FILE * file) {
   if (fread(&rng->id, sizeof(int), 1, file) != 1)
     GMCMC_ERROR("Unable to read RNG id", GMCMC_EIO);
   return 0;
-}
-
-/**
- * Seeds a parallel RNG.
- *
- * @param [in,out] rng     the RNG
- * @param [in]     seed    the seed value
- *
- * @return 0 on success, GMCMC_EINVAL if the stream argument is out of range.
- */
-void gmcmc_prng64_seed(gmcmc_prng64 * rng, uint64_t seed) {
-  rng->type->seed(rng->state, rng->id, seed);
-}
-
-/**
- * Generates a 64-bit unsigned integer uniformly distributed between [min,max]
- * inclusive.
- *
- * @param [in] rng  the RNG
- *
- * @return a random unsigned integer.
- */
-uint64_t gmcmc_prng64_get(const gmcmc_prng64 * rng) {
-  return rng->type->get(rng->state, rng->id);
-}
-
-/**
- * Generates a real uniformly distributed between [0,1).
- *
- * @param [in] rng  the RNG
- *
- * @return a random real.
- */
-double gmcmc_prng64_get_double(const gmcmc_prng64 * rng) {
-  return rng->type->get_double(rng->state, rng->id);
 }

@@ -26,6 +26,8 @@
 #define GMCMC_ELINAL 5
 /** Floating point exception */
 #define GMCMC_EFP 6
+/** Error with prior definition */
+#define GMCMC_EPRIOR 7
 
 /**
  * Maps Geometric MCMC error codes to textual descriptions.

@@ -13,37 +13,24 @@
 #include <gmcmc/gmcmc_rng.h>
 
 /**
- * Continuous double-precision real probability distribution.
- */
-typedef struct gmcmc_distribution gmcmc_distribution;
-
-/**
  * Continuous double-precision real probability distribution type.
  */
 typedef struct {
   const char * name;                                    /**< The name of the distribution */
-  int (*parse_args)(void *, va_list);                   /**< Function to initialise and check parameter values */
-  double (*sample)(const gmcmc_prng64 *, const void *); /**< Sample generation function */
-  double (*pdf)(double, const void *);                  /**< Probability density function */
-  double (*pdf_1st_order)(double, const void *);        /**< 1st order derivative PDF */
-  double (*pdf_2nd_order)(double, const void *);        /**< 2nd order derivative PDF */
+  double (*sample)(const void *, const gmcmc_prng64 *); /**< Sample generation function */
+  double (*pdf)(const void *, double);                  /**< Probability density function */
+  double (*pdf_1st_order)(const void *, double);        /**< 1st order derivative PDF */
+  double (*pdf_2nd_order)(const void *, double);        /**< 2nd order derivative PDF */
   size_t size;                                          /**< Size of parameter vector in bytes */
 } gmcmc_distribution_type;
 
 /**
- * Creates a new probability distribution and allocates memory to store the
- * parameters.
- *
- * @param [out] dist    the distribution to create
- * @param [in]  type    the type of distribution to create
- * @param [in]  params  the distribution parameters
- *
- * @return 0 on success,
- *         GMCMC_EINVAL if the distribution parameters are invalid,
- *         GMCMC_ENOMEM if there is not enough memory to allocate the
- *                      distribution or parameter vector.
+ * Continuous double-precision real probability distribution.
  */
-int gmcmc_distribution_create(gmcmc_distribution **, const gmcmc_distribution_type *, ...);
+typedef struct {
+  const gmcmc_distribution_type * type;                 /**< Distribution type */
+  void * params;                                        /**< Distribution parameters */
+} gmcmc_distribution;
 
 /**
  * Creates a new probability distribution which is a copy of an existing
@@ -104,7 +91,9 @@ int gmcmc_distribution_fread(gmcmc_distribution *, FILE *);
  *
  * @return a sample from the distribution.
  */
-double gmcmc_distribution_sample(const gmcmc_distribution *, const gmcmc_prng64 *);
+static inline double gmcmc_distribution_sample(const gmcmc_distribution * dist, const gmcmc_prng64 * rng) {
+  return dist->type->sample(dist->params, rng);
+}
 
 /**
  * Evaluates the probability density function of the distribution.
@@ -114,7 +103,9 @@ double gmcmc_distribution_sample(const gmcmc_distribution *, const gmcmc_prng64 
  *
  * @return the value of the probability density function at x.
  */
-double gmcmc_distribution_pdf(const gmcmc_distribution *, double);
+static inline double gmcmc_distribution_pdf(const gmcmc_distribution * dist, double x) {
+  return dist->type->pdf(dist->params, x);
+}
 
 /**
  * Evaluates the 1st order derivative of the probability density function.
@@ -125,7 +116,9 @@ double gmcmc_distribution_pdf(const gmcmc_distribution *, double);
  * @return the value of the 1st order derivative of the probability density
  * function at x.
  */
-double gmcmc_distribution_pdf_1st_order(const gmcmc_distribution *, double);
+static inline double gmcmc_distribution_pdf_1st_order(const gmcmc_distribution * dist, double x) {
+  return dist->type->pdf_1st_order(dist->params, x);
+}
 
 /**
  * Evaluates the 2nd order derivative of the probability density function.
@@ -136,42 +129,68 @@ double gmcmc_distribution_pdf_1st_order(const gmcmc_distribution *, double);
  * @return the value of the 2nd order derivative of the probability density
  * function at x.
  */
-double gmcmc_distribution_pdf_2nd_order(const gmcmc_distribution *, double);
+static inline double gmcmc_distribution_pdf_2nd_order(const gmcmc_distribution * dist, double x) {
+  return dist->type->pdf_2nd_order(dist->params, x);
+}
 
 /*
  * Built-in distribution types.
  */
 
 /**
- * Continuous real uniform distribution on (a,b).
+ * Creates a new continuous real uniform probability distribution on (a,b).
  *
- * @param a  the (exclusive) lower bound of the distribution
- * @param b  the (exclusive) upper bound of the distribution
+ * @param [out] dist  the distribution to create
+ * @param [in]  a     the (exclusive) lower bound of the distribution
+ * @param [in]  b     the (exclusive) upper bound of the distribution
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if a is greater than or equal to b,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the
+ *                      distribution or parameter vector.
  */
-extern const gmcmc_distribution_type * gmcmc_distribution_uniform;
+int gmcmc_distribution_create_uniform(gmcmc_distribution **, double, double);
 
 /**
- * Continuous real normal distribution.
+ * Creates a new continuous real normal probability distribution.
  *
- * @param mean    the mean of the distribution
- * @param stddev  the standard deviation of the distribution
+ * @param [out] dist    the distribution to create
+ * @param [in]  mean    the mean of the distribution
+ * @param [in]  stddev  the standard deviation of the distribution
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if stddev is less than or equal to zero,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the
+ *                      distribution or parameter vector.
  */
-extern const gmcmc_distribution_type * gmcmc_distribution_normal;
+int gmcmc_distribution_create_normal(gmcmc_distribution **, double, double);
 
 /**
- * Continuous real lognormal distribution.
+ * Creates a new continuous real lognormal probability distribution.
  *
- * @param logscale  the log scale of the distribution
- * @param shape     the shape of the distribution
+ * @param [out] dist      the distribution to create
+ * @param [in]  logscale  the log scale of the distribution
+ * @param [in]  shape     the shape of the distribution
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if shape is less than or equal to zero,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the
+ *                      distribution or parameter vector.
  */
-extern const gmcmc_distribution_type * gmcmc_distribution_lognormal;
+int gmcmc_distribution_create_lognormal(gmcmc_distribution **, double, double);
 
 /**
- * Continuous real gamma distribution.
+ * Creates a new continuous real gamma probability distribution.
  *
- * @param alpha  the shape of the distribution
- * @param beta   the inverse scale of the distribution
+ * @param [out] dist   the distribution to create
+ * @param [in]  alpha  the shape of the distribution
+ * @param [in]  beta   the inverse scale of the distribution
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if alpha or beta are less than or equal to zero,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the
+ *                      distribution or parameter vector.
  */
-extern const gmcmc_distribution_type * gmcmc_distribution_gamma;
+int gmcmc_distribution_create_gamma(gmcmc_distribution **, double, double);
 
 #endif /* GMCMC_DISTRIBUTION_H */

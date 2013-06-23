@@ -16,7 +16,7 @@
  */
 typedef struct {
   const char * name;                    /**< Name of PRNG algorithm */
-  void (*seed)(void *, int, uint64_t);  /**< Seed function */
+  void (*set)(void *, int, uint64_t);   /**< Seed function */
   uint64_t (*get)(void *, int);         /**< Integer generation function on [min,max] */
   double (*get_double)(void *, int);    /**< Uniform real generation function on [0,1) */
   uint64_t min, max;                    /**< Limits of integer generation function */
@@ -29,7 +29,11 @@ typedef struct {
  *
  * A parallel RNG consists of multiple independent substreams of random numbers.
  */
-typedef struct gmcmc_prng64 gmcmc_prng64;
+typedef struct {
+  const gmcmc_prng64_type * type;       /**< RNG type */
+  void * state;                         /**< RNG state */
+  int id;                               /**< Parallel RNG stream id */
+} gmcmc_prng64;
 
 /**
  * Creates a new parallel RNG and allocates memory to store the state.
@@ -103,7 +107,9 @@ int gmcmc_prng64_fread(gmcmc_prng64 *, FILE *);
  *
  * @return 0 on success, GMCMC_EINVAL if the stream argument is out of range.
  */
-void gmcmc_prng64_seed(gmcmc_prng64 *, uint64_t);
+static inline void gmcmc_prng64_seed(gmcmc_prng64 * rng, uint64_t seed) {
+  rng->type->set(rng->state, rng->id, seed);
+}
 
 /**
  * Generates a 64-bit unsigned integer uniformly distributed between [min,max]
@@ -113,7 +119,9 @@ void gmcmc_prng64_seed(gmcmc_prng64 *, uint64_t);
  *
  * @return a random unsigned integer.
  */
-uint64_t gmcmc_prng64_get(const gmcmc_prng64 *);
+static inline uint64_t gmcmc_prng64_get(const gmcmc_prng64 * rng) {
+  return rng->type->get(rng->state, rng->id);
+}
 
 /**
  * Generates a real uniformly distributed between [0,1).
@@ -122,21 +130,57 @@ uint64_t gmcmc_prng64_get(const gmcmc_prng64 *);
  *
  * @return a random real.
  */
-double gmcmc_prng64_get_double(const gmcmc_prng64 *);
+static inline double gmcmc_prng64_get_double(const gmcmc_prng64 * rng) {
+  return rng->type->get_double(rng->state, rng->id);
+}
 
 /*
  * Built-in RNG types.
  */
 
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^521.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_dcmt521;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^607.
+ */
 extern const gmcmc_prng64_type * gmcmc_prng64_dcmt607;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^1279.
+ */
 extern const gmcmc_prng64_type * gmcmc_prng64_dcmt1279;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^2203.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_dcmt2203;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^2281.
+ */
 extern const gmcmc_prng64_type * gmcmc_prng64_dcmt2281;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^3217.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_dcmt3217;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^4253.
+ */
 extern const gmcmc_prng64_type * gmcmc_prng64_dcmt4253;
-extern const gmcmc_prng64_type * gmcmc_prng64_dcmt11213;
-extern const gmcmc_prng64_type * gmcmc_prng64_dcmt19937;
-extern const gmcmc_prng64_type * gmcmc_prng64_dcmt44497;
-extern const gmcmc_prng64_type * gmcmc_prng64_dcmt86243;
-extern const gmcmc_prng64_type * gmcmc_prng64_dcmt132049;
-extern const gmcmc_prng64_type * gmcmc_prng64_dcmt216091;
+
+/**
+ * 32 parallel 32-bit Mersenne Twisters with period 2^4423.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_dcmt4423;
+
+/**
+ * 24 parallel 32-bit Mersenne Twisters with period 2^9689.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_dcmt9689;
 
 #endif /* GMCMC_RNG_H */
