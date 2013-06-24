@@ -38,9 +38,9 @@ struct gmcmc_ion_model {
 /**
  * Ion Channel model proposal function using Metropolis-Hastings.
  */
-static int ion_proposal_mh(const gmcmc_likelihood * likelihood, size_t n,
-                           const double * params, double temperature, double stepsize,
-                           double * mean, double * covariance, size_t ldc) {
+static int ion_proposal_mh(double likelihood, const void * serdata,
+                           const double * params, size_t n, double temperature,
+                           double stepsize, double * mean, double * covariance, size_t ldc) {
 
   // Proposal_Mean    = Chain.Paras(Chain.CurrentBlock);
   memcpy(mean, params, n * sizeof(double));
@@ -77,9 +77,9 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
  *         GMCMC_EFP    if there was a floating point exception indicating a
  *                        possible numerical inaccuracy.
  */
-static int ion_likelihood_mh(const gmcmc_model * model, size_t n,
-                             const double * params, const gmcmc_dataset * data,
-                             gmcmc_likelihood ** likelihood) {
+static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * model,
+                             const double * params, size_t n,
+                             double * likelihood, void ** serdata, size_t * size) {
   // Initialise error status
   int error = 0;
 
@@ -281,18 +281,12 @@ static int ion_likelihood_mh(const gmcmc_model * model, size_t n,
   // Actually all this unit vector multiplication does is sum the likelihood
 
   // Sum the log-likelihood terms
-  double log_likelihood;
   if (gmcmc_dataset_y(data, 0) == 0.0)
-    log_likelihood = log_sum(ion_model->closed, ll);
+    *likelihood = log_sum(ion_model->closed, ll);
   else
-    log_likelihood = log_sum(ion_model->open, ll);
+    *likelihood = log_sum(ion_model->open, ll);
 
   free(ll);
-
-
-  if ((gmcmc_likelihood_create(likelihood, log_likelihood, NULL, NULL)) != 0)
-    GMCMC_ERROR("Unable to create likelihood object", error);
-
 
   return error;
 }

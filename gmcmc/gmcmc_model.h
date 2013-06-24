@@ -17,11 +17,13 @@
 typedef struct gmcmc_model gmcmc_model;
 
 /**
- * Proposal function.
+ * Calculates the proposal mean vector and covariance matrix based on the
+ * likelihood.
  *
  * @param [in]  likelihood   likelihood value
- * @param [in]  n            size of the parameter vector
+ * @param [in]  serdata      serialised data output from the likelihood function
  * @param [in]  params       parameter vector
+ * @param [in]  n            size of the parameter vector
  * @param [in]  temperature  chain temperature
  * @param [in]  stepsize     parameter step size
  * @param [out] mean         mean vector
@@ -30,20 +32,22 @@ typedef struct gmcmc_model gmcmc_model;
  *
  * @return 0 on success, non-zero on error.
  */
-typedef int (*gmcmc_proposal_function)(const gmcmc_likelihood *, size_t, const double *, double, double, double *, double *, size_t);
+typedef int (*gmcmc_proposal_function)(double, const void *, const double *, size_t, double, double, double *, double *, size_t);
 
 /**
- * Likelihood function.
+ * Calculates the likelihood of the data given the model and parameters.
  *
- * @param [in]  model       model specific functions and data
- * @param [in]  n           size of parameter vector
- * @param [in]  params      parameter vector
- * @param [in]  data        data
- * @param [out] likelihood  likelihood object to allocate and populate
+ * @param [in]  data        the data
+ * @param [in]  model       the model to evaluate
+ * @param [in]  params      the current parameter values to evaluate the model
+ * @param [in]  n           the number of parameters in the model
+ * @param [out] likelihood  the log likelihood
+ * @param [out] serdata     serialised data to be passed to the proposal function
+ * @param [out] size        size of serialised data object, in bytes
  *
  * @return 0 on success, non-zero on error.
  */
-typedef int (*gmcmc_likelihood_function)(const gmcmc_model *, size_t, const double *, const gmcmc_dataset *, gmcmc_likelihood **);
+typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_model *, const double *, size_t, double *, void **, size_t *);
 
 /**
  * Creates a model.
@@ -108,9 +112,11 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model *, size_t);
  * Calculates the proposal mean vector and covariance matrix based on the
  * likelihood.
  *
+ * @param [in]  model        the model
  * @param [in]  likelihood   likelihood value
- * @param [in]  n            size of the parameter vector
+ * @param [in]  serdata      serialised data output from the likelihood function
  * @param [in]  params       parameter vector
+ * @param [in]  n            size of the parameter vector
  * @param [in]  temperature  chain temperature
  * @param [in]  stepsize     parameter step size
  * @param [out] mean         mean vector
@@ -119,20 +125,22 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model *, size_t);
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_proposal(const gmcmc_likelihood *, size_t, const double *, double, double, double *, double *, size_t);
+int gmcmc_model_proposal(const gmcmc_model *, double, const void *, const double *, size_t, double, double, double *, double *, size_t);
 
 /**
  * Calculates the likelihood of the data given the model and parameters.
  *
- * @param [in]  model       the model to evaluate
- * @param [in]  n           the number of parameters in the model
- * @param [in]  params      the current parameter values to evaluate the model
  * @param [in]  data        the data
- * @param [out] likelihood  the likelihood object to allocate and populate
+ * @param [in]  model       the model to evaluate
+ * @param [in]  params      the current parameter values to evaluate the model
+ * @param [in]  n           the number of parameters in the model
+ * @param [out] likelihood  the log likelihood
+ * @param [out] serdata     serialised data to be passed to the proposal function
+ * @param [out] size        size of serialised data object, in bytes
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_likelihood(const gmcmc_model *, size_t, const double *, const gmcmc_dataset *, gmcmc_likelihood **);
+int gmcmc_model_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, size_t, double *, void **, size_t *);
 
 /**
  * Sets the parameter stepsize.

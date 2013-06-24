@@ -2,6 +2,7 @@
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 /**
  * A model.
@@ -132,6 +133,71 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size
 
 // int gmcmc_model_set_blocking(gmcmc_model *, int **, const int *, int);
 // int gmcmc_model_get_block(const gmcmc_model *, int **, int *, int);
+
+/**
+ * Calculates the proposal mean vector and covariance matrix based on the
+ * likelihood.
+ *
+ * @param [in]  model        the model
+ * @param [in]  likelihood   likelihood value
+ * @param [in]  serdata      serialised data output from the likelihood function
+ * @param [in]  params       parameter vector
+ * @param [in]  n            size of the parameter vector
+ * @param [in]  temperature  chain temperature
+ * @param [in]  stepsize     parameter step size
+ * @param [out] mean         mean vector
+ * @param [out] covariance   covariance matrix
+ * @param [in]  ldc          leading dimension of the covariance matrix
+ *
+ * @return 0 on success, non-zero on error.
+ */
+int gmcmc_model_proposal(const gmcmc_model * model, double log_likelihood, const void * serdata, const double * params, size_t n, double temperature, double stepsize, double * mean, double * covariance, size_t ldc) {
+  return model->proposal(log_likelihood, serdata, params, n, temperature, stepsize, mean, covariance, ldc);
+}
+
+/**
+ * Calculates the likelihood of the data given the model and parameters.
+ *
+ * @param [in]  data        the data
+ * @param [in]  model       the model to evaluate
+ * @param [in]  params      the current parameter values to evaluate the model
+ * @param [in]  n           the number of parameters in the model
+ * @param [out] likelihood  the log likelihood
+ * @param [out] serdata     serialised data to be passed to the proposal function
+ * @param [out] size        size of serialised data object, in bytes
+ *
+ * @return 0 on success, non-zero on error.
+ */
+int gmcmc_model_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params, size_t n, double * log_likelihood, void ** serdata, size_t * size) {
+  return model->likelihood(data, model, params, n, log_likelihood, serdata, size);
+}
+
+/**
+ * Sets the parameter stepsize.
+ *
+ * @param [in] model     the model
+ * @param [in] stepsize  the stepsize
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if the stepsize is less than or equal to zero.
+ */
+int gmcmc_model_set_stepsize(gmcmc_model * model, double stepsize) {
+  if (islessequal(stepsize, 0.0))
+    GMCMC_ERROR("Invalid stepsize", GMCMC_EINVAL);
+  model->stepsize = stepsize;
+  return 0;
+}
+
+/**
+ * Gets the parameter stepsize.
+ *
+ * @param [in] model  the model
+ *
+ * @return the parameter stepsize.
+ */
+double gmcmc_model_get_stepsize(const gmcmc_model * model) {
+  return model->stepsize;
+}
 
 /**
  * Stores a pointer to any model-specific data and functions in the model.

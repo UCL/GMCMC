@@ -34,7 +34,7 @@
     } \
   } while (false)
 
-static void calculate_Q_matrix(const double *, double *, size_t);
+static void calculate_Q_matrix(const double *, size_t, double *, size_t);
 
 int main(int argc, char * argv[]) {
   const char * outputID = NULL; // output file
@@ -128,7 +128,7 @@ int main(int argc, char * argv[]) {
 #ifdef LOG10SPACE
   // Set up priors for log space
   for (int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create(&priors[i], gmcmc_distribution_uniform, -2.0, 4.0)) != 0) {
+    if ((error = gmcmc_distribution_create_uniform(&priors[i], -2.0, 4.0)) != 0) {
       // Clean up
       for (int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);
@@ -142,7 +142,7 @@ int main(int argc, char * argv[]) {
 #else
   // Set up priors for standard space
   for (int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create(&priors[i], gmcmc_distribution_uniform, 0.0, 10000.0)) != 0) {
+    if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.0, 10000.0)) != 0) {
       // Clean up
       for (int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);
@@ -157,7 +157,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_dataset * dataset;
-  if ((error = gmcmc_dataset_load_matlab(&dataset, "ION_dCK_0,5s.mat")) != 0) {
+  if ((error = gmcmc_dataset_create_matlab(&dataset, "ION_dCK_0,5s.mat")) != 0) {
     // Clean up
     for (int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -169,7 +169,7 @@ int main(int argc, char * argv[]) {
   }
 
   // Create the model
-  if ((error = gmcmc_model_create(&model, dataset, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
+  if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
     // Clean up
     for (int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -280,7 +280,7 @@ int main(int argc, char * argv[]) {
   /*
    * Call main population MCMC routine using MPI
    */
-  error = gmcmc_popmcmc_mpi(&mcmc_options, model, rng);
+  error = gmcmc_popmcmc_mpi(&mcmc_options, model, dataset, rng);
 
   // Clean up (dataset, priors, model, rng)
   for (int i = 0; i < num_params; i++)
@@ -297,7 +297,7 @@ int main(int argc, char * argv[]) {
   return error;
 }
 
-static void calculate_Q_matrix(const double * params, double * Q, size_t ldq) {
+static void calculate_Q_matrix(const double * params, size_t num_params, double * Q, size_t ldq) {
   // Rename for clarity
 #ifdef LOG10SPACE
   double K_1   = pow(10.0, params[0]);
