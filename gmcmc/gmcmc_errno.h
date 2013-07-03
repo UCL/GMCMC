@@ -24,10 +24,8 @@
 #define GMCMC_EIPC 4
 /** BLAS/LAPACK error */
 #define GMCMC_ELINAL 5
-/** Floating point exception */
-#define GMCMC_EFP 6
-/** Error with prior definition */
-#define GMCMC_EPRIOR 7
+/** Invalid value returned from mathematical function */
+#define GMCMC_ERANGE 6
 
 /**
  * Maps Geometric MCMC error codes to textual descriptions.

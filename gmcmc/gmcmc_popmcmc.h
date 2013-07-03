@@ -8,28 +8,93 @@
 #ifndef GMCMC_POPMCMC_H
 #define GMCMC_POPMCMC_H
 
-#include <stdbool.h>
 #include <gmcmc/gmcmc_model.h>
 #include <gmcmc/gmcmc_dataset.h>
 
 /**
+ * Iteration type.
+ */
+typedef enum {
+  GMCMC_BURN_IN,
+  GMCMC_POSTERIOR
+} GMCMC_ITERATION;
+
+/**
  * MCMC simulation options.
  */
-typedef struct {
-  const char * outputID;                /**< Output file base name */
-  bool save_burn_in;                    /**< Whether or not to save samples from burn-in */
-  unsigned int num_temps;               /**< Number of temperatures for population MCMC */
-  const double * temperatures;          /**< Population MCMC temperature scale */
-  unsigned long num_burn_in_samples;    /**< Number of samples required to burn-in the sampler */
-  unsigned long num_posterior_samples;  /**< Number of posterior samples to simulate after burn-in */
-  unsigned long posterior_save_size;    /**< How often to write the posterior samples to file */
-  double adapt_rate;                    /**< Step size adapt rate */
-  double upper;                         /**< Upper bound for step size */
-  double lower;                         /**< Lower bound for step size */
+typedef struct gmcmc_popmcmc_options {
+  /**
+   * The number of posterior samples to simulate after burn in.
+   */
+  size_t num_posterior_samples;
+
+  /**
+   * The number of samples required to burn in the sampler.
+   */
+  size_t num_burn_in_samples;
+
+  /**
+   * The temperature scale for the population MCMC algorithm.  One Markov chain
+   * is run in each temperature.
+   */
+  const double * temperatures;
+
+  /**
+   * The number of temperatures in the temperature scale.
+   */
+  unsigned int num_temperatures;
+
+  /**
+   * How often to adapt the step sizes.  Set to 1 for every iteration.
+   */
+  unsigned int adapt_rate;
+
+  /**
+   * Upper bound for step sizes.
+   */
+  double upper_step_size;
+
+  /**
+   * Lower bound for step sizes.
+   */
+  double lower_step_size;
+
+  /**
+   * If this function is not NULL it is called every adapt_rate iterations to
+   * report the current mutation and exchange acceptance ratios for each chain
+   * along with the current step size.  The step size only changes during the
+   * burn in stage.
+   *
+   * @param [in] options    the simulation options
+   * @param [in] model      the model
+   * @param [in] iteration  whether this is a burn in or posterior iteration
+   * @param [in] i          the current iteration
+   * @param [in] mutation   the mutation acceptance ratios for each temperature
+   * @param [in] exchange   the exchange acceptance ratios for each temperature
+   * @param [in] stepsize   the new step sizes for each temperature
+   */
+  void (*acceptance)(const struct gmcmc_popmcmc_options *, const gmcmc_model *,
+                     GMCMC_ITERATION, size_t, const double *, const double *,
+                     const double *);
+
+  /**
+   * Function to call to write the current sample to a file.  May be NULL to not
+   * save any samples.
+   *
+   * @param [in] i               the current iteration
+   * @param [in] j               the current chain
+   * @param [in] params          the current parameter values
+   * @param [in] log_prior       the corresponding log prior
+   * @param [in] log_likelihood  the corresponding log likelihood
+   *
+   * @return 0 on success, non-zero on failure.
+   */
+  int (*write)(size_t, size_t, const double *, const double *, double);
+
 } gmcmc_popmcmc_options;
 
 /**
- * Performs a population MCMC simulation in parallel using MPI.
+ * Performs a population MCMC simulation sequentially using a single CPU thread.
  *
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation
@@ -38,6 +103,36 @@ typedef struct {
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *, const gmcmc_dataset *, const gmcmc_prng64 *);
+int gmcmc_popmcmc(const gmcmc_popmcmc_options *, const gmcmc_model *,
+                  const gmcmc_dataset *, const gmcmc_prng64 *);
+
+/**
+ * Performs a population MCMC simulation in parallel using OpenMP to update all
+ * the chains in parallel.
+ *
+ * @param [in] options  MCMC options struct
+ * @param [in] model    the model to use in the simulation
+ * @param [in] data     the data to use in the simulation
+ * @param [in] rng      a parallel RNG to use
+ *
+ * @return 0 on success, non-zero on error.
+ */
+int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options *, const gmcmc_model *,
+                      const gmcmc_dataset *, const gmcmc_prng64 *);
+
+/**
+ * Performs a population MCMC simulation in parallel using MPI to update all
+ * the chains in parallel.  All callback functions are executed on the node
+ * with rank 0.
+ *
+ * @param [in] options  MCMC options struct
+ * @param [in] model    the model to use in the simulation
+ * @param [in] data     the data to use in the simulation
+ * @param [in] rng      a parallel RNG to use
+ *
+ * @return 0 on success, non-zero on error.
+ */
+int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *,
+                      const gmcmc_dataset *, const gmcmc_prng64 *);
 
 #endif /* GMCMC_POPMCMC_H */

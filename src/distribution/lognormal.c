@@ -8,7 +8,7 @@
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <math.h>
-#include "util.c"
+#include "randn.c"
 
 // sqrt(2.0 * M_PI)
 #define M_SQRT2PI 2.50662827463100050241

@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <getopt.h>
 
 #include <mpi.h>
+
+#include <mat.h>
+#include <matrix.h>
 
 #include <gmcmc/gmcmc_errno.h>
 #include <gmcmc/gmcmc_model.h>
@@ -36,85 +38,68 @@
 
 static void calculate_Q_matrix(const double *, size_t, double *, size_t);
 
-int main(int argc, char * argv[]) {
-  const char * outputID = NULL; // output file
+static void acceptance_monitor(const gmcmc_popmcmc_options *, const gmcmc_model *,
+                               GMCMC_ITERATION, size_t, const double *,
+                               const double *, const double *);
+static int write_matlab(size_t, size_t, const double *, const double *, double);
 
+int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
   MPI_ERROR_CHECK(MPI_Init(&argc, &argv), "Failed to initialise MPI");
 
-  // Process command line arguments
-  struct option options[] = {
-    { "output", required_argument, NULL, 'o' },
-    { NULL,     0,                 NULL,  0  }
-  };
-
-  int c, index;
-  while ((c = getopt_long(argc, argv, "o:", options, &index)) != -1) {
-    switch (c) {
-      case 'o':
-        if (optarg == NULL) {
-          fputs("Option \"output\" requires an argument\n", stderr);
-          return -index;
-        }
-        outputID = optarg;
-        break;
-      default:
-        fprintf(stderr, "Unknown option '%c'\n", c);
-        return -index;
-    }
-  }
-
-  if (outputID == NULL) {
-    fprintf(stderr, "Usage:\n\t%s -o|--output=<filename>\nwhere:\n\t<filename> is a file to save the samples in\n", argv[0]);
+  if (argc < 2) {
+    fprintf(stderr, "Usage:\n\t%s <filename>\nwhere:\n\t<filename> is a file to save the samples in\n", argv[0]);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -1;
   }
+
+  // Output file
+  char * outputID = argv[1];
+
+  // Handle MPI errors ourselves
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
   /*
    * Set up MCMC options
    */
   gmcmc_popmcmc_options mcmc_options;
 
-  // Set output file for saving samples
-  mcmc_options.outputID = outputID;
-
-  // Decide whether to save burn-in
-  mcmc_options.save_burn_in = true;
-
   // Set number of tempered distributions to use
-  mcmc_options.num_temps = 10;
+  mcmc_options.num_temperatures = 10;
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
   // process needs but there isn't necessarily going to be a 1-1 mapping of
   // processes to temperatures so initialise them all here just in case.
-  double * temperatures = malloc(mcmc_options.num_temps * sizeof(double));
+  double * temperatures = malloc(mcmc_options.num_temperatures * sizeof(double));
   if (temperatures == NULL) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     fputs("Unable to allocate temperature schedule\n", stderr);
     return -2;
   }
-  for (int i = 0; i < mcmc_options.num_temps; i++)
-    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temps - 1.0)), 5.0);
+  for (int i = 0; i < mcmc_options.num_temperatures; i++)
+    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
   mcmc_options.temperatures = temperatures;
 
-  // Set number of burn-in and posterior samples, and how often to save
+  // Set number of burn-in and posterior samples
   mcmc_options.num_burn_in_samples   = 1000;
   mcmc_options.num_posterior_samples = 1000;
-  mcmc_options.posterior_save_size   = 1000;
 
   // Set iteration interval for adapting stepsizes
-  mcmc_options.adapt_rate = 50;
-  mcmc_options.upper      = 0.5;
-  mcmc_options.lower      = 0.2;
+  mcmc_options.adapt_rate      =  50;
+  mcmc_options.upper_step_size =   0.5;
+  mcmc_options.lower_step_size =   0.2;
+
+  // Callbacks
+  mcmc_options.acceptance = acceptance_monitor;
+  mcmc_options.write = write_matlab;
 
   int error;
 
   /*
    * Common model settings
    */
-  gmcmc_model * model;
-
   const unsigned int num_params = 4;
 
   // Set up priors for each of the parameters
@@ -169,6 +154,7 @@ int main(int argc, char * argv[]) {
   }
 
   // Create the model
+  gmcmc_model * model;
   if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
     // Clean up
     for (int i = 0; i < num_params; i++)
@@ -254,6 +240,11 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, ion_model);
 
+  /**
+   * Open the burn in and posterior sample files
+   */
+
+
   /*
    * Create a parallel random number generator to use
    */
@@ -282,10 +273,7 @@ int main(int argc, char * argv[]) {
    */
   error = gmcmc_popmcmc_mpi(&mcmc_options, model, dataset, rng);
 
-  // Clean up (dataset, priors, model, rng)
-  for (int i = 0; i < num_params; i++)
-    gmcmc_distribution_destroy(priors[i]);
-  free(priors);
+  // Clean up (dataset, model, rng)
   free(temperatures);
   gmcmc_dataset_destroy(dataset);
   gmcmc_model_destroy(model);
@@ -321,7 +309,43 @@ static void calculate_Q_matrix(const double * params, size_t num_params, double 
   Q[ldq + 1] = -K_2 - Beta;
   Q[ldq + 2] = Alpha;
 
-  Q[2 * ldq + 0] = Beta;
+  Q[2 * ldq + 0] =  0.0;
   Q[2 * ldq + 1] = Beta;
   Q[2 * ldq + 2] = -Alpha;
+}
+
+static void acceptance_monitor(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
+                               GMCMC_ITERATION iteration, size_t i, const double * accepts,
+                               const double * exchanges, const double * stepsizes) {
+  if (iteration == GMCMC_BURN_IN) {
+    fprintf(stderr, "Burn in iteration: %zu of %zu\n\n", i, options->num_burn_in_samples);
+
+    // Display summary information for each chain
+    fputs("Parameter acceptance rates:\n", stderr);
+    for (size_t j = 0; j < options->num_temperatures; j++)
+      fprintf(stderr, "%15.6f", accepts[j]);
+    fputs("\n\n", stderr);
+
+    fputs("Parameter stepsizes:\n", stderr);
+    for (size_t j = 0; j < options->num_temperatures; j++)
+      fprintf(stderr, "%15.6f", stepsizes[j]);
+    fputs("\n\n", stderr);
+
+    // Display exchange rate
+    fputs("Model parameter exchange ratios:\n", stderr);
+    for (size_t j = 0; j < options->num_temperatures; j++)
+      fprintf(stderr, "%15.6f", exchanges[j]);
+    fputs("\n\n\n", stderr);
+  }
+  else
+    fprintf(stderr, "Posterior iteration: %zu of %zu\n\n", i, options->num_posterior_samples);
+}
+
+static int write_matlab(size_t i, size_t j, const double * params, const double * log_prior, double log_likelihood) {
+  fprintf(stdout, "Iteration %zu, Chain %zu: params = {%15.6f,%15.6f,%15.6f,%15.6f},"
+                  " log_prior = {%15.6f,%15.6f,%15.6f,%15.6f}, log_likelihood = %15.6f\n", i, j,
+                  params[0], params[1], params[2], params[3],
+                  log_prior[0], log_prior[1], log_prior[2], log_prior[3],
+                  log_likelihood);
+  return 0;
 }

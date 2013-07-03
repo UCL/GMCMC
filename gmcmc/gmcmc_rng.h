@@ -139,6 +139,16 @@ static inline double gmcmc_prng64_get_double(const gmcmc_prng64 * rng) {
  */
 
 /**
+ * Single 32-bit Mersenne Twister with period 2^19937.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_mt19937;
+
+/**
+ * Single 64-bit Mersenne Twister with period 2^19937.
+ */
+extern const gmcmc_prng64_type * gmcmc_prng64_mt19937_64;
+
+/**
  * 32 parallel 32-bit Mersenne Twisters with period 2^521.
  */
 extern const gmcmc_prng64_type * gmcmc_prng64_dcmt521;

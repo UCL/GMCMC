@@ -1,22 +1,74 @@
 #include <gmcmc/gmcmc_ion_model.h>
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <math.h>
 #include <cblas.h>
-#include <fenv.h>
+
+#define print_matrix(m, n, A, lda) printm(stderr, #A, m, n, A, lda)
+static inline void printm(FILE * stream, const char * name, size_t m, size_t n, const double * A, size_t lda) {
+  fprintf(stream, "%s\n", name);
+  for (size_t i = 0; i < m; i++) {
+    for (size_t j = 0; j < n; j++)
+      fprintf(stream, "%10.4f", A[j * lda + i]);
+    fputs("\n", stream);
+  }
+}
 
 // External Fortran LAPACK functions
-void dgeev_(const char *, const char *, const int *, const double *, const int *,
-            double *, double *, double *, const int *, double *, const int *,
-            double *, const int *, int *);
-void dgetrf_(const int *, const int *, double *, const int *, int *, int *);
-void dgetri_(const int *, double *, const int *, int *, double *, const int *, int *);
+// Eigenvectors - nonsymmetric
+void dgeevx_(const char *, const char *, const char *, const char *,
+             const int *, double *, const int *, double *, double *,
+             double *, const int *, double *, const int *,
+             int *, int *, double *,
+             double *, double *, double *, double *,
+             const int *, int *, int *);
+// Eigenvectors - symmetric
+void dsyevd_(const char *, const char *, const int *, double *, const int *,
+             double *, double *, const int *, int *, const int *, int *);
+// LU decomposition
+void dgetrf_(const long *, const long *, double *, const long *, long *, long *);
+// Inverse from LU decomposition
+void dgetri_(const long *, double *, const long *, const long *, double *, const long *, long *);
+// Matrix right division
+void dgesv_(const long *, const long *, double *, const long *, long *, double *, const long *, long *);
+
+static inline long clapack_dgetrf(long m, long n, double * A, long lda, long ** ipiv) {
+  long info = 0, min = (m < n) ? m : n;
+  if ((*ipiv = malloc((size_t)min * sizeof(long))) == NULL)
+    return -5;
+  dgetrf_(&m, &n, A, &lda, *ipiv, &info);
+  return info;
+}
+
+static inline long clapack_dgetri(long n, double * A, long lda, const long * ipiv) {
+  long info = 0, lwork = -1;
+  double size, * work;
+  dgetri_(&n, A, &lda, ipiv, &size, &lwork, &info);
+  if (info != 0)
+    return info;
+  lwork = size;
+  if ((work = malloc((size_t)lwork * sizeof(double))) == NULL)
+    return -5;
+  dgetri_(&n, A, &lda, ipiv, work, &lwork, &info);
+  free(work);
+  return info;
+}
+
+static inline long clapack_dgesv(long n, long nrhs, double * A, long lda, double * B, long ldb) {
+  long info = 0, * ipiv;
+  if ((ipiv = malloc(n * sizeof(long))) == NULL)
+    return -5;
+  dgesv_(&n, &nrhs, A, &lda, ipiv, B, &ldb, &info);
+  free(ipiv);
+  return info;
+}
 
 // Forward declarations of utility functions
 static int calculate_specmat_eigenvectors(size_t, const double *, size_t,
                                           double *, double *, size_t);
-static int idealised_transition_probability(size_t, double,
+static int idealised_transition_probability(size_t, size_t, double,
                                             const double *,
                                             const double *, size_t,
                                             const double *, size_t,
@@ -90,7 +142,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
   // Allocate the Q matrix
   double * Q;
   size_t ldq = (num_states + 1u) & ~1u;
-  if ((Q = malloc((num_states) * ldq * sizeof(double))) == NULL)
+  if ((Q = calloc(num_states * ldq, sizeof(double))) == NULL)
     GMCMC_ERROR("Unable to allocate Q matrix", GMCMC_ENOMEM);
 
   // Calculate the Q matrix
@@ -107,16 +159,16 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
    * This is equivalent to:
    *   S = ones(nstates);
    *   eq_states = ones(1, nstates);
-   *   S += Q * Q';             // BLAS DGEMM
-   *   eqstates *= inv(S);      // BLAS DGESV
+   *   S = Q * Q' + S;                  // BLAS DGEMM (S is now symmetric positive-definite)
+   *   eqstates = eq_states * inv(S);   // LAPACK DGESV
    */
   double * S, * eq_states;
   size_t lds = (num_states + 1u) & ~1u;
-  if ((S = malloc((num_states) * lds * sizeof(double))) == NULL) {
+  if ((S = malloc(num_states * lds * sizeof(double))) == NULL) {
     free(Q);
     GMCMC_ERROR("Unable to allocate S", GMCMC_ENOMEM);
   }
-  if ((eq_states = malloc((num_states) * sizeof(double))) == NULL) {
+  if ((eq_states = malloc(num_states * sizeof(double))) == NULL) {
     free(S);
     free(Q);
     GMCMC_ERROR("Unable to allocate eq_states", GMCMC_ENOMEM);
@@ -132,18 +184,15 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
               num_states, num_states, num_states,
               1.0, Q, ldq, Q, ldq, 1.0, S, lds);
 
-  // Check for numerical instability in the inverse
-  feclearexcept(FE_ALL_EXCEPT);
-  cblas_dtrsv(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, num_states,
-                    S, lds, eq_states, 1);
-  if (fetestexcept(FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INVALID) != 0) {
-    free(S);
-    free(Q);
-    free(eq_states);
-    GMCMC_ERROR("Possible numerical instability", GMCMC_EFP);
-  }
+  long info = clapack_dgesv(num_states, 1, S, lds, eq_states, num_states);
 
   free(S);
+
+  if (info != 0) {
+    free(eq_states);
+    free(Q);
+    GMCMC_ERROR("S is singular", GMCMC_ELINAL);
+  }
 
 
   // Split up the Q matrix into its component matrices
@@ -224,7 +273,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
     }
     // Calculate in log space
     for (size_t i = 0; i < ion_model->closed; i++)
-      ll[i] = log10(eq_statesf[i]);
+      ll[i] = log(eq_statesf[i]);
   }
   else {
     // Equilibrium open states
@@ -254,10 +303,10 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
 
     // In closed state, moving to open state
     if (gmcmc_dataset_y(data, i) == 0.0)
-      error = idealised_transition_probability(ion_model->closed, sojourn, Vqff, Q_FA, ldq, SpecMatqff, ldsqff, ll);
+      error = idealised_transition_probability(ion_model->closed, ion_model->open, sojourn, Vqff, Q_FA, ldq, SpecMatqff, ldsqff, ll);
     // In open state, moving to closed state
     else
-      error = idealised_transition_probability(ion_model->open, sojourn, Vqaa, Q_AF, ldq, SpecMatqaa, ldsqaa, ll);
+      error = idealised_transition_probability(ion_model->open, ion_model->closed, sojourn, Vqaa, Q_AF, ldq, SpecMatqaa, ldsqaa, ll);
 
     if (error != 0) {
       free(Q);
@@ -281,7 +330,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
   // Actually all this unit vector multiplication does is sum the likelihood
 
   // Sum the log-likelihood terms
-  if (gmcmc_dataset_y(data, 0) == 0.0)
+  if (gmcmc_dataset_y(data, gmcmc_dataset_size(data) - 1) == 0.0)
     *likelihood = log_sum(ion_model->closed, ll);
   else
     *likelihood = log_sum(ion_model->open, ll);
@@ -348,7 +397,7 @@ static int comparator(const void * x, const void * y) {
   a = *(double*)x;
   b = *(double*)y;
 
-  return (a < b) ? 1 : ((a == b) ? 0 : -1);
+  return isless(a, b) ? 1 : ((a == b) ? 0 : -1);
 }
 
 /**
@@ -374,7 +423,7 @@ static double log_sum(size_t n, double * x) {
 
   // Do normal sum
   double sum = 0.0;
-  for (size_t i = 0; i < n; i++)
+  for (size_t i = 1; i < n; i++)
     sum += exp(x[i] - x[0]);
 
   return x[0] + log(1.0 + sum);
@@ -394,43 +443,102 @@ static double log_sum(size_t n, double * x) {
  *         GMCMC_ENOMEM if temporary workspace variables could not be calculated,
  *         GMCMC_ELINAL if the eigenvectors of Q could not be calculated.
  */
-static int eig(size_t n, const double * Q, size_t ldq, double * V, double * X, size_t ldx) {
-  double * wi, * work, size;
-  int ldvl = 1, lwork = -1, info = 0;
-
-  // Create a copy of Q so it is not overwritten by the dgeev routine
-  double * P;
-  size_t ldp = (n + 1u) & ~1u;
-  if ((P = malloc(n * ldp * sizeof(double))) == NULL)
-    GMCMC_ERROR("Unable to allocate temporary matrix", GMCMC_ENOMEM);
-  for (size_t j = 0; j < n; j++)
-    memcpy(&P[j * ldp], &Q[j * ldq], n * sizeof(double));
-
-  // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
-  dgeev_("N", "V", (const int *)&n, P, (const int *)&ldp, V, NULL, NULL, &ldvl, X, (const int *)&ldx, &size, &lwork, &info);
-  if (info != 0) {
-    free(P);
-    GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
+static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, size_t ldx) {
+  bool symmetric = true;
+  for (size_t j = 0; j < n && symmetric; j++) {
+    for (size_t i = 0; i < n; i++) {
+      if (Q[j * ldq + i] != Q[i * ldq + j]) {
+        symmetric = false;
+        break;
+      }
+    }
   }
-  lwork = size;
 
-  // Allocate workspace and a temporary vector to store the (possible) imaginary parts of the eigenvalues
-  if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
-    free(P);
-    GMCMC_ERROR("Unable to allocate eig workspace", GMCMC_ENOMEM);
-  }
-  if ((wi = malloc(n * sizeof(double))) == NULL) {
-    free(P);
+  int info = 0;
+
+  if (symmetric) {
+    double * work, size;
+    int lwork = -1, * iwork, isize, liwork = -1;
+
+    // Create a copy of Q so it is not overwritten by the dsyevd routine
+    for (int j = 0; j < n; j++)
+      memcpy(&X[j * ldx], &Q[j * ldq], n * sizeof(double));
+
+    // Calculate workspace size
+    dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, &size, &lwork, &isize, &liwork, &info);
+
+    // Allocate workspace
+    lwork = size;
+    liwork = isize;
+    if ((work = malloc(lwork * sizeof(double))) == NULL)
+      GMCMC_ERROR("Unable to allocate work", GMCMC_ENOMEM);
+    if ((iwork = malloc(liwork * sizeof(int))) == NULL) {
+      free(work);
+      GMCMC_ERROR("Unable to allocate iwork", GMCMC_ENOMEM);
+    }
+
+    // Calculate eigenvalues and (right) eigenvectors
+    dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, work, &lwork, iwork, &liwork, &info);
+
     free(work);
-    GMCMC_ERROR("Unable to allocate temporary vector", GMCMC_ENOMEM);
+    free(iwork);
   }
+  else {
+    double * work, size;
+    int lwork = -1, one = 1, ilo, ihi, * iwork;
 
-  // Calculate the eigenvalues and (right) eigenvectors
-  dgeev_("N", "V", (const int *)&n, P, (const int *)&ldp, V, wi, NULL, &ldvl, X, (const int *)&ldx, work, &lwork, &info);
+    // Create a copy of Q so it is not overwritten by the dgeev routine
+    double * A, * wi, * scale, abnrm, rconde, rcondv;
+    size_t lda = (n + 1u) & ~1u;
+    if ((A = malloc(lda * n * sizeof(double))) == NULL)
+      GMCMC_ERROR("Unable to allocate A", GMCMC_ENOMEM);
+    if ((wi = malloc(n * sizeof(double))) == NULL) {
+      free(A);
+      GMCMC_ERROR("Unable to allocate wi", GMCMC_ENOMEM);
+    }
+    if ((scale = malloc(n * sizeof(double))) == NULL) {
+      free(wi);
+      free(A);
+      GMCMC_ERROR("Unable to allocate scale", GMCMC_ENOMEM);
+    }
+    if ((iwork = malloc((2 * n - 2) * sizeof(int))) == NULL) {
+      free(scale);
+      free(wi);
+      free(A);
+      GMCMC_ERROR("Unable to allocate iwork", GMCMC_ENOMEM);
+    }
+    for (size_t j = 0; j < n; j++)
+      memcpy(&A[j * lda], &Q[j * ldq], n * sizeof(double));
 
-  free(P);
-  free(wi);
-  free(work);
+    // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
+    dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, &size, &lwork, iwork, &info);
+    if (info != 0) {
+      free(iwork);
+      free(scale);
+      free(wi);
+      free(A);
+      GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
+    }
+    lwork = size;
+
+    // Allocate workspace and a temporary vector to store the (possible) imaginary parts of the eigenvalues
+    if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
+      free(iwork);
+      free(scale);
+      free(wi);
+      free(A);
+      GMCMC_ERROR("Unable to allocate eig workspace", GMCMC_ENOMEM);
+    }
+
+    // Calculate the eigenvalues and (right) eigenvectors
+    dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, work, &lwork, iwork, &info);
+
+    free(work);
+    free(iwork);
+    free(scale);
+    free(wi);
+    free(A);
+  }
 
   if (info != 0)
     GMCMC_ERROR("Failed to calculate eigenvalues", GMCMC_ELINAL);
@@ -460,40 +568,16 @@ static int inv(size_t n, const double * A, size_t lda, double * B, size_t ldb) {
   for (size_t j = 0; j < n; j++)
     memcpy(&B[j * ldb], &A[j * lda], n * sizeof(double));
 
-  // Pivot array
-  int * ipiv, info = 0;
-  if ((ipiv = malloc(n * sizeof(int))) == NULL)
-    GMCMC_ERROR("Unable to allocate pivot array", GMCMC_ENOMEM);
-
   // Calculate the LU decomposition of B
-  dgetrf_((const int *)&n, (const int *)&n, B, (const int *)&ldb, ipiv, &info);
-  if (info != 0) {
-    free(ipiv);
+  long * ipiv;
+  long info = clapack_dgetrf(n, n, B, ldb, &ipiv);
+  if (info != 0)
     GMCMC_ERROR("Unable to calculate LU decomposition", GMCMC_ELINAL);
-  }
-
-  // Calling DGETRI with lwork = -1 causes it to return the optimal workspace size in work[0]
-  double size;
-  int lwork = -1;
-  dgetri_((const int *)&n, NULL, (const int *)&ldb, NULL, &size, &lwork, &info);
-  if (info != 0) {
-    free(ipiv);
-    GMCMC_ERROR("Unable to calculate optimal workspace size", GMCMC_ELINAL);
-  }
-
-  // Allocate the workspace
-  lwork = (int)size;
-  double * work;
-  if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
-    free(ipiv);
-    GMCMC_ERROR("Unable to allocate workspace", GMCMC_ENOMEM);
-  }
 
   // Calculate the inverse
-  dgetri_((const int *)&n, B, (const int *)&ldb, ipiv, work, &lwork, &info);
+  info = clapack_dgetri(n, B, ldb, ipiv);
 
   free(ipiv);
-  free(work);
 
   if (info != 0)
     GMCMC_ERROR("Unable to calculate inverse", GMCMC_ELINAL);
@@ -508,7 +592,7 @@ static int inv(size_t n, const double * A, size_t lda, double * B, size_t ldb) {
  * @param [in]  Q    the Q (sub)matrix detailing the transitions between
  *                     closed or open states
  * @param [in]  ldq  the leading dimension of Q
- * @param [out] V    the eigenvalues of Q are placed in here (length n)
+ * @param [out] v    the eigenvalues of Q are placed in here (length n)
  * @param [out] S    an array of spectral matrices to populate (n * n * lds)
  * @param [in]  lds  the leading dimension of S
  *
@@ -519,7 +603,7 @@ static int inv(size_t n, const double * A, size_t lda, double * B, size_t ldb) {
  *                      inverse.
  */
 static int calculate_specmat_eigenvectors(size_t n, const double * Q, size_t ldq,
-                                          double * V, double * S, size_t lds) {
+                                          double * v, double * S, size_t lds) {
   // Calculate spectral matrices and eigenvectors of current Q
 
   // [ X V ] = eig(Q);
@@ -529,7 +613,7 @@ static int calculate_specmat_eigenvectors(size_t n, const double * Q, size_t ldq
   int error;
   if ((X = malloc(n * ldx * sizeof(double))) == NULL)
     GMCMC_ERROR("Unable to allocate temporary variable X", GMCMC_ENOMEM);
-  if ((error = eig(n, Q, ldq, V, X, ldx)) != 0) {
+  if ((error = eig(n, Q, ldq, v, X, ldx)) != 0) {
     free(X);
     GMCMC_ERROR("Unable to calculate eigenvalues of Q", error);
   }
@@ -547,21 +631,14 @@ static int calculate_specmat_eigenvectors(size_t n, const double * Q, size_t ldq
     GMCMC_ERROR("Unable to calculate inverse", error);
   }
 
-  // for j = 1:length(EqStates_A)
-  //   SpecMat_Q_AA{j} = X(:,j)*Y(j,:); % Calculate spectral matrices
-  // end
-
-  // This is O(N^4)
   for (size_t k = 0; k < n; k++) {
     double * Spec = &S[k * n * lds];            // Current spectral matrix
-    double * x = &X[k * ldx]; size_t incx = 1;  // Current column of X
-    double * y = &Y[k]; size_t incy = ldy;      // Current row of Y
 
-    // Outer product using CBLAS DDOT (dot product)
-    // S(i,j) = \sum_{l=0}^n X(l,j) * Y(j,l)
+    // Outer product
+    // S(i,j) = X(k,j) * Y(i,k)
     for (size_t j = 0; j < n; j++) {
       for (size_t i = 0; i < n; i++)
-        Spec[j * lds + i] = cblas_ddot(n, x, incx, y, incy);
+        Spec[j * lds + i] = X[j * ldx + k] * Y[k * ldy + i];    // Calculate spectral matrices
     }
   }
 
@@ -575,58 +652,54 @@ static int calculate_specmat_eigenvectors(size_t n, const double * Q, size_t ldq
  * Calculate the idealised transition probability from closed to open or
  * vice-versa.
  *
- * @param [in]     n        the number of equilibrium states
+ * @param [in]     m        the number of equilibrium states in the current state
+ * @param [in]     n        the number of equilibrium states in the new state
  * @param [in]     sojourn  the time difference between this data point and the next
- * @param [in]     v        the eigenvalues of the Q matrix
- * @param [in]     Q        the Q (sub)matrix
- * @param [in]     ldq      the leading dimension of the Q matrix
- * @param [in]     SpecMat  the spectral matrices
+ * @param [in]     v        the eigenvalues of the Q transition submatrix matrix (length m)
+ * @param [in]     Q        the Q transition submatrix (m by n)
+ * @param [in]     ldq      the leading dimension of Q
+ * @param [in]     SpecMat  the spectral matrices (m of m by m)
  * @param [in]     lds      the leading dimension of the spectral matrices
- * @param [in,out] ll       the log likelihood
+ * @param [in,out] ll       the log likelihood (length m)
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enought memory to allocate temporary matrices,
  *         GMCMC_ELINAL if there was an error in a linear algebra library routine
  */
-static int idealised_transition_probability(size_t n, double sojourn,
-                                            const double * v,
+static int idealised_transition_probability(size_t m, size_t n,
+                                            double sojourn, const double * v,
                                             const double * Q, size_t ldq,
                                             const double * SpecMat, size_t lds,
                                             double * ll) {
+  // G_FA = zeros(length(EqStates_F));
   double * G;
-  size_t ldg = (n + 1u) & ~1u;
-  if ((G = malloc(n * ldg * sizeof(double))) == NULL)
+  size_t ldg = (m + 1u) & ~1u;
+  if ((G = calloc(m * ldg, sizeof(double))) == NULL)
     GMCMC_ERROR("Unable to allocate G", GMCMC_ENOMEM);
-
-  // G = zeros(length(EqStates));
-  for (size_t j = 0; j < n; j++) {
-    for (size_t i = 0; i < n; i++)
-      G[j * ldg + i] = 0.0;
-  }
 
   // for j = 1:length(EqStates_F)
   //   G_FA = G_FA + exp( V_Q_FF(j)*Sojourn ).*SpecMat_Q_FF{j};
   // end
-  for (size_t k = 0; k < n; k++) {
-    const double * S = &SpecMat[k * n * lds]; // Current spectral matrix
+  for (size_t k = 0; k < m; k++) {
+    const double * S = &SpecMat[k * m * lds]; // Current spectral matrix
     double alpha = exp(v[k] * sojourn);
-    for (size_t j = 0; j < n; j++) {
-      for (size_t i = 0; i < n; i++)
+    for (size_t j = 0; j < m; j++) {
+      for (size_t i = 0; i < m; i++)
         G[j * ldg + i] += alpha * S[j * lds + i];
     }
   }
 
   // G_FA = G_FA*Q_FA
   // In-place matrix multiply: A = AB
-  // Need temporary matrix T to hold updates without modifying G so we can use
-  // CBLAS out-of-place DGEMM
+  // Need temporary matrix T to hold G_FA*Q_FA without modifying G_FA so we can use
+  // CBLAS DGEMM
   double * T;
-  size_t ldt = (n + 1u) & ~1u;
+  size_t ldt = (m + 1u) & ~1u;
   if ((T = malloc(n * ldt * sizeof(double))) == NULL) {
     free(G);
     GMCMC_ERROR("Unable to allocate temporary matrix", GMCMC_ENOMEM);
   }
-  cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, n, n, n, 1.0, G, ldg, Q, ldq, 0.0, T, ldt);
+  cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, m, n, m, 1.0, G, ldg, Q, ldq, 0.0, T, ldt);
 
   /*
    * Logarithmic update.
@@ -634,8 +707,14 @@ static int idealised_transition_probability(size_t n, double sojourn,
   // Calculate log(L*G) in terms of LL = log(L) and G
 
   // Do element-wise logarithmic calculation
-  double * temp;
-  if ((temp = calloc(n, sizeof(double))) == NULL) {
+  double * temp, * new_ll;
+  if ((temp = malloc(m * sizeof(double))) == NULL) {
+    free(T);
+    free(G);
+    GMCMC_ERROR("Failed to allocate temporary array", GMCMC_ENOMEM);
+  }
+  if ((new_ll = malloc(n * sizeof(double))) == NULL) {
+    free(temp);
     free(T);
     free(G);
     GMCMC_ERROR("Failed to allocate temporary array", GMCMC_ENOMEM);
@@ -643,13 +722,15 @@ static int idealised_transition_probability(size_t n, double sojourn,
 
   for (size_t j = 0; j < n; j++) {
     /* Multiply row by column in log - i.e. sum! */
-    for (size_t i = 0; i < n; i++)
-      temp[i] = ll[i] + log(T[j * ldt + i]);
+    for (size_t i = 0; i < m; i++)
+      temp[i] = ll[i] + log(T[j * ldt + i]);    // T contains G_FA and we want log(G_FA) here
 
-    ll[j] = log_sum(n, temp);
+    new_ll[j] = log_sum(m, temp);
   }
+  memcpy(ll, new_ll, n * sizeof(double));
 
   // Cleanup
+  free(new_ll);
   free(temp);
   free(T);
   free(G);

@@ -125,7 +125,7 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model *, size_t);
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_proposal(const gmcmc_model *, double, const void *, const double *, size_t, double, double, double *, double *, size_t);
+int gmcmc_proposal(const gmcmc_model *, double, const void *, const double *, size_t, double, double, double *, double *, size_t);
 
 /**
  * Calculates the likelihood of the data given the model and parameters.
@@ -140,7 +140,7 @@ int gmcmc_model_proposal(const gmcmc_model *, double, const void *, const double
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, size_t, double *, void **, size_t *);
+int gmcmc_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, size_t, double *, void **, size_t *);
 
 /**
  * Sets the parameter stepsize.

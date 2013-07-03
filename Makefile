@@ -6,13 +6,14 @@ all: libgmcmc.so examples #test
 # 	cd test && $(MAKE)
 
 clean:
+	rm -f libgmcmc.so
 	cd src && $(MAKE) clean
 	cd examples && $(MAKE) clean
 # 	cd test && $(MAKE) clean
-	rm -f libgmcmc.so
 
 libgmcmc.so:
 	cd src && $(MAKE)
+	ln -s src/libgmcmc.so libgmcmc.so
 
 examples: libgmcmc.so
 	cd examples && $(MAKE)

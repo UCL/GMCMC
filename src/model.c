@@ -151,7 +151,7 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_proposal(const gmcmc_model * model, double log_likelihood, const void * serdata, const double * params, size_t n, double temperature, double stepsize, double * mean, double * covariance, size_t ldc) {
+int gmcmc_proposal(const gmcmc_model * model, double log_likelihood, const void * serdata, const double * params, size_t n, double temperature, double stepsize, double * mean, double * covariance, size_t ldc) {
   return model->proposal(log_likelihood, serdata, params, n, temperature, stepsize, mean, covariance, ldc);
 }
 
@@ -168,7 +168,7 @@ int gmcmc_model_proposal(const gmcmc_model * model, double log_likelihood, const
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_model_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params, size_t n, double * log_likelihood, void ** serdata, size_t * size) {
+int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params, size_t n, double * log_likelihood, void ** serdata, size_t * size) {
   return model->likelihood(data, model, params, n, log_likelihood, serdata, size);
 }
 

@@ -20,7 +20,7 @@ const char * gmcmc_strerror(int errno) {
     case GMCMC_EIO:    return "Input/Output error";
     case GMCMC_EIPC:   return "IPC error";
     case GMCMC_ELINAL: return "BLAS/LAPACK error";
-    case GMCMC_EFP:    return "Floating point exception";
+    case GMCMC_ERANGE: return "Invalid value returned from mathematical function";
     default:           return "Unknown error";
   }
 }

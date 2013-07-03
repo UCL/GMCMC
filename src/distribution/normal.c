@@ -8,7 +8,7 @@
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <math.h>
-#include "util.c"
+#include "randn.c"
 
 typedef struct {
   double mean, stddev;
