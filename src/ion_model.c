@@ -444,46 +444,46 @@ static double log_sum(size_t n, double * x) {
  *         GMCMC_ELINAL if the eigenvectors of Q could not be calculated.
  */
 static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, size_t ldx) {
-  bool symmetric = true;
-  for (size_t j = 0; j < n && symmetric; j++) {
-    for (size_t i = 0; i < n; i++) {
-      if (Q[j * ldq + i] != Q[i * ldq + j]) {
-        symmetric = false;
-        break;
-      }
-    }
-  }
+//   bool symmetric = true;
+//   for (size_t j = 0; j < n && symmetric; j++) {
+//     for (size_t i = 0; i < n; i++) {
+//       if (Q[j * ldq + i] != Q[i * ldq + j]) {
+//         symmetric = false;
+//         break;
+//       }
+//     }
+//   }
 
   int info = 0;
 
-  if (symmetric) {
-    double * work, size;
-    int lwork = -1, * iwork, isize, liwork = -1;
-
-    // Create a copy of Q so it is not overwritten by the dsyevd routine
-    for (int j = 0; j < n; j++)
-      memcpy(&X[j * ldx], &Q[j * ldq], n * sizeof(double));
-
-    // Calculate workspace size
-    dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, &size, &lwork, &isize, &liwork, &info);
-
-    // Allocate workspace
-    lwork = size;
-    liwork = isize;
-    if ((work = malloc(lwork * sizeof(double))) == NULL)
-      GMCMC_ERROR("Unable to allocate work", GMCMC_ENOMEM);
-    if ((iwork = malloc(liwork * sizeof(int))) == NULL) {
-      free(work);
-      GMCMC_ERROR("Unable to allocate iwork", GMCMC_ENOMEM);
-    }
-
-    // Calculate eigenvalues and (right) eigenvectors
-    dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, work, &lwork, iwork, &liwork, &info);
-
-    free(work);
-    free(iwork);
-  }
-  else {
+//   if (symmetric) {
+//     double * work, size;
+//     int lwork = -1, * iwork, isize, liwork = -1;
+//
+//     // Create a copy of Q so it is not overwritten by the dsyevd routine
+//     for (int j = 0; j < n; j++)
+//       memcpy(&X[j * ldx], &Q[j * ldq], n * sizeof(double));
+//
+//     // Calculate workspace size
+//     dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, &size, &lwork, &isize, &liwork, &info);
+//
+//     // Allocate workspace
+//     lwork = size;
+//     liwork = isize;
+//     if ((work = malloc(lwork * sizeof(double))) == NULL)
+//       GMCMC_ERROR("Unable to allocate work", GMCMC_ENOMEM);
+//     if ((iwork = malloc(liwork * sizeof(int))) == NULL) {
+//       free(work);
+//       GMCMC_ERROR("Unable to allocate iwork", GMCMC_ENOMEM);
+//     }
+//
+//     // Calculate eigenvalues and (right) eigenvectors
+//     dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, work, &lwork, iwork, &liwork, &info);
+//
+//     free(work);
+//     free(iwork);
+//   }
+//   else {
     double * work, size;
     int lwork = -1, one = 1, ilo, ihi, * iwork;
 
@@ -538,7 +538,7 @@ static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, s
     free(scale);
     free(wi);
     free(A);
-  }
+//   }
 
   if (info != 0)
     GMCMC_ERROR("Failed to calculate eigenvalues", GMCMC_ELINAL);
@@ -723,7 +723,7 @@ static int idealised_transition_probability(size_t m, size_t n,
   for (size_t j = 0; j < n; j++) {
     /* Multiply row by column in log - i.e. sum! */
     for (size_t i = 0; i < m; i++)
-      temp[i] = ll[i] + log(T[j * ldt + i]);    // T contains G_FA and we want log(G_FA) here
+      temp[i] = ll[i] + log(fabs(T[j * ldt + i]));    // T contains G_FA and we want log(G_FA) here
 
     new_ll[j] = log_sum(m, temp);
   }
