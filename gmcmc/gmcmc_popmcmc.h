@@ -76,20 +76,24 @@ typedef struct gmcmc_popmcmc_options {
   void (*acceptance)(const struct gmcmc_popmcmc_options *, const gmcmc_model *,
                      GMCMC_ITERATION, size_t, const double *, const double *,
                      const double *);
-
   /**
-   * Function to call to write the current sample to a file.  May be NULL to not
-   * save any samples.
-   *
-   * @param [in] i               the current iteration
-   * @param [in] j               the current chain
-   * @param [in] params          the current parameter values
-   * @param [in] log_prior       the corresponding log prior
-   * @param [in] log_likelihood  the corresponding log likelihood
-   *
-   * @return 0 on success, non-zero on failure.
-   */
-  int (*write)(size_t, size_t, const double *, const double *, double);
+  * Stores a sample in a global array that is later written to a Matlab file.
+  *
+  * @param [in] options         the MCMC options
+  * @param [in] model           the model
+  * @param [in] iteration       whether the current iteration is from burn in
+  *                               (GMCMC_BURN_IN) or posterior (GMCMC_POSTERIOR)
+  * @param [in] i               the current iteration number
+  * @param [in] j               the index on the temperature scale
+  * @param [in] params          the current parameter values
+  * @param [in] log_prior       the log prior of the sample
+  * @param [in] log_likelihood  the log likelihood of the sample
+  *
+  * @return zero on success, non-zero on failure.
+  */
+  int (*write)(const struct gmcmc_popmcmc_options *, const gmcmc_model *,
+               GMCMC_ITERATION, size_t, size_t, const double *, const double *,
+               double);
 
 } gmcmc_popmcmc_options;
 

@@ -2,7 +2,7 @@ MATLAB_HOME = /opt/MATLAB/R2013a
 MATLAB_ARCH = glnxa64
 CC = gcc
 CPPFLAGS = -I../ -I$(MATLAB_HOME)/extern/include
-CFLAGS = -ggdb -std=c99 -pedantic -Wall -march=native -O2 -pipe
+CFLAGS = -ggdb -std=c99 -pedantic -Wall -march=native -pipe
 LDFLAGS = -L.. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH)
 LDLIBS = -lgmcmc -lmx -lmex -lmat

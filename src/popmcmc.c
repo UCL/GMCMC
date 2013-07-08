@@ -302,7 +302,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
       // Write current samples to file
       if (options->write != NULL) {
         for (size_t j = 0; j < num_chains; j++) {
-          if ((error = options->write(i, j, chains[j]->params, chains[j]->log_prior, chains[j]->log_likelihood)) != 0) {
+          if ((error = options->write(options, model, GMCMC_BURN_IN, i, j,
+                                      chains[j]->params, chains[j]->log_prior,
+                                      chains[j]->log_likelihood)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
@@ -360,7 +362,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
       // Write current sample to file
       if (options->write != NULL) {
         for (size_t j = 0; j < num_chains; j++) {
-          if ((error = options->write(i, j, chains[j]->params, chains[j]->log_prior, chains[j]->log_likelihood)) != 0) {
+          if ((error = options->write(options, model, GMCMC_POSTERIOR, i, j,
+                                      chains[j]->params, chains[j]->log_prior,
+                                      chains[j]->log_likelihood)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
