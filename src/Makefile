@@ -2,11 +2,11 @@ MATLAB_HOME = /opt/MATLAB/R2013a
 MATLAB_ARCH = glnxa64
 CC = gcc
 CPPFLAGS = -I../ -I$(MATLAB_HOME)/extern/include
-CFLAGS = -ggdb -std=c99 -pedantic -Wall -march=native -O0 -pipe -fPIC
+CFLAGS = -ggdb -std=c99 -pedantic -Wall -march=native -O0 -pipe -fPIC -fopenmp
 LDFLAGS = -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,--no-undefined -Wl,--export-dynamic -Wl,-soname=libgmcmc.so
-LDLIBS = -lreflapack -lcblas -lblas -lmpi -lopen-rte -lopen-pal -ldl -lnsl -lutil -lmx -lmex -lmat -lstdc++ -lpthread -lm
+LDLIBS = -lreflapack -lcblas -lblas -lgomp -lmpi -lopen-rte -lopen-pal -ldl -lnsl -lutil -lmx -lmex -lmat -lstdc++ -lpthread -lm
 OBJS = dataset/matlab.o \
        distribution/gamma.o distribution/lognormal.o distribution/normal.o distribution/uniform.o \
        rng/mt19937.o rng/mt19937-64.o rng/dcmt521.o rng/dcmt607.o rng/dcmt1279.o rng/dcmt2203.o rng/dcmt2281.o rng/dcmt3217.o rng/dcmt4253.o rng/dcmt4423.o rng/dcmt9689.o \

@@ -187,7 +187,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_dataset * dataset;
-  if ((error = gmcmc_dataset_create_matlab(&dataset, "ION_dCK_0,5s.mat")) != 0) {
+  if ((error = gmcmc_dataset_create_matlab(&dataset, "data/ION_dCK_0,5s.mat")) != 0) {
     // Clean up
     for (int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
