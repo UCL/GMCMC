@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include <getopt.h>
 
 #include <mpi.h>
-
-#include <mat.h>
-#include <matrix.h>
 
 #include <gmcmc/gmcmc_errno.h>
 #include <gmcmc/gmcmc_model.h>
@@ -17,11 +14,11 @@
 #include <gmcmc/gmcmc_dataset.h>
 #include <gmcmc/gmcmc_popmcmc.h>
 
+#include "acceptance.h"
+#include "matlab.h"
+
 // Whether to use log space for parameter values - helps with very small/large values
 #define LOG10SPACE
-
-// How often to save posterior samples
-#define POSTERIOR_SAVE_SIZE 1000
 
 #define MPI_ERROR_CHECK(call, msg) \
   do { \
@@ -50,56 +47,34 @@
  */
 static void calculate_Q_matrix(const double *, size_t, double *, size_t);
 
-/**
- * Acceptance callback.
- *
- * @param [in] options     the MCMC options
- * @param [in] model       the model
- * @param [in] iteration   whether the current iteration is from burn in
- *                           (GMCMC_BURN_IN) or posterior (GMCMC_POSTERIOR)
- * @param [in] i           the iteration number
- * @param [in] acceptance  the acceptance ratios for each temperature
- * @param [in] exchange    the exchange ratios for each temerature
- * @param [in] stepsizes   the step sizes for each temperature
- */
-static void acceptance_monitor(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                               GMCMC_ITERATION, size_t, const double *,
-                               const double *, const double *);
-
-/**
- * Stores a sample in a global array that is later written to a Matlab file.
- *
- * @param [in] options         the MCMC options
- * @param [in] model           the model
- * @param [in] iteration       whether the current iteration is from burn in
- *                               (GMCMC_BURN_IN) or posterior (GMCMC_POSTERIOR)
- * @param [in] i               the current iteration number
- * @param [in] j               the index on the temperature scale
- * @param [in] params          the current parameter values
- * @param [in] log_prior       the log prior of the sample
- * @param [in] log_likelihood  the log likelihood of the sample
- *
- * @return zero on success, non-zero on failure.
- */
-static int write_matlab(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                        GMCMC_ITERATION, size_t, size_t,
-                        const double *, const double *, double);
-
-static const char * outputID;
-
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
   MPI_ERROR_CHECK(MPI_Init(&argc, &argv), "Failed to initialise MPI");
 
-  if (argc < 2) {
-    fprintf(stderr, "Usage:\n\t%s <filename>\nwhere:\n\t<filename> is a file to save the samples in\n", argv[0]);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+  // Default dataset file
+  const char * data_file = "data/ION_dCK_0,5s.mat";
+
+  // Process command line options
+  int c;
+  while ((c = getopt(argc, argv, "d:")) != -1) {
+    switch (c) {
+      case 'd':
+        data_file = optarg;
+        break;
+      default:
+        fprintf(stdout, "Usage: %s [-d <dataset>] output\n", argv[0]);
+        return -1;
+    }
+  }
+
+  if (optind >= argc) {
+    fprintf(stdout, "Usage: %s [-d <dataset>] output\n", argv[0]);
     return -1;
   }
 
   // Output file
-  outputID = argv[1];
+  outputID = argv[optind];
 
   // Handle MPI errors ourselves
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
@@ -122,7 +97,7 @@ int main(int argc, char * argv[]) {
     fputs("Unable to allocate temperature schedule\n", stderr);
     return -2;
   }
-  for (int i = 0; i < mcmc_options.num_temperatures; i++)
+  for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
     temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
   mcmc_options.temperatures = temperatures;
 
@@ -157,10 +132,10 @@ int main(int argc, char * argv[]) {
 
 #ifdef LOG10SPACE
   // Set up priors for log space
-  for (int i = 0; i < num_params; i++) {
+  for (unsigned int i = 0; i < num_params; i++) {
     if ((error = gmcmc_distribution_create_uniform(&priors[i], -2.0, 4.0)) != 0) {
       // Clean up
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);
       free(priors);
       free(temperatures);
@@ -171,10 +146,10 @@ int main(int argc, char * argv[]) {
   }
 #else
   // Set up priors for standard space
-  for (int i = 0; i < num_params; i++) {
+  for (unsigned int i = 0; i < num_params; i++) {
     if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.0, 10000.0)) != 0) {
       // Clean up
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);
       free(priors);
       free(temperatures);
@@ -187,9 +162,9 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_dataset * dataset;
-  if ((error = gmcmc_dataset_create_matlab(&dataset, "data/ION_dCK_0,5s.mat")) != 0) {
+  if ((error = gmcmc_dataset_create_matlab(&dataset, data_file)) != 0) {
     // Clean up
-    for (int i = 0; i < num_params; i++)
+    for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
@@ -202,7 +177,7 @@ int main(int argc, char * argv[]) {
   gmcmc_model * model;
   if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
     // Clean up
-    for (int i = 0; i < num_params; i++)
+    for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
@@ -213,7 +188,7 @@ int main(int argc, char * argv[]) {
   }
 
   // Priors have been copied into model so don't need them here any more
-  for (int i = 0; i < num_params; i++)
+  for (unsigned int i = 0; i < num_params; i++)
     gmcmc_distribution_destroy(priors[i]);
   free(priors);
 
@@ -272,7 +247,7 @@ int main(int argc, char * argv[]) {
   gmcmc_ion_model * ion_model;
   if ((error = gmcmc_ion_model_create(&ion_model, 2, 1, calculate_Q_matrix)) != 0) {
     // Clean up
-    for (int i = 0; i < num_params; i++)
+    for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
@@ -331,6 +306,8 @@ int main(int argc, char * argv[]) {
 }
 
 static void calculate_Q_matrix(const double * params, size_t num_params, double * Q, size_t ldq) {
+  (void)num_params;     // Unused
+
   // Rename for clarity
 #ifdef LOG10SPACE
   double K_1   = pow(10.0, params[0]);
@@ -357,172 +334,4 @@ static void calculate_Q_matrix(const double * params, size_t num_params, double 
   Q[2 * ldq + 0] =  0.0;
   Q[2 * ldq + 1] = Beta;
   Q[2 * ldq + 2] = -Alpha;
-}
-
-static void acceptance_monitor(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
-                               GMCMC_ITERATION iteration, size_t i, const double * accepts,
-                               const double * exchanges, const double * stepsizes) {
-  if (iteration == GMCMC_BURN_IN) {
-    fprintf(stderr, "Burn in iteration: %zu of %zu\n\n", i, options->num_burn_in_samples);
-
-    // Display summary information for each chain
-    fputs("Parameter acceptance rates:\n", stderr);
-    for (size_t j = 0; j < options->num_temperatures; j++)
-      fprintf(stderr, "%15.6f", accepts[j]);
-    fputs("\n\n", stderr);
-
-    fputs("Parameter stepsizes:\n", stderr);
-    for (size_t j = 0; j < options->num_temperatures; j++)
-      fprintf(stderr, "%15.6f", stepsizes[j]);
-    fputs("\n\n", stderr);
-
-    // Display exchange rate
-    fputs("Model parameter exchange ratios:\n", stderr);
-    for (size_t j = 0; j < options->num_temperatures; j++)
-      fprintf(stderr, "%15.6f", exchanges[j]);
-    fputs("\n\n\n", stderr);
-  }
-  else
-    fprintf(stderr, "Posterior iteration: %zu of %zu\n\n", i, options->num_posterior_samples);
-}
-
-static mxArray * create_matlab_array(size_t num_samples, unsigned int num_temperatures, unsigned int num_params) {
-  // Create a Matlab structure array to hold the samples
-  const char * fields[] = { "Paras", "LL", "LogPrior" };
-  mxArray * res = mxCreateStructMatrix(1, num_temperatures, 3, fields);
-  if (res == NULL)
-    GMCMC_ERROR_VAL("Failed to create Matlab structure array", GMCMC_ENOMEM, NULL);
-
-  for (unsigned int j = 0; j < num_temperatures; j++) {
-    // Create arrays for the parameters, log likelihood and log prior
-    mxArray * params = NULL, * log_prior = NULL, * log_likelihood = NULL;
-    if ((params = mxCreateDoubleMatrix(num_samples, num_params, 0)) == NULL ||
-        (log_prior = mxCreateDoubleMatrix(num_samples, num_params, 0)) == NULL ||
-        (log_likelihood = mxCreateDoubleMatrix(num_samples, 1, 0)) == NULL) {
-      mxDestroyArray(params);
-      mxDestroyArray(log_prior);
-      mxDestroyArray(log_likelihood);
-      mxDestroyArray(res);
-      GMCMC_ERROR_VAL("Failed to create parameter, log_prior and log_likelihood arrays", GMCMC_ENOMEM, NULL);
-    }
-
-    // Set the arrays to be part of the struct array
-    mxSetField(res, j, "Paras", params);
-    mxSetField(res, j, "LL", log_likelihood);
-    mxSetField(res, j, "LogPrior", log_prior);
-  }
-
-  return res;
-}
-
-static int write_matlab_field(mxArray * array, const char * name, size_t index, size_t offset, const double * value, size_t size) {
-  mxArray * field;
-  if ((field = mxGetField(array, index, name)) == NULL)
-    GMCMC_ERROR("Failed to get field from Matlab struct", GMCMC_EIO);
-  double * ptr;
-  if ((ptr = mxGetPr(field)) == NULL)
-    GMCMC_ERROR("Failed to get pointer from Matlab array", GMCMC_EIO);
-  memcpy(&ptr[offset * size], value, size * sizeof(double));
-  return 0;
-}
-
-static int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
-                        GMCMC_ITERATION iteration, size_t i, size_t j,
-                        const double * params, const double * log_prior, double log_likelihood) {
-  static mxArray * burn_in = NULL, * posterior = NULL;
-
-  const size_t num_params = gmcmc_model_get_num_params(model);
-
-  if (iteration == GMCMC_BURN_IN) {
-    // Lazily create a Matlab struct-of-arrays big enough to hold all the burn in samples
-    if (burn_in == NULL) {
-      if ((burn_in = create_matlab_array(options->num_burn_in_samples, options->num_temperatures, num_params)) == NULL)
-        GMCMC_ERROR("Failed to create burn in Matlab array", GMCMC_ENOMEM);
-    }
-
-    // Copy the current parameters, log prior and log likelihood into the arrays
-    int error;
-    if ((error = write_matlab_field(burn_in, "Paras", j, i, params, num_params)) != 0 ||
-        (error = write_matlab_field(burn_in, "LogPrior", j, i, log_prior, num_params)) != 0 ||
-        (error = write_matlab_field(burn_in, "LL", j, i, &log_likelihood, 1)) != 0)
-      GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
-
-    // If the arrays are full write them to a file
-    if (i == options->num_burn_in_samples - 1 && j == options->num_temperatures - 1) {
-      // Format the filename for the burn in samples
-      char * filename;
-      size_t outputlen = strlen(outputID) + 22 + floor(log10(options->num_burn_in_samples));
-      if ((filename = malloc(outputlen)) == NULL)
-        GMCMC_ERROR("Failed to allocate space for burn in file name", GMCMC_ENOMEM);
-      snprintf(filename, outputlen, "results/%s_BurnIn_%zu.mat", outputID, options->num_burn_in_samples);
-
-      // Open a Matlab file
-      MATFile * file = matOpen(filename, "w7.3");       // Use HDF5
-      free(filename);
-      if (file == NULL)
-        GMCMC_ERROR("Failed to open Matlab file", GMCMC_EIO);
-
-      // Write the structure array to the file
-      if (matPutVariable(file, "Samples_BurnIn", burn_in) != 0) {
-        matClose(file);
-        GMCMC_ERROR("Failed to write burn in samples to file", GMCMC_EIO);
-      }
-
-      // Close the file
-      if (matClose(file) != 0)
-        GMCMC_ERROR("Failed to close burn in sample file", GMCMC_EIO);
-
-      // Free the burn-in array
-      mxDestroyArray(burn_in);
-    }
-  }
-  else {
-    // Lazily create a Matlab struct-of-arrays big enough to hold POSTERIOR_SAVE_SIZE posterior samples
-    if (posterior == NULL) {
-      if ((posterior = create_matlab_array(POSTERIOR_SAVE_SIZE, options->num_temperatures, num_params)) == NULL)
-        GMCMC_ERROR("Failed to create burn in Matlab array", GMCMC_ENOMEM);
-    }
-
-    // Copy the current parameters, log prior and log likelihood into the arrays
-    int error;
-    if ((error = write_matlab_field(posterior, "Paras", j, i % POSTERIOR_SAVE_SIZE, params, num_params)) != 0 ||
-        (error = write_matlab_field(posterior, "LogPrior", j, i % POSTERIOR_SAVE_SIZE, log_prior, num_params)) != 0 ||
-        (error = write_matlab_field(posterior, "LL", j, i % POSTERIOR_SAVE_SIZE, &log_likelihood, 1)) != 0)
-      GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
-
-    // If the arrays are full write them to a file
-    if ((i % POSTERIOR_SAVE_SIZE == POSTERIOR_SAVE_SIZE - 1 ||
-        i == options->num_posterior_samples - 1) && j == options->num_temperatures - 1) {
-      // Format the filename for the burn in samples
-      char * filename;
-      size_t outputlen = strlen(outputID) + 25 + floor(log10(i + 1));
-      if ((filename = malloc(outputlen)) == NULL)
-        GMCMC_ERROR("Failed to allocate space for burn in file name", GMCMC_ENOMEM);
-      snprintf(filename, outputlen, "results/%s_Posterior_%zu.mat", outputID, i + 1);
-
-      // Open a Matlab file
-      MATFile * file = matOpen(filename, "w7.3");       // Use HDF5
-      free(filename);
-      if (file == NULL)
-        GMCMC_ERROR("Failed to open Matlab file", GMCMC_EIO);
-
-      // Write the structure array to the file
-      if (matPutVariable(file, "Samples_Posterior", posterior) != 0) {
-        matClose(file);
-        GMCMC_ERROR("Failed to write posterior samples to file", GMCMC_EIO);
-      }
-
-      // Close the file
-      if (matClose(file) != 0)
-        GMCMC_ERROR("Failed to close posterior sample file", GMCMC_EIO);
-
-      // If that was the last sample
-      if (i == options->num_posterior_samples - 1) {
-        // Free the posterior array
-        mxDestroyArray(posterior);
-      }
-    }
-  }
-
-  return 0;
 }
