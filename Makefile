@@ -1,19 +1,50 @@
-.PHONY: all test clean examples
+MATLAB_HOME = /opt/MATLAB/R2013a
+MATLAB_ARCH = glnxa64
+CC = gcc
+CPPFLAGS = -I. -I.. -I$(MATLAB_HOME)/extern/include
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -pipe
+LDFLAGS = -L. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
+          -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH)
+LDLIBS = -lgmcmc -lmx -lmex -lmat
 
-all: libgmcmc.so examples #test
+VPATH = . examples gmcmc
 
-# test: libgmcmc.so
-# 	cd test && $(MAKE)
+.PHONY: all test clean
+
+ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
+
+ODE_examples = FitzHugh_Benchmark_1_MH FitzHugh_Benchmark_1_Simp_mMALA \
+               FitzHugh_Benchmark_2_MH FitzHugh_Benchmark_2_Simp_mMALA \
+               FitzHugh_Benchmark_3_MH FitzHugh_Benchmark_3_Simp_mMALA \
+               FitzHugh_Benchmark_4_MH FitzHugh_Benchmark_4_Simp_mMALA \
+               FitzHugh_Benchmark_5_MH FitzHugh_Benchmark_5_Simp_mMALA \
+               FitzHugh_Benchmark_6_MH FitzHugh_Benchmark_6_Simp_mMALA \
+               Locke_Benchmark_1_MH Locke_Benchmark_1_Simp_mMALA \
+               ODE_FHN_MH_PopMCMC ODE_FHN_Simp_mMALA_ICs_PopMCMC ODE_FHN_Simp_mMALA_PopMCMC \
+               ODE_Roberta_MH_PopMCMC ODE_RobertaObs_MH_PopMCMC ODE_RobertaObs_Simp_mMALA_PopMCMC ODE_Roberta_Simp_mMALA_PopMCMC
+
+all: $(ION_examples) $(ODE_examples)
+
+test:
+	cd test && $(MAKE)
 
 clean:
-	rm -f libgmcmc.so
 	cd src && $(MAKE) clean
-	cd examples && $(MAKE) clean
-# 	cd test && $(MAKE) clean
+	cd test && $(MAKE) clean
+	rm -f examples/acceptance.o examples/matlab.o $(addprefix examples/,$(addsuffix .o,$(ION_examples) $(ODE_examples))) $(ION_examples) $(ODE_examples)
 
 libgmcmc.so:
 	cd src && $(MAKE)
-	ln -s src/libgmcmc.so libgmcmc.so
 
-examples: libgmcmc.so
-	cd examples && $(MAKE)
+examples/acceptance.o: acceptance.h
+examples/matlab.o: matlab.h
+$(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ion_model.h gmcmc_popmcmc.h
+$(addprefix examples/,$(addsuffix .o,$(ODE_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ode_model.h gmcmc_popmcmc.h
+
+define make_example =
+$(1): examples/$(1).o examples/acceptance.o examples/matlab.o libgmcmc.so
+endef
+$(foreach exe,$(ION_examples) $(ODE_examples),$(eval $(call make_example,$(exe))))
+
+$(ION_examples) $(ODE_examples):
+	$(CC) -o $(@) $(^) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)

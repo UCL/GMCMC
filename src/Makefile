@@ -1,8 +1,8 @@
 MATLAB_HOME = /opt/MATLAB/R2013a
 MATLAB_ARCH = glnxa64
 CC = gcc
-CPPFLAGS = -I../ -I$(MATLAB_HOME)/extern/include
-CFLAGS = -ggdb -std=c99 -pedantic -Wall -march=native -O0 -pipe -fPIC -fopenmp
+CPPFLAGS = -I../ -I$(MATLAB_HOME)/extern/include -D_POSIX_C_SOURCE=200809L
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -pipe -fPIC -fopenmp
 LDFLAGS = -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,--no-undefined -Wl,--export-dynamic -Wl,-soname=libgmcmc.so
@@ -16,12 +16,12 @@ VPATH = . ../gmcmc
 
 .PHONY: all clean
 
-all: libgmcmc.so
+all: ../libgmcmc.so
 
 clean:
-	rm -f $(OBJS) libgmcmc.so
+	rm -f $(OBJS) ../libgmcmc.so
 
-libgmcmc.so: $(OBJS)
+../libgmcmc.so: $(OBJS)
 	$(CC) $(LDFLAGS) -shared $(^) -o $(@) $(LOADLIBES) $(LDLIBS)
 
 dataset/matlab.o: gmcmc_dataset.h gmcmc_errno.h
@@ -46,4 +46,4 @@ distribution.o: gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 rng.o: gmcmc_rng.h gmcmc_errno.h
 model.o: gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h
 ion_model.o: gmcmc_ion_model.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h
-popmcmc.o: mvn.c distribution/randn.c gmcmc_popmcmc.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h
+popmcmc.o: popmcmc_seq.c popmcmc_omp.c popmcmc_mpi.c mvn.c distribution/randn.c gmcmc_popmcmc.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h

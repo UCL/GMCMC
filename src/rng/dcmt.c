@@ -19,6 +19,8 @@ typedef struct {
 } mt_state;
 
 static void set(void * state, int id, uint64_t seed) {
+  (void)id;
+
   mt_state * mt = (mt_state *)state;
 
   mt->state[0] = (uint32_t)(seed & MT_WMASK);

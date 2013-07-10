@@ -102,7 +102,7 @@ int main(int argc, char * argv[]) {
   mcmc_options.temperatures = temperatures;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   = 1000;
+  mcmc_options.num_burn_in_samples   = 0;//1000;
   mcmc_options.num_posterior_samples = 1000;
 
   // Set iteration interval for adapting stepsizes
@@ -274,7 +274,7 @@ int main(int argc, char * argv[]) {
 
   // Create a parallel RNG for the MPI process
   gmcmc_prng64 * rng;
-  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
+  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt521, rank)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);

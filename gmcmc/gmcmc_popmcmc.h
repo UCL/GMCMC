@@ -111,8 +111,7 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options *, const gmcmc_model *,
                   const gmcmc_dataset *, const gmcmc_prng64 *);
 
 /**
- * Performs a population MCMC simulation in parallel using OpenMP to update all
- * the chains in parallel.
+ * Performs a population MCMC simulation in parallel using OpenMP.
  *
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation
@@ -125,9 +124,8 @@ int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options *, const gmcmc_model *,
                       const gmcmc_dataset *, const gmcmc_prng64 *);
 
 /**
- * Performs a population MCMC simulation in parallel using MPI to update all
- * the chains in parallel.  All callback functions are executed on the node
- * with rank 0.
+ * Performs a population MCMC simulation in parallel using MPI.  All callback
+ * functions are executed on the node with rank 0.
  *
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation

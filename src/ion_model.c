@@ -6,16 +6,6 @@
 #include <math.h>
 #include <cblas.h>
 
-#define print_matrix(m, n, A, lda) printm(stderr, #A, m, n, A, lda)
-static inline void printm(FILE * stream, const char * name, size_t m, size_t n, const double * A, size_t lda) {
-  fprintf(stream, "%s\n", name);
-  for (size_t i = 0; i < m; i++) {
-    for (size_t j = 0; j < n; j++)
-      fprintf(stream, "%10.4f", A[j * lda + i]);
-    fputs("\n", stream);
-  }
-}
-
 // External Fortran LAPACK functions
 // Eigenvectors - nonsymmetric
 void dgeevx_(const char *, const char *, const char *, const char *,
@@ -93,6 +83,9 @@ struct gmcmc_ion_model {
 static int ion_proposal_mh(double likelihood, const void * serdata,
                            const double * params, size_t n, double temperature,
                            double stepsize, double * mean, double * covariance, size_t ldc) {
+  (void)likelihood;
+  (void)serdata;
+  (void)temperature;
 
   // Proposal_Mean    = Chain.Paras(Chain.CurrentBlock);
   memcpy(mean, params, n * sizeof(double));
@@ -132,6 +125,8 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
 static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * model,
                              const double * params, size_t n,
                              double * likelihood, void ** serdata, size_t * size) {
+  (void)serdata;
+  (void)size;
   // Initialise error status
   int error = 0;
 
@@ -444,101 +439,51 @@ static double log_sum(size_t n, double * x) {
  *         GMCMC_ELINAL if the eigenvectors of Q could not be calculated.
  */
 static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, size_t ldx) {
-//   bool symmetric = true;
-//   for (size_t j = 0; j < n && symmetric; j++) {
-//     for (size_t i = 0; i < n; i++) {
-//       if (Q[j * ldq + i] != Q[i * ldq + j]) {
-//         symmetric = false;
-//         break;
-//       }
-//     }
-//   }
+  double * work, size;
+  int lwork = -1, one = 1, ilo, ihi, info = 0;
 
-  int info = 0;
+  // Create a copy of Q so it is not overwritten by the dgeev routine
+  double * A, * wi, * scale, abnrm, rconde, rcondv;
+  size_t lda = (n + 1u) & ~1u;
+  if ((A = malloc(lda * n * sizeof(double))) == NULL)
+    GMCMC_ERROR("Unable to allocate A", GMCMC_ENOMEM);
+  if ((wi = malloc(n * sizeof(double))) == NULL) {
+    free(A);
+    GMCMC_ERROR("Unable to allocate wi", GMCMC_ENOMEM);
+  }
+  if ((scale = malloc(n * sizeof(double))) == NULL) {
+    free(wi);
+    free(A);
+    GMCMC_ERROR("Unable to allocate scale", GMCMC_ENOMEM);
+  }
+  for (size_t j = 0; j < n; j++)
+    memcpy(&A[j * lda], &Q[j * ldq], n * sizeof(double));
 
-//   if (symmetric) {
-//     double * work, size;
-//     int lwork = -1, * iwork, isize, liwork = -1;
-//
-//     // Create a copy of Q so it is not overwritten by the dsyevd routine
-//     for (int j = 0; j < n; j++)
-//       memcpy(&X[j * ldx], &Q[j * ldq], n * sizeof(double));
-//
-//     // Calculate workspace size
-//     dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, &size, &lwork, &isize, &liwork, &info);
-//
-//     // Allocate workspace
-//     lwork = size;
-//     liwork = isize;
-//     if ((work = malloc(lwork * sizeof(double))) == NULL)
-//       GMCMC_ERROR("Unable to allocate work", GMCMC_ENOMEM);
-//     if ((iwork = malloc(liwork * sizeof(int))) == NULL) {
-//       free(work);
-//       GMCMC_ERROR("Unable to allocate iwork", GMCMC_ENOMEM);
-//     }
-//
-//     // Calculate eigenvalues and (right) eigenvectors
-//     dsyevd_("V", "U", (const int *)&n, X, (const int *)&ldx, v, work, &lwork, iwork, &liwork, &info);
-//
-//     free(work);
-//     free(iwork);
-//   }
-//   else {
-    double * work, size;
-    int lwork = -1, one = 1, ilo, ihi, * iwork;
-
-    // Create a copy of Q so it is not overwritten by the dgeev routine
-    double * A, * wi, * scale, abnrm, rconde, rcondv;
-    size_t lda = (n + 1u) & ~1u;
-    if ((A = malloc(lda * n * sizeof(double))) == NULL)
-      GMCMC_ERROR("Unable to allocate A", GMCMC_ENOMEM);
-    if ((wi = malloc(n * sizeof(double))) == NULL) {
-      free(A);
-      GMCMC_ERROR("Unable to allocate wi", GMCMC_ENOMEM);
-    }
-    if ((scale = malloc(n * sizeof(double))) == NULL) {
-      free(wi);
-      free(A);
-      GMCMC_ERROR("Unable to allocate scale", GMCMC_ENOMEM);
-    }
-    if ((iwork = malloc((2 * n - 2) * sizeof(int))) == NULL) {
-      free(scale);
-      free(wi);
-      free(A);
-      GMCMC_ERROR("Unable to allocate iwork", GMCMC_ENOMEM);
-    }
-    for (size_t j = 0; j < n; j++)
-      memcpy(&A[j * lda], &Q[j * ldq], n * sizeof(double));
-
-    // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
-    dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, &size, &lwork, iwork, &info);
-    if (info != 0) {
-      free(iwork);
-      free(scale);
-      free(wi);
-      free(A);
-      GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
-    }
-    lwork = size;
-
-    // Allocate workspace and a temporary vector to store the (possible) imaginary parts of the eigenvalues
-    if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
-      free(iwork);
-      free(scale);
-      free(wi);
-      free(A);
-      GMCMC_ERROR("Unable to allocate eig workspace", GMCMC_ENOMEM);
-    }
-
-    // Calculate the eigenvalues and (right) eigenvectors
-    dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, work, &lwork, iwork, &info);
-
-    free(work);
-    free(iwork);
+  // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
+  dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, &size, &lwork, NULL, &info);
+  if (info != 0) {
     free(scale);
     free(wi);
     free(A);
-//   }
+    GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
+  }
+  lwork = size;
+
+  // Allocate workspace and a temporary vector to store the (possible) imaginary parts of the eigenvalues
+  if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
+    free(scale);
+    free(wi);
+    free(A);
+    GMCMC_ERROR("Unable to allocate eig workspace", GMCMC_ENOMEM);
+  }
+
+  // Calculate the eigenvalues and (right) eigenvectors
+  dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, work, &lwork, NULL, &info);
+
+  free(work);
+  free(scale);
+  free(wi);
+  free(A);
 
   if (info != 0)
     GMCMC_ERROR("Failed to calculate eigenvalues", GMCMC_ELINAL);
