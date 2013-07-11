@@ -14,27 +14,34 @@
 const char * outputID;
 
 /**
- * Creates an array of structs in Matlab containing fields for the parameters,
+ * Creates an array of cells in Matlab containing fields for the parameters,
  * log likelihood and log prior.
  *
  * @param [in] num_samples       the number of samples to store in each struct
- * @param [in] num_temperatures  the number of structs to create in the array
+ * @param [in] num_temperatures  the number of cells to create in the array
  *                                 (one for each temperature)
  * @param [in] num_params        the number of parameters in each sample (and
  *                                 log prior)
  *
- * @return the Matlab structure array or NULL if an error occurred.
+ * @return the Matlab cell array or NULL if an error occurred.
  */
 static mxArray * create_matlab_array(size_t num_samples,
                                      unsigned int num_temperatures,
                                      unsigned int num_params) {
-  // Create a Matlab structure array to hold the samples
-  const char * fields[] = { "Paras", "LL", "LogPrior" };
-  mxArray * res = mxCreateStructMatrix(1, num_temperatures, 3, fields);
-  if (res == NULL)
-    GMCMC_ERROR_VAL("Failed to create Matlab structure array", GMCMC_ENOMEM, NULL);
+  // Create a Matlab cell matrix to hold the samples
+  mxArray * cells = mxCreateCellMatrix(1, num_temperatures);
+  if (cells == NULL)
+    GMCMC_ERROR_VAL("Failed to create Matlab cell matrix", GMCMC_ENOMEM, NULL);
 
   for (unsigned int j = 0; j < num_temperatures; j++) {
+    // Create a 1x1 struct matrix
+    const char * fields[] = { "Paras", "LL", "LogPrior" };
+    mxArray * structs = mxCreateStructMatrix(1, 1, 3, fields);
+    if (structs == NULL) {
+      mxDestroyArray(cells);
+      GMCMC_ERROR_VAL("Failed to create Matlab struct matrix", GMCMC_ENOMEM, NULL);
+    }
+
     // Create arrays for the parameters, log likelihood and log prior
     mxArray * params = NULL, * log_prior = NULL, * log_likelihood = NULL;
     if ((params = mxCreateDoubleMatrix(num_samples, num_params, 0)) == NULL ||
@@ -43,39 +50,49 @@ static mxArray * create_matlab_array(size_t num_samples,
       mxDestroyArray(params);
       mxDestroyArray(log_prior);
       mxDestroyArray(log_likelihood);
-      mxDestroyArray(res);
+      mxDestroyArray(cells);
       GMCMC_ERROR_VAL("Failed to create parameter, log_prior and log_likelihood arrays", GMCMC_ENOMEM, NULL);
     }
 
-    // Set the arrays to be part of the struct array
-    mxSetField(res, j, "Paras", params);
-    mxSetField(res, j, "LL", log_likelihood);
-    mxSetField(res, j, "LogPrior", log_prior);
+    // Set the arrays to be part of the struct matrix
+    mxSetField(structs, 0, "Paras", params);
+    mxSetField(structs, 0, "LL", log_likelihood);
+    mxSetField(structs, 0, "LogPrior", log_prior);
+
+    // Set the struct matrix to be part of the cell array
+    mxSetCell(cells, j, structs);
   }
 
-  return res;
+  return cells;
 }
 
 /**
- * Copies a value into a struct field in a Matlab structure array.
+ * Copies a value into a struct field in a Matlab cell array.
  *
- * @param [in] array   the Matlab structure array
+ * @param [in] cells   the Matlab cell matrix
  * @param [in] name    the name of the field to write
- * @param [in] index   the index of the structure in the Matlab structure array
+ * @param [in] index   the index of the structure in the Matlab cell array
  * @param [in] offset  the offset in the field to start writing
  * @param [in] value   the value to write
  * @param [in] size    the size of the value to write
  *
  * @return 0 on success, GMCMC_EIO if an error occurred.
  */
-static int write_matlab_field(mxArray * array, const char * name, size_t index, size_t offset, const double * value, size_t size) {
+static int write_matlab_field(mxArray * cells, const char * name, size_t index, size_t offset, const double * value, size_t size) {
+  mxArray * structs = mxGetCell(cells, index);
+  if (structs == NULL)
+    GMCMC_ERROR("Failed to get struct from Matlab cell matrix", GMCMC_EIO);
+
   mxArray * field;
-  if ((field = mxGetField(array, index, name)) == NULL)
+  if ((field = mxGetField(structs, 0, name)) == NULL)
     GMCMC_ERROR("Failed to get field from Matlab struct", GMCMC_EIO);
+
   double * ptr;
   if ((ptr = mxGetPr(field)) == NULL)
     GMCMC_ERROR("Failed to get pointer from Matlab array", GMCMC_EIO);
+
   memcpy(&ptr[offset * size], value, size * sizeof(double));
+
   return 0;
 }
 

@@ -102,7 +102,7 @@ int main(int argc, char * argv[]) {
   mcmc_options.temperatures = temperatures;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   = 0;//1000;
+  mcmc_options.num_burn_in_samples   = 1000;
   mcmc_options.num_posterior_samples = 1000;
 
   // Set iteration interval for adapting stepsizes
@@ -259,10 +259,6 @@ int main(int argc, char * argv[]) {
   }
 
   gmcmc_model_set_modelspecific(model, ion_model);
-
-  /**
-   * Open the burn in and posterior sample files
-   */
 
 
   /*

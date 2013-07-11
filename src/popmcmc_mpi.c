@@ -1,7 +1,5 @@
 static int gmcmc_chain_mpi_send(const gmcmc_chain *, int, int, MPI_Comm);
 static int gmcmc_chain_mpi_recv(gmcmc_chain **, int, int, MPI_Comm);
-#include <sys/types.h>
-#include <unistd.h>
 
 /**
  * Performs a population MCMC simulation in parallel using MPI.
@@ -24,9 +22,6 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
     GMCMC_ERROR("Failed to get MPI communicator size", GMCMC_EIPC);
   if (MPI_Comm_rank(MPI_COMM_WORLD, &rank) != MPI_SUCCESS)
     GMCMC_ERROR("Failed to get MPI process rank", GMCMC_EIPC);
-
-  fprintf(stderr, "Rank %d PID %d\n", rank, getpid());
-//   sleep(30);
 
 
   /*
@@ -52,7 +47,6 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
 
   // Burn-in loop
   for (size_t i = 0; i < options->num_burn_in_samples; i++) {
-    fprintf(stderr, "Rank %d PID %d: burn-in iteration %zu\n", rank, getpid(), i);
     // Update each chain in the population in parallel
     for (size_t j = rank; j < num_chains; j += size) {
       if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
@@ -63,7 +57,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
       }
     }
 
-    // TODO: Copy all the chains onto node 0
+    // Copy all the chains onto node 0
     if (rank == 0) {
       // Loop through all the chains
       for (size_t j = 0; j < num_chains; j++) {
@@ -146,7 +140,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
       }
     }
 
-    // TODO: Copy chains back onto other nodes
+    // Copy chains back onto other nodes
     if (rank == 0) {
       // Loop through all the chains
       for (size_t j = 0; j < num_chains; j++) {
@@ -189,7 +183,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
       }
     }
 
-    // TODO: Copy all the chains onto node 0
+    // Copy all the chains onto node 0
     if (rank == 0) {
       // Loop through all the chains
       for (size_t j = 0; j < num_chains; j++) {
@@ -258,7 +252,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
       }
     }
 
-    // TODO: Copy chains back onto other nodes
+    // Copy chains back onto other nodes
     if (rank == 0) {
       // Loop through all the chains
       for (size_t j = 0; j < num_chains; j++) {
