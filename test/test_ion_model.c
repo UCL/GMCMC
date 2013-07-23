@@ -7,9 +7,7 @@
 static gmcmc_dataset * data;
 static gmcmc_model * model;
 
-static void castillo_katz(const double * params, size_t num_params, double * Q, size_t ldq) {
-  (void)num_params;     // Unused
-
+static void castillo_katz(const double * params, double * Q, size_t ldq) {
   // Rename for clarity
   double K_1   = pow(10.0, params[0]);
   double K_2   = pow(10.0, params[1]);
@@ -93,9 +91,7 @@ static int init_castillo_katz() {
   return 0;
 }
 
-static void five_state(const double * params, size_t num_params, double * Q, size_t ldq) {
-  (void)num_params;     // Unused
-
+static void five_state(const double * params, double * Q, size_t ldq) {
   // As described in Ch 18 & 20 in Single Channel Recording book
 
   // Rename for clarity
@@ -218,7 +214,7 @@ static void test_castillo_katz_ion_likelihood_mh0() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, 4, &likelihood, NULL, NULL);
+  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);

@@ -2,7 +2,7 @@ MATLAB_HOME = /opt/MATLAB/R2013a
 MATLAB_ARCH = glnxa64
 CC = gcc
 CPPFLAGS = -I../ -I$(MATLAB_HOME)/extern/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -pipe -fPIC -fopenmp
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe -fPIC -fopenmp
 LDFLAGS = -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,--no-undefined -Wl,--export-dynamic -Wl,-soname=libgmcmc.so

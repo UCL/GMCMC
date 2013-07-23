@@ -7,23 +7,14 @@
 #include <cblas.h>
 
 // External Fortran LAPACK functions
-// Eigenvectors - nonsymmetric
-void dgeevx_(const char *, const char *, const char *, const char *,
-             const int *, double *, const int *, double *, double *,
-             double *, const int *, double *, const int *,
-             int *, int *, double *,
-             double *, double *, double *, double *,
-             const int *, int *, int *);
-// Eigenvectors - symmetric
-void dsyevd_(const char *, const char *, const int *, double *, const int *,
-             double *, double *, const int *, int *, const int *, int *);
-// LU decomposition
-void dgetrf_(const long *, const long *, double *, const long *, long *, long *);
-// Inverse from LU decomposition
-void dgetri_(const long *, double *, const long *, const long *, double *, const long *, long *);
-// Matrix right division
-void dgesv_(const long *, const long *, double *, const long *, long *, double *, const long *, long *);
+// Eigenvectors
+extern void dgeev_(const char *, const char *, const long *,
+                   double *, const long *, double *, double *,
+                   double *, const long *, double *, const long *,
+                   double *, const long *, long *);
 
+// LU decomposition
+extern void dgetrf_(const long *, const long *, double *, const long *, long *, long *);
 static inline long clapack_dgetrf(long m, long n, double * A, long lda, long ** ipiv) {
   long info = 0, min = (m < n) ? m : n;
   if ((*ipiv = malloc((size_t)min * sizeof(long))) == NULL)
@@ -32,6 +23,8 @@ static inline long clapack_dgetrf(long m, long n, double * A, long lda, long ** 
   return info;
 }
 
+// Inverse from LU decomposition
+extern void dgetri_(const long *, double *, const long *, const long *, double *, const long *, long *);
 static inline long clapack_dgetri(long n, double * A, long lda, const long * ipiv) {
   long info = 0, lwork = -1;
   double size, * work;
@@ -46,6 +39,8 @@ static inline long clapack_dgetri(long n, double * A, long lda, const long * ipi
   return info;
 }
 
+// Matrix right division
+extern void dgesv_(const long *, const long *, double *, const long *, long *, double *, const long *, long *);
 static inline long clapack_dgesv(long n, long nrhs, double * A, long lda, double * B, long ldb) {
   long info = 0, * ipiv;
   if ((ipiv = malloc(n * sizeof(long))) == NULL)
@@ -72,9 +67,9 @@ static double log_sum(size_t, double *);
  * which details the transitions between open and closed states.
  */
 struct gmcmc_ion_model {
-  unsigned int closed, open;                            /**< Number of closed and open states */
-  void (*calculate_Q_matrix)(const double *, size_t,    /**< Function to update Q matrix based*/
-                             double *, size_t);         /* on current parameter values */
+  unsigned int closed, open;                    /**< Number of closed and open states */
+  void (*calculate_Q_matrix)(const double *,    /**< Function to update Q matrix based*/
+                             double *, size_t); /* on current parameter values */
 };
 
 /**
@@ -105,14 +100,15 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
 
 /**
  * Ion Channel model likelihood function using Metropolis-Hastings.
- * Calculates p(D|M,params) (i.e. probability of seeing the data D given the
+ * Calculates p(D|M,params) (i.e. likelihood of seeing the data D given the
  * model M and parameters params)
  *
- * @param [in]  model       the model
- * @param [in]  n           the size of the parameter vector
- * @param [in]  params      the parameter vector
  * @param [in]  data        the data
+ * @param [in]  model       the model
+ * @param [in]  params      the parameter vector
  * @param [out] likelihood  the likelihood object to create and populate
+ * @param [out] serdata     serialised data to be passed to the proposal function
+ * @param [out] size        size of serialised data object, in bytes
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to allocate temporary
@@ -123,7 +119,7 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
  *                        possible numerical inaccuracy.
  */
 static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * model,
-                             const double * params, size_t n,
+                             const double * params,
                              double * likelihood, void ** serdata, size_t * size) {
   (void)serdata;
   (void)size;
@@ -141,7 +137,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
     GMCMC_ERROR("Unable to allocate Q matrix", GMCMC_ENOMEM);
 
   // Calculate the Q matrix
-  ion_model->calculate_Q_matrix(params, n, Q, ldq);
+  ion_model->calculate_Q_matrix(params, Q, ldq);
 
 
   /*
@@ -355,7 +351,7 @@ const gmcmc_likelihood_function gmcmc_ion_likelihood_mh = &ion_likelihood_mh;
  */
 int gmcmc_ion_model_create(gmcmc_ion_model ** ion_model,
                            unsigned int closed, unsigned int open,
-                           void (*calculate_Q_matrix)(const double *, size_t, double *, size_t)) {
+                           void (*calculate_Q_matrix)(const double *, double *, size_t)) {
   if (calculate_Q_matrix == NULL)
     GMCMC_ERROR("calculate_Q_matrix is NULL", GMCMC_EINVAL);
 
@@ -441,10 +437,10 @@ static double log_sum(size_t n, double * x) {
  */
 static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, size_t ldx) {
   double * work, size;
-  int lwork = -1, one = 1, ilo, ihi, info = 0;
+  long lwork = -1, one = 1, info = 0;
 
   // Create a copy of Q so it is not overwritten by the dgeev routine
-  double * A, * wi, * scale, abnrm, rconde, rcondv;
+  double * A, * wi;
   size_t lda = (n + 1u) & ~1u;
   if ((A = malloc(lda * n * sizeof(double))) == NULL)
     GMCMC_ERROR("Unable to allocate A", GMCMC_ENOMEM);
@@ -452,18 +448,12 @@ static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, s
     free(A);
     GMCMC_ERROR("Unable to allocate wi", GMCMC_ENOMEM);
   }
-  if ((scale = malloc(n * sizeof(double))) == NULL) {
-    free(wi);
-    free(A);
-    GMCMC_ERROR("Unable to allocate scale", GMCMC_ENOMEM);
-  }
   for (size_t j = 0; j < n; j++)
     memcpy(&A[j * lda], &Q[j * ldq], n * sizeof(double));
 
   // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
-  dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, &size, &lwork, NULL, &info);
+  dgeev_("N", "V", (const long *)&n, A, (const long *)&lda, v, wi, NULL, &one, X, (const long *)&ldx, &size, &lwork, &info);
   if (info != 0) {
-    free(scale);
     free(wi);
     free(A);
     GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
@@ -472,17 +462,15 @@ static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, s
 
   // Allocate workspace and a temporary vector to store the (possible) imaginary parts of the eigenvalues
   if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
-    free(scale);
     free(wi);
     free(A);
     GMCMC_ERROR("Unable to allocate eig workspace", GMCMC_ENOMEM);
   }
 
   // Calculate the eigenvalues and (right) eigenvectors
-  dgeevx_("B", "N", "V", "N", (const int *)&n, A, (const int *)&lda, v, wi, NULL, &one, X, (const int *)&ldx, &ilo, &ihi, scale, &abnrm, &rconde, &rcondv, work, &lwork, NULL, &info);
+  dgeev_("N", "V", (const long *)&n, A, (const long *)&lda, v, wi, NULL, &one, X, (const long *)&ldx, work, &lwork, &info);
 
   free(work);
-  free(scale);
   free(wi);
   free(A);
 

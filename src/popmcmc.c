@@ -161,7 +161,7 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
     GMCMC_ERROR("Error evaluating prior", error);
   }
   // p(D|M,\theta,...)
-  if ((error = gmcmc_likelihood(data, model, (*chain)->params, num_params,
+  if ((error = gmcmc_likelihood(data, model, (*chain)->params,
                                 &(*chain)->log_likelihood,
                                 &(*chain)->chainspecific, &(*chain)->size)) != 0) {
     free((*chain)->params);
@@ -245,7 +245,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       GMCMC_ERROR("Error evaluating prior", error);
 
     // Evaluate the model at new parameters to get LL, gradient, metric etc.
-    if ((error = gmcmc_likelihood(data, model, chain->params, num_params,
+    if ((error = gmcmc_likelihood(data, model, chain->params,
                                   &chain->log_likelihood, &chain->chainspecific,
                                   &chain->size)) != 0)
       GMCMC_ERROR("Error evaluating likelihood", error);
@@ -324,7 +324,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     double pxxt;    // p(x|x')
 
     // Evaluate the model at new parameters to get new likelihood and geometry
-    if ((error = gmcmc_likelihood(data, model, params, num_params,
+    if ((error = gmcmc_likelihood(data, model, params,
                                   &log_likelihood, &chainspecific, &size)) != 0) {
       free(params);
       free(log_prior);

@@ -157,19 +157,20 @@ int gmcmc_proposal(const gmcmc_model * model, double log_likelihood, const void 
 
 /**
  * Calculates the likelihood of the data given the model and parameters.
+ * Calculates p(D|M,params) (i.e. likelihood of seeing the data D given the
+ * model M and parameters params)
  *
  * @param [in]  data        the data
  * @param [in]  model       the model to evaluate
  * @param [in]  params      the current parameter values to evaluate the model
- * @param [in]  n           the number of parameters in the model
  * @param [out] likelihood  the log likelihood
  * @param [out] serdata     serialised data to be passed to the proposal function
  * @param [out] size        size of serialised data object, in bytes
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params, size_t n, double * log_likelihood, void ** serdata, size_t * size) {
-  return model->likelihood(data, model, params, n, log_likelihood, serdata, size);
+int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params, double * log_likelihood, void ** serdata, size_t * size) {
+  return model->likelihood(data, model, params, log_likelihood, serdata, size);
 }
 
 /**

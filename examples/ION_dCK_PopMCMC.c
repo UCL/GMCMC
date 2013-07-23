@@ -41,11 +41,10 @@
  * Calculates the Q matrix from the current parameter values.
  *
  * @param [in]  params  the parameter values
- * @param [in]  n       the number of parameters
  * @param [out] Q       the Q matrix, initialised to zero
  * @param [in]  ldq     the leading dimension of the Q matrix
  */
-static void calculate_Q_matrix(const double *, size_t, double *, size_t);
+static void calculate_Q_matrix(const double *, double *, size_t);
 
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
@@ -301,9 +300,7 @@ int main(int argc, char * argv[]) {
   return error;
 }
 
-static void calculate_Q_matrix(const double * params, size_t num_params, double * Q, size_t ldq) {
-  (void)num_params;     // Unused
-
+static void calculate_Q_matrix(const double * params, double * Q, size_t ldq) {
   // Rename for clarity
 #ifdef LOG10SPACE
   double K_1   = pow(10.0, params[0]);

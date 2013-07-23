@@ -47,7 +47,7 @@ typedef int (*gmcmc_proposal_function)(double, const void *, const double *, siz
  *
  * @return 0 on success, non-zero on error.
  */
-typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_model *, const double *, size_t, double *, void **, size_t *);
+typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
 
 /**
  * Creates a model.
@@ -133,14 +133,13 @@ int gmcmc_proposal(const gmcmc_model *, double, const void *, const double *, si
  * @param [in]  data        the data
  * @param [in]  model       the model to evaluate
  * @param [in]  params      the current parameter values to evaluate the model
- * @param [in]  n           the number of parameters in the model
  * @param [out] likelihood  the log likelihood
  * @param [out] serdata     serialised data to be passed to the proposal function
  * @param [out] size        size of serialised data object, in bytes
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, size_t, double *, void **, size_t *);
+int gmcmc_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
 
 /**
  * Sets the parameter stepsize.
