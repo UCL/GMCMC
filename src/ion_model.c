@@ -186,7 +186,8 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
   if (info != 0) {
     free(eq_states);
     free(Q);
-    GMCMC_ERROR("S is singular", GMCMC_ELINAL);
+    *likelihood = -INFINITY;
+    return 0;
   }
 
 
@@ -583,7 +584,7 @@ static int calculate_specmat_eigenvectors(size_t n, const double * Q, size_t ldq
     // S(i,j) = X(k,j) * Y(i,k)
     for (size_t j = 0; j < n; j++) {
       for (size_t i = 0; i < n; i++)
-        Spec[j * lds + i] = X[j * ldx + k] * Y[k * ldy + i];    // Calculate spectral matrices
+        Spec[j * lds + i] = X[k * ldx + i] * Y[j * ldy + k];    // Calculate spectral matrices
     }
   }
 

@@ -92,7 +92,7 @@ static inline long clapack_dpotri(enum CBLAS_UPLO uplo, long n, double * A, long
  *
  * @param [in]     n      the dimensionality of the distribution
  * @param [in]     mean   the mean vector (length n)
- * @param [in,out] C      the covariance matrix(n-by-n)
+ * @param [in]     C      the covariance matrix(n-by-n)
  * @param [in]     ldc    leading dimension of the covariance matrix (ldc >= n)
  * @param [in,out] rng    a random number generator
  * @param [out]    x      the random vector (length n)
@@ -102,7 +102,7 @@ static inline long clapack_dpotri(enum CBLAS_UPLO uplo, long n, double * A, long
  *         GMCMC_ENOMEM if there is not enough memory to allocate a temporary vector,
  *         GMCMC_ELINAL if the covariance matrix is not positive definite.
  */
-static int gmcmc_mvn_sample(size_t n, const double * mean, double * C,
+static int gmcmc_mvn_sample(size_t n, const double * mean, const double * C,
                             size_t ldc, const gmcmc_prng64 * rng, double * x) {
   if (ldc < n)
     GMCMC_ERROR("Invalid leading dimension", GMCMC_EINVAL);
@@ -112,23 +112,34 @@ static int gmcmc_mvn_sample(size_t n, const double * mean, double * C,
     return 0;
 
   // Calculate the Cholesky decomposition of the covariance matrix
-  long info = clapack_dpotrf(CblasLower, n, C, ldc);
-  if (info != 0)
+  double * cholC;
+  size_t ldcc = (n + 1u) & ~1u;
+  if ((cholC = malloc(ldcc * n * sizeof(double))) == NULL)
+    GMCMC_ERROR("Failed to allocate cholesky", GMCMC_ENOMEM);
+  for (size_t j = 0; j < n; j++)
+    memcpy(&cholC[j * ldcc], &C[j * ldc], n * sizeof(double));
+  long info = clapack_dpotrf(CblasLower, n, cholC, ldc);
+  if (info != 0) {
+    free(cholC);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_ELINAL);
+  }
 
   double * z = malloc(n * sizeof(double));
-  if (z == NULL)
+  if (z == NULL) {
+    free(cholC);
     GMCMC_ERROR("Unable to allocate standard normal vector", GMCMC_ENOMEM);
+  }
 
   // z = ~N(0,1)
   for (size_t i = 0; i < n; i++)
     z[i] = gmcmc_randn(rng);
 
   // Use memcpy and BLAS DGEMV (matrix-vector product y = Ax + y) to compute
-  // x = Az + mean
+  // x = mean + Az
   memcpy(x, mean, n * sizeof(double));
-  cblas_dgemv(CblasColMajor, CblasNoTrans, n, n, 1.0, C, ldc, z, 1, 1.0, x, 1);
+  cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, cholC, ldc, z, 1, 1.0, x, 1);
 
+  free(cholC);
   free(z);
 
   return 0;
@@ -164,7 +175,7 @@ static double log_det(size_t n, const double * C, size_t ldc) {
  * @param [in]     n        the dimensionality of the distribution
  * @param [in]     x        the random vector (length n)
  * @param [in]     mean     the mean of the distribution (length n)
- * @param [in,out] C        the Cholesky decomposition of the covariance matrix (n-by-n)
+ * @param [in] C        the Cholesky decomposition of the covariance matrix (n-by-n)
  * @param [in]     ldc      the leading dimension of the covariance matrix
  * @param [out]    res      the result
  *
@@ -172,39 +183,53 @@ static double log_det(size_t n, const double * C, size_t ldc) {
  *         GMCMC_ENOMEM if temporary vectors could not be allocated,
  *         GMCMC_ELINAL if the covariance matrix is singular.
  */
-static int gmcmc_mvn_logpdf(size_t n, const double * x, const double * mean, double * C, size_t ldc, double * res) {
+static int gmcmc_mvn_logpdf(size_t n, const double * x, const double * mean, const double * C, size_t ldc, double * res) {
   if (n == 0) {
     *res = -INFINITY;
     return 0;
   }
 
+  // Calculate the Cholesky decomposition of the covariance matrix
+  double * inv;
+  size_t ldi = (n + 1u) & ~1u;
+  if ((inv = malloc(ldi * n * sizeof(double))) == NULL)
+    GMCMC_ERROR("Failed to allocate inverse", GMCMC_ENOMEM);
+  for (size_t j = 0; j < n; j++)
+    memcpy(&inv[j * ldi], &C[j * ldc], n * sizeof(double));
+  long info = clapack_dpotrf(CblasLower, n, inv, ldi);
+  if (info != 0) {
+    free(inv);
+    GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_ELINAL);
+  }
+
   // Calculate the log determinant of the covariance matrix before overwriting it with its inverse
-  double ldet = log_det(n, C, ldc);
+  double ldet = log_det(n, inv, ldi);
 
   // Calculate the inverse from the Cholesky
-  long info = clapack_dpotri(CblasLower, n, C, ldc);
-  if (info != 0)
+  info = clapack_dpotri(CblasLower, n, inv, ldi);
+  if (info != 0) {
+    free(inv);
     GMCMC_ERROR("Proposal covariance matrix is singular", GMCMC_ELINAL);
+  }
 
-  double * x_mu = malloc(n * sizeof(double));
-  if (x_mu == NULL)
-    GMCMC_ERROR("Unable to allocate temporary vector", GMCMC_ENOMEM);
-
-  double * x_muTinv = malloc(n * sizeof(double));
-  if (x_muTinv == NULL) {
+  double * x_mu = NULL, * x_muTinv = NULL;;
+  if ((x_mu = malloc(n * sizeof(double))) == NULL || (x_muTinv = malloc(n * sizeof(double))) == NULL) {
+    free(inv);
     free(x_mu);
-    GMCMC_ERROR("Unable to allocate temporary vector", GMCMC_ENOMEM);
+    free(x_muTinv);
+    GMCMC_ERROR("Unable to allocate temporary vectors", GMCMC_ENOMEM);
   }
 
   // x_mu = x - mean
   for (size_t i = 0; i < n; i++)
     x_mu[i] = x[i] - mean[i];
 
-  // Use CBLAS DGEMV to compute mean = (x - mu)'*inv(covariance) = inv(covariance)'*(x - mu)
-  cblas_dgemv(CblasColMajor, CblasTrans, n, n, 1.0, C, ldc, x_mu, 1, 0.0, x_muTinv, 1);
+  // Use CBLAS DSYMV to compute mean = (x - mu)'*inv(covariance) = inv(covariance)'*(x - mu)
+  cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x_mu, 1, 0.0, x_muTinv, 1);
   // Use CBLAS DDOT to compute (x - mu)'*inv(cov)*x_mu
   double p = cblas_ddot(n, x_muTinv, 1, x_mu, 1);
 
+  free(inv);
   free(x_mu);
   free(x_muTinv);
 

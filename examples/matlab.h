@@ -17,8 +17,6 @@ extern const char * outputID;
  *
  * @param [in] options         the MCMC options
  * @param [in] model           the model
- * @param [in] iteration       whether the current iteration is from burn in
- *                               (GMCMC_BURN_IN) or posterior (GMCMC_POSTERIOR)
  * @param [in] i               the current iteration number
  * @param [in] j               the index on the temperature scale
  * @param [in] params          the current parameter values
@@ -32,5 +30,5 @@ extern const char * outputID;
  *                         array to a file.
  */
 int write_matlab(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                 GMCMC_ITERATION, size_t, size_t,
+                 size_t, size_t,
                  const double *, const double *, double);

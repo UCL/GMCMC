@@ -291,7 +291,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       GMCMC_ERROR("Error calculating proposal mean and covariance", error);
     }
 
-    // Propose new parameters and get Cholesky of covariance
+    // Propose new parameters
     if ((error = gmcmc_mvn_sample(num_params, mean, covariance, ldc, rng, params)) != 0) {
       free(params);
       free(log_prior);
@@ -312,7 +312,6 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     // Calculate new given old
     double pxtx;        // p(x'|x)
 
-    // Converts Cholesky of covariance into inverse
     if ((error = gmcmc_mvn_logpdf(num_params, params, mean, covariance, ldc, &pxtx)) != 0) {
       free(params);
       free(log_prior);
@@ -336,8 +335,8 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
     // Calculate the mean and covariance based on the proposed parameter values,
     // likelihood and geometry
-    if ((error = gmcmc_proposal(model, chain->log_likelihood,
-                                chain->chainspecific, chain->params, num_params,
+    if ((error = gmcmc_proposal(model, log_likelihood,
+                                chainspecific, params, num_params,
                                 chain->temperature, chain->stepsize, mean,
                                 covariance, ldc)) != 0) {
       free(params);

@@ -55,12 +55,16 @@ static mxArray * create_matlab_array(size_t num_samples,
     }
 
     // Set the arrays to be part of the struct matrix
-    mxSetField(structs, 0, "Paras", params);
-    mxSetField(structs, 0, "LL", log_likelihood);
-    mxSetField(structs, 0, "LogPrior", log_prior);
+    mwIndex subs[] = { 0, 0 };
+    mwIndex index = mxCalcSingleSubscript(structs, 2, subs);
+    mxSetField(structs, index, "Paras", params);
+    mxSetField(structs, index, "LL", log_likelihood);
+    mxSetField(structs, index, "LogPrior", log_prior);
 
     // Set the struct matrix to be part of the cell array
-    mxSetCell(cells, j, structs);
+    subs[1] = j;
+    index = mxCalcSingleSubscript(cells, 2, subs);
+    mxSetCell(cells, index, structs);
   }
 
   return cells;
@@ -73,25 +77,30 @@ static mxArray * create_matlab_array(size_t num_samples,
  * @param [in] name    the name of the field to write
  * @param [in] index   the index of the structure in the Matlab cell array
  * @param [in] offset  the offset in the field to start writing
- * @param [in] value   the value to write
- * @param [in] size    the size of the value to write
+ * @param [in] value   a pointer to the value to write
  *
  * @return 0 on success, GMCMC_EIO if an error occurred.
  */
-static int write_matlab_field(mxArray * cells, const char * name, size_t index, size_t offset, const double * value, size_t size) {
+static int write_matlab_field(mxArray * cells, const char * name, size_t index, size_t offset, const double * value) {
   mxArray * structs = mxGetCell(cells, index);
   if (structs == NULL)
     GMCMC_ERROR("Failed to get struct from Matlab cell matrix", GMCMC_EIO);
 
+  mwIndex subs[] = { 0, 0 };
+  mwIndex i = mxCalcSingleSubscript(structs, 2, subs);
   mxArray * field;
-  if ((field = mxGetField(structs, 0, name)) == NULL)
+  if ((field = mxGetField(structs, i, name)) == NULL)
     GMCMC_ERROR("Failed to get field from Matlab struct", GMCMC_EIO);
 
   double * ptr;
   if ((ptr = mxGetPr(field)) == NULL)
     GMCMC_ERROR("Failed to get pointer from Matlab array", GMCMC_EIO);
 
-  memcpy(&ptr[offset * size], value, size * sizeof(double));
+  size_t ld = mxGetM(field);
+  size_t n = mxGetN(field);
+
+  for (size_t i = 0; i < n; i++)
+    ptr[i * ld + offset] = value[i];
 
   return 0;
 }
@@ -101,8 +110,6 @@ static int write_matlab_field(mxArray * cells, const char * name, size_t index, 
  *
  * @param [in] options         the MCMC options
  * @param [in] model           the model
- * @param [in] iteration       whether the current iteration is from burn in
- *                               (GMCMC_BURN_IN) or posterior (GMCMC_POSTERIOR)
  * @param [in] i               the current iteration number
  * @param [in] j               the index on the temperature scale
  * @param [in] params          the current parameter values
@@ -116,13 +123,13 @@ static int write_matlab_field(mxArray * cells, const char * name, size_t index, 
  *                         array to a file.
  */
 int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
-                 GMCMC_ITERATION iteration, size_t i, size_t j,
+                 size_t i, size_t j,
                  const double * params, const double * log_prior, double log_likelihood) {
   static mxArray * burn_in = NULL, * posterior = NULL;
 
   const size_t num_params = gmcmc_model_get_num_params(model);
 
-  if (iteration == GMCMC_BURN_IN) {
+  if (i < options->num_burn_in_samples) {
     // Lazily create a Matlab struct-of-arrays big enough to hold all the burn in samples
     if (burn_in == NULL) {
       if ((burn_in = create_matlab_array(options->num_burn_in_samples, options->num_temperatures, num_params)) == NULL)
@@ -131,9 +138,9 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
 
     // Copy the current parameters, log prior and log likelihood into the arrays
     int error;
-    if ((error = write_matlab_field(burn_in, "Paras", j, i, params, num_params)) != 0 ||
-        (error = write_matlab_field(burn_in, "LogPrior", j, i, log_prior, num_params)) != 0 ||
-        (error = write_matlab_field(burn_in, "LL", j, i, &log_likelihood, 1)) != 0)
+    if ((error = write_matlab_field(burn_in, "Paras", j, i, params)) != 0 ||
+        (error = write_matlab_field(burn_in, "LogPrior", j, i, log_prior)) != 0 ||
+        (error = write_matlab_field(burn_in, "LL", j, i, &log_likelihood)) != 0)
       GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
 
     // If the arrays are full write them to a file
@@ -172,11 +179,14 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
         GMCMC_ERROR("Failed to create burn in Matlab array", GMCMC_ENOMEM);
     }
 
+    // Have already written num_burn_in_samples
+    i -= options->num_burn_in_samples;
+
     // Copy the current parameters, log prior and log likelihood into the arrays
     int error;
-    if ((error = write_matlab_field(posterior, "Paras", j, i % POSTERIOR_SAVE_SIZE, params, num_params)) != 0 ||
-        (error = write_matlab_field(posterior, "LogPrior", j, i % POSTERIOR_SAVE_SIZE, log_prior, num_params)) != 0 ||
-        (error = write_matlab_field(posterior, "LL", j, i % POSTERIOR_SAVE_SIZE, &log_likelihood, 1)) != 0)
+    if ((error = write_matlab_field(posterior, "Paras", j, i % POSTERIOR_SAVE_SIZE, params)) != 0 ||
+        (error = write_matlab_field(posterior, "LogPrior", j, i % POSTERIOR_SAVE_SIZE, log_prior)) != 0 ||
+        (error = write_matlab_field(posterior, "LL", j, i % POSTERIOR_SAVE_SIZE, &log_likelihood)) != 0)
       GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
 
     // If the arrays are full write them to a file
@@ -215,3 +225,86 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
 
   return 0;
 }
+
+#ifdef TEST
+int main(int argc, char * argv[]) {
+  outputID = "test";
+
+  double temperatures[] = { 1.0 };
+  gmcmc_popmcmc_options options = {
+    .num_posterior_samples = 10,
+    .num_burn_in_samples = 10,
+    .temperatures = temperatures,
+    .num_temperatures = 1,
+    .adapt_rate = 50,
+    .upper_step_size = 0.5,
+    .lower_step_size = 0.2,
+    .acceptance = NULL,
+    .write = write_matlab
+  };
+
+  int error;
+
+  size_t num_params = 4;
+  gmcmc_distribution ** priors;
+  if ((priors = malloc(num_params * sizeof(gmcmc_distribution *))) == NULL)
+    GMCMC_ERROR("Failed to allocate priors", GMCMC_ENOMEM);
+  for (size_t i = 0; i < num_params; i++) {
+    if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.0, 1.0)) != 0) {
+      for (size_t j = 0; j < i; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      GMCMC_ERROR("Failed to create prior", error);
+    }
+  }
+
+  gmcmc_model * model;
+  if ((error = gmcmc_model_create(&model, num_params, priors, NULL, NULL)) != 0) {
+    for (size_t j = 0; j < num_params; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    GMCMC_ERROR("Failed to create model", error);
+  }
+
+  for (size_t j = 0; j < num_params; j++)
+    gmcmc_distribution_destroy(priors[j]);
+  free(priors);
+
+
+  size_t n = options.num_burn_in_samples + options.num_posterior_samples;
+  for (size_t i = 0; i < n; i++) {
+    double params[] = { i * num_params + 0.0, i * num_params + 1.0, i * num_params + 2.0, i * num_params + 3.0 };
+    double log_prior[] = { i * num_params + 4.0, i * num_params + 5.0, i * num_params + 6.0, i * num_params + 7.0 };
+    double log_likelihood = i;
+
+    fprintf(stderr, "params{%zu} = ", i);
+    for (size_t j = 0; j < num_params; j++) {
+      fprintf(stderr, "%.15f", params[j]);
+      if (j < num_params - 1)
+        fprintf(stderr, ", ");
+      else
+        fprintf(stderr, "\n");
+    }
+
+    fprintf(stderr, "log_prior{%zu} = ", i);
+    for (size_t j = 0; j < num_params; j++) {
+      fprintf(stderr, "%.15f", log_prior[j]);
+      if (j < num_params - 1)
+        fprintf(stderr, ", ");
+      else
+        fprintf(stderr, "\n");
+    }
+
+    fprintf(stderr, "log_likelihood{%zu} = %.15f\n", i, log_likelihood);
+
+    if ((error = options.write(&options, model, i, 0, params, log_prior, log_likelihood)) != 0) {
+      gmcmc_model_destroy(model);
+      GMCMC_ERROR("Failed to write samples", error);
+    }
+  }
+
+  gmcmc_model_destroy(model);
+
+  return 0;
+}
+#endif

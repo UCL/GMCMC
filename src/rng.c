@@ -16,7 +16,7 @@
  *         GMCMC_EINVAL if the id is less than zero or greater than type->max_id
  */
 int gmcmc_prng64_create(gmcmc_prng64 ** rng, const gmcmc_prng64_type * type, int id) {
-  if (id < 0 || (unsigned int)id >= type->max_id)
+  if (id < 0 || id >= type->max_id)
     GMCMC_ERROR("RNG id is out of range", GMCMC_EINVAL);
 
   (*rng) = malloc(sizeof(gmcmc_prng64));

@@ -23,7 +23,7 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
   if ((chains = calloc(num_chains, sizeof(gmcmc_chain *))) == NULL)     // Use calloc so they're all initialised to NULL
     GMCMC_ERROR("Unable to allocate chains", GMCMC_ENOMEM);
 
-  // Initialise each chain
+  // Initialise the chains
   for (size_t j = 0; j < num_chains; j++) {
     if ((error = gmcmc_chain_create(&chains[j], model, data, options->temperatures[j], rng)) != 0) {
       // Destroy any chains already created
@@ -36,7 +36,7 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
 
   // Burn-in loop
   for (size_t i = 0; i < options->num_burn_in_samples; i++) {
-    // Update each chain in the population sequentially
+    // Update each chain in the population
     for (size_t j = 0; j < num_chains; j++) {
       if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
         for (size_t k = 0; k < num_chains; k++)
@@ -45,6 +45,7 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
         GMCMC_ERROR("Error updating chains", error);
       }
     }
+
 
     // Exchange chains between temperatures
     gmcmc_chain_exchange(chains, num_chains, rng);
@@ -79,14 +80,14 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
       }
 
       if (options->acceptance != NULL)
-        options->acceptance(options, model, GMCMC_BURN_IN, i, mutations,
+        options->acceptance(options, model, i, mutations,
                             exchanges, stepsizes);
     }
 
     // Write current samples to file
     if (options->write != NULL) {
       for (size_t j = 0; j < num_chains; j++) {
-        if ((error = options->write(options, model, GMCMC_BURN_IN, i, j,
+        if ((error = options->write(options, model, i, j,
                                     chains[j]->params, chains[j]->log_prior,
                                     chains[j]->log_likelihood)) != 0) {
           for (size_t k = 0; k < num_chains; k++)
@@ -99,9 +100,10 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
 
   }     // burn-in
 
+
   // Posterior
   for (size_t i = 0; i < options->num_posterior_samples; i++) {
-    // Update each chain in the population sequentially
+    // Update each chain in the population
     for (size_t j = 0; j < num_chains; j++) {
       if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
         for (size_t k = 0; k < num_chains; k++)
@@ -110,6 +112,7 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
         GMCMC_ERROR("Error updating chains", error);
       }
     }
+
 
     // Exchange chains between temperatures
     gmcmc_chain_exchange(chains, num_chains, rng);
@@ -122,7 +125,7 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
 
       // For each population
       for (size_t j = 0; j < num_chains; j++) {
-        // Calculate acceptance/exchange ratios
+        // Adjust proposal width for parameter value inference
         mutations[j] = chains[j]->accepted_mutation /
                        (double)chains[j]->attempted_mutation;
         stepsizes[j] = chains[j]->stepsize;
@@ -131,14 +134,14 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
       }
 
       if (options->acceptance != NULL)
-        options->acceptance(options, model, GMCMC_POSTERIOR, i, mutations,
+        options->acceptance(options, model, i + options->num_burn_in_samples, mutations,
                             exchanges, stepsizes);
     }
 
     // Write current sample to file
     if (options->write != NULL) {
       for (size_t j = 0; j < num_chains; j++) {
-        if ((error = options->write(options, model, GMCMC_POSTERIOR, i, j,
+        if ((error = options->write(options, model, i + options->num_burn_in_samples, j,
                                     chains[j]->params, chains[j]->log_prior,
                                     chains[j]->log_likelihood)) != 0) {
           for (size_t k = 0; k < num_chains; k++)

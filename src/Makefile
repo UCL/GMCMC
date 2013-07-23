@@ -2,7 +2,7 @@ MATLAB_HOME = /opt/MATLAB/R2013a
 MATLAB_ARCH = glnxa64
 CC = gcc
 CPPFLAGS = -I../ -I$(MATLAB_HOME)/extern/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe -fPIC -fopenmp
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -pipe -fPIC -fopenmp
 LDFLAGS = -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
           -Wl,--no-undefined -Wl,--export-dynamic -Wl,-soname=libgmcmc.so
@@ -46,4 +46,5 @@ distribution.o: gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 rng.o: gmcmc_rng.h gmcmc_errno.h
 model.o: gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h
 ion_model.o: gmcmc_ion_model.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h
+ode_model.o: gmcmc_ode_model.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h
 popmcmc.o: popmcmc_seq.c popmcmc_omp.c popmcmc_mpi.c mvn.c distribution/randn.c gmcmc_popmcmc.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_errno.h

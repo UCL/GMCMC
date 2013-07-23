@@ -21,7 +21,7 @@ typedef struct {
   double (*get_double)(void *, int);    /**< Uniform real generation function on [0,1) */
   uint64_t min, max;                    /**< Limits of integer generation function */
   size_t size;                          /**< Size of state */
-  unsigned int max_id;                  /**< Number of independent substreams */
+  int max_id;                           /**< Number of independent substreams */
 } gmcmc_prng64_type;
 
 /**

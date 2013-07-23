@@ -207,6 +207,9 @@ int main(int argc, char * argv[]) {
     return -5;
   }
 
+  // Set initial step size
+  gmcmc_model_set_stepsize(model, 1.0);
+
 #if 0
   // Set up parameter names for reference
   const char * param_names[] = { "K_1", "K_2", "Beta", "Alpha" };
@@ -247,9 +250,6 @@ int main(int argc, char * argv[]) {
   gmcmc_ion_model * ion_model;
   if ((error = gmcmc_ion_model_create(&ion_model, 2, 1, calculate_Q_matrix)) != 0) {
     // Clean up
-    for (unsigned int i = 0; i < num_params; i++)
-      gmcmc_distribution_destroy(priors[i]);
-    free(priors);
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
@@ -270,7 +270,7 @@ int main(int argc, char * argv[]) {
 
   // Create a parallel RNG for the MPI process
   gmcmc_prng64 * rng;
-  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt521, rank)) != 0) {
+  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
@@ -282,7 +282,7 @@ int main(int argc, char * argv[]) {
   }
 
   // Seed the RNG
-  gmcmc_prng64_seed(rng, 1234);
+  gmcmc_prng64_seed(rng, 3241);
 
   /*
    * Call main population MCMC routine using MPI
