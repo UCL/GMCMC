@@ -5,50 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <cblas.h>
-
-// External Fortran LAPACK functions
-// Eigenvectors
-extern void dgeev_(const char *, const char *, const long *,
-                   double *, const long *, double *, double *,
-                   double *, const long *, double *, const long *,
-                   double *, const long *, long *);
-
-// LU decomposition
-extern void dgetrf_(const long *, const long *, double *, const long *, long *, long *);
-static inline long clapack_dgetrf(long m, long n, double * A, long lda, long ** ipiv) {
-  long info = 0, min = (m < n) ? m : n;
-  if ((*ipiv = malloc((size_t)min * sizeof(long))) == NULL)
-    return -5;
-  dgetrf_(&m, &n, A, &lda, *ipiv, &info);
-  return info;
-}
-
-// Inverse from LU decomposition
-extern void dgetri_(const long *, double *, const long *, const long *, double *, const long *, long *);
-static inline long clapack_dgetri(long n, double * A, long lda, const long * ipiv) {
-  long info = 0, lwork = -1;
-  double size, * work;
-  dgetri_(&n, A, &lda, ipiv, &size, &lwork, &info);
-  if (info != 0)
-    return info;
-  lwork = size;
-  if ((work = malloc((size_t)lwork * sizeof(double))) == NULL)
-    return -5;
-  dgetri_(&n, A, &lda, ipiv, work, &lwork, &info);
-  free(work);
-  return info;
-}
-
-// Matrix right division
-extern void dgesv_(const long *, const long *, double *, const long *, long *, double *, const long *, long *);
-static inline long clapack_dgesv(long n, long nrhs, double * A, long lda, double * B, long ldb) {
-  long info = 0, * ipiv;
-  if ((ipiv = malloc(n * sizeof(long))) == NULL)
-    return -5;
-  dgesv_(&n, &nrhs, A, &lda, ipiv, B, &ldb, &info);
-  free(ipiv);
-  return info;
-}
+#include "clapack.h"
 
 // Forward declarations of utility functions
 static int calculate_specmat_eigenvectors(size_t, const double *, size_t,
@@ -75,9 +32,9 @@ struct gmcmc_ion_model {
 /**
  * Ion Channel model proposal function using Metropolis-Hastings.
  */
-static int ion_proposal_mh(double likelihood, const void * serdata,
-                           const double * params, size_t n, double temperature,
-                           double stepsize, double * mean, double * covariance, size_t ldc) {
+static int ion_proposal_mh(size_t n, const double * params, double likelihood,
+                           double temperature, double stepsize, const void * serdata,
+                           double * mean, double * covariance, size_t ldc) {
   (void)likelihood;
   (void)serdata;
   (void)temperature;
@@ -103,7 +60,7 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
  * Calculates p(D|M,params) (i.e. likelihood of seeing the data D given the
  * model M and parameters params)
  *
- * @param [in]  data        the data
+ * @param [in]  dataset     the data
  * @param [in]  model       the model
  * @param [in]  params      the parameter vector
  * @param [out] likelihood  the likelihood object to create and populate
@@ -118,7 +75,7 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
  *         GMCMC_EFP    if there was a floating point exception indicating a
  *                        possible numerical inaccuracy.
  */
-static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * model,
+static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * model,
                              const double * params,
                              double * likelihood, void ** serdata, size_t * size) {
   (void)serdata;
@@ -249,10 +206,13 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
     GMCMC_ERROR("Failed to calculate spectral matrices and eigenvectors of Q_AA", error);
   }
 
+  const double * timepoints = gmcmc_dataset_get_timepoints(dataset);
+  const double * data = gmcmc_dataset_get_data(dataset, 0);
+
 
   // Calculate initial vectors for current state
   double * ll;
-  if (gmcmc_dataset_y(data, 0) == 0.0) {     // If starts with a closed state
+  if (data[0] == 0.0) {     // If starts with a closed state
     // Equilibrium closed states
     if ((ll = malloc(ion_model->closed * sizeof(double))) == NULL) {
       free(Vqaa);
@@ -288,13 +248,14 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
 
 
   // Do in a slow loop to begin with
-  for (size_t i = 0; i < gmcmc_dataset_size(data) - 1; i++) {
+  size_t num_timepoints = gmcmc_dataset_get_num_timepoints(dataset) - 1;
+  for (size_t i = 0; i < num_timepoints; i++) {
 
     // Get time interval to next move
-    double sojourn = gmcmc_dataset_x(data, i + 1) - gmcmc_dataset_x(data, i);
+    double sojourn = timepoints[i + 1] - timepoints[i];
 
     // In closed state, moving to open state
-    if (gmcmc_dataset_y(data, i) == 0.0)
+    if (data[i] == 0.0)
       error = idealised_transition_probability(ion_model->closed, ion_model->open, sojourn, Vqff, Q_FA, ldq, SpecMatqff, ldsqff, ll);
     // In open state, moving to closed state
     else
@@ -322,7 +283,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * data, const gmcmc_model * mod
   // Actually all this unit vector multiplication does is sum the likelihood
 
   // Sum the log-likelihood terms
-  if (gmcmc_dataset_y(data, gmcmc_dataset_size(data) - 1) == 0.0)
+  if (data[num_timepoints] == 0.0)
     *likelihood = log_sum(ion_model->closed, ll);
   else
     *likelihood = log_sum(ion_model->open, ll);
@@ -374,53 +335,6 @@ void gmcmc_ion_model_destroy(gmcmc_ion_model * ion_model) {
   free(ion_model);
 }
 
-// Utility functions
-
-/**
- * Compares x to y as doubles.  Used to sort double values into descending
- * order.
- *
- * @param x,y  two doubles to compare
- * @return -1 if x > y, 1 if x < y, 0 otherwise.
- */
-static int comparator(const void * x, const void * y) {
-  double a, b;
-
-  a = *(double*)x;
-  b = *(double*)y;
-
-  return isless(a, b) ? 1 : ((a == b) ? 0 : -1);
-}
-
-/**
- * Computes the sum of x in log-space.
- *
- * @param [in]     n  the length of x
- * @param [in,out] x  a vector to sum
- *
- * @return the sum.
- */
-static double log_sum(size_t n, double * x) {
-  // No sum
-  if (n == 0)
-    return 0.0;
-
-  // Sort values in x into descending order
-  qsort(x, n, sizeof(double), comparator);
-
-  // If n is 1 then no need to sum - just return x[0]
-  // If x[0] is -inf then return -inf - in x[0]
-  if (n == 1 || isinf(x[0]) == -1)
-    return x[0];
-
-  // Do normal sum
-  double sum = 0.0;
-  for (size_t i = 1; i < n; i++)
-    sum += exp(x[i] - x[0]);
-
-  return x[0] + log(1.0 + sum);
-}
-
 /**
  * Calculates real-valued (right) eigenvectors and eigenvalues of X.
  *
@@ -436,41 +350,24 @@ static double log_sum(size_t n, double * x) {
  *         GMCMC_ELINAL if the eigenvectors of Q could not be calculated.
  */
 static int eig(size_t n, const double * Q, size_t ldq, double * v, double * X, size_t ldx) {
-  double * work, size;
-  long lwork = -1, one = 1, info = 0;
-
   // Create a copy of Q so it is not overwritten by the dgeev routine
-  double * A, * wi;
+  double * A;
   size_t lda = (n + 1u) & ~1u;
   if ((A = malloc(lda * n * sizeof(double))) == NULL)
     GMCMC_ERROR("Unable to allocate A", GMCMC_ENOMEM);
+  for (size_t j = 0; j < n; j++)
+    memcpy(&A[j * lda], &Q[j * ldq], n * sizeof(double));
+
+  // Allocate a vector for the non-existant imaginary parts of the eigenvalues
+  double * wi;
   if ((wi = malloc(n * sizeof(double))) == NULL) {
     free(A);
     GMCMC_ERROR("Unable to allocate wi", GMCMC_ENOMEM);
   }
-  for (size_t j = 0; j < n; j++)
-    memcpy(&A[j * lda], &Q[j * ldq], n * sizeof(double));
 
-  // Calculate the workspace size needed to calculate the eigenvalues and eigenvectors
-  dgeev_("N", "V", (const long *)&n, A, (const long *)&lda, v, wi, NULL, &one, X, (const long *)&ldx, &size, &lwork, &info);
-  if (info != 0) {
-    free(wi);
-    free(A);
-    GMCMC_ERROR("Unable to calculate eig workspace size", GMCMC_ELINAL);
-  }
-  lwork = size;
+  // Calculate the eigenvalues and (right) eigenvectors using LAPACK
+  long info = clapack_dgeev(false, true, n, A, lda, v, wi, NULL, 1, X, ldx);
 
-  // Allocate workspace and a temporary vector to store the (possible) imaginary parts of the eigenvalues
-  if ((work = malloc((size_t)lwork * sizeof(double))) == NULL) {
-    free(wi);
-    free(A);
-    GMCMC_ERROR("Unable to allocate eig workspace", GMCMC_ENOMEM);
-  }
-
-  // Calculate the eigenvalues and (right) eigenvectors
-  dgeev_("N", "V", (const long *)&n, A, (const long *)&lda, v, wi, NULL, &one, X, (const long *)&ldx, work, &lwork, &info);
-
-  free(work);
   free(wi);
   free(A);
 
@@ -670,4 +567,49 @@ static int idealised_transition_probability(size_t m, size_t n,
   free(G);
 
   return 0;
+}
+
+/**
+ * Compares x to y as doubles.  Used to sort double values into descending
+ * order.
+ *
+ * @param x,y  two doubles to compare
+ * @return -1 if x > y, 1 if x < y, 0 otherwise.
+ */
+static int comparator(const void * x, const void * y) {
+  double a, b;
+
+  a = *(double*)x;
+  b = *(double*)y;
+
+  return isless(a, b) ? 1 : ((a == b) ? 0 : -1);
+}
+
+/**
+ * Computes the sum of x in log-space.
+ *
+ * @param [in]     n  the length of x
+ * @param [in,out] x  a vector to sum
+ *
+ * @return the log of the sum.
+ */
+static double log_sum(size_t n, double * x) {
+  // No sum
+  if (n == 0)
+    return 0.0;
+
+  // Sort values in x into descending order
+  qsort(x, n, sizeof(double), comparator);
+
+  // If n is 1 then no need to sum - just return x[0]
+  // If x[0] is -inf then return -inf - in x[0]
+  if (n == 1 || isinf(x[0]) == -1)
+    return x[0];
+
+  // Do normal sum
+  double sum = 0.0;
+  for (size_t i = 1; i < n; i++)
+    sum += exp(x[i] - x[0]);
+
+  return x[0] + log(1.0 + sum);
 }

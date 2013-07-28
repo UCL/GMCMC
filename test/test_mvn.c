@@ -5,6 +5,72 @@
 #include <stdlib.h>
 #include "../src/mvn.c"
 
+#define N 10000000
+
+static double * X;
+static size_t ldx;
+static gmcmc_prng64 * rng;
+
+static int init_sample() {
+  int error;
+  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_mt19937_64, 0)) != 0)
+    GMCMC_ERROR("Failed to create RNG", error);
+  if ((X = malloc((ldx = 5u & ~1u) * N * sizeof(double))) == NULL) {
+    gmcmc_prng64_destroy(rng);
+    GMCMC_ERROR("Failed to allocate X", GMCMC_ENOMEM);
+  }
+  return 0;
+}
+
+static int cleanup_sample() {
+  free(X);
+  return 0;
+}
+
+static void test_mvn_sample0() {
+  double mu[] = { 0.537667139546100, 1.833885014595086, -2.258846861003648, 0.862173320368121 };
+  double sigma[] = { 13.448159045144756,  9.262621609097568, -4.625091506787965, 10.644757941358025,
+                      9.262621609097568, 11.603005022466061, -1.117456379707958, 10.081095682477658,
+                     -4.625091506787965, -1.117456379707958,  4.506432405029324, -2.394987833402893,
+                     10.644757941358025, 10.081095682477658, -2.394987833402893, 11.378597393300055 };
+
+  gmcmc_prng64_seed(rng, 3421);
+
+  double expected_mu[] = { 0.0, 0.0, 0.0, 0.0 };
+  int error;
+  for (size_t i = 0; i < N; i++) {
+    if ((error = gmcmc_mvn_sample(4, mu, sigma, 4, rng, &X[i * ldx])) != 0)
+      GMCMC_ERROR_VOID("Failed to create sample", error);
+    for (size_t j = 0; j < 4; j++) {
+      double delta = X[i * ldx + j] - expected_mu[j];
+      expected_mu[j] += delta / (i + 1);
+    }
+  }
+
+  for (size_t j = 0; j < N; j++) {
+    for (size_t i = 0; i < 4; i++)
+      X[j * ldx + i] -= expected_mu[i];
+  }
+
+  double expected_sigma[16];
+  for (size_t j = 0; j < 4; j++) {
+    for (size_t i = 0; i < 4; i++)
+      expected_sigma[j * 4 + i] = 0.0;
+    for (size_t k = 0; k < N; k++) {
+      double temp = (1.0 / (N - 1.0)) * X[k * ldx + j];
+      for (size_t i = 0; i < 4; i++)
+        expected_sigma[j * 4 + i] += temp * X[k * ldx + i];
+    }
+  }
+
+  for (size_t i = 0; i < 4; i++)
+    CU_ASSERT_DOUBLE_EQUAL(expected_mu[i], mu[i], 1.0e-02);
+  for (size_t j = 0; j < 4; j++) {
+    for (size_t i = 0; i < 4; i++)
+      CU_ASSERT_DOUBLE_EQUAL(expected_sigma[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+  }
+}
+
 static void test_mvn_logpdf0() {
   double mu[] = { 0.537667139546100, 1.833885014595086, -2.258846861003648, 0.862173320368121 };
   double sigma[] = { 13.448159045144756,  9.262621609097568, -4.625091506787965, 10.644757941358025,
@@ -158,6 +224,14 @@ int main() {
   CU_ErrorCode error = CU_initialize_registry();
   if (error != CUE_SUCCESS)
     CUNIT_ERROR("Failed to initialise test registry");
+
+  CU_pSuite sample = CU_add_suite("gmcmc_mvn_sample", init_sample, cleanup_sample);
+  if (CU_get_error() != CUE_SUCCESS)
+    CUNIT_ERROR("Failed to add suite to registry");
+
+  CU_ADD_TEST(sample, test_mvn_sample0);
+  if (CU_get_error() != CUE_SUCCESS)
+    CUNIT_ERROR("Failed to add test to suite");
 
   CU_pSuite pdf = CU_add_suite("gmcmc_mvn_logpdf", NULL, NULL);
   if (CU_get_error() != CUE_SUCCESS)

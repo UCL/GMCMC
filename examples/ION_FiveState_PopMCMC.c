@@ -161,7 +161,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_dataset * dataset;
-  if ((error = gmcmc_dataset_create_matlab(&dataset, data_file)) != 0) {
+  if ((error = gmcmc_dataset_create_matlab_ion(&dataset, data_file)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -204,45 +204,11 @@ int main(int argc, char * argv[]) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
+    gmcmc_model_destroy(model);
     fputs("Unable to set initial parameter values\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -5;
   }
-
-#if 0
-  // Set up parameter names for reference
-  const char * param_names[] = { "K_+1", "K_-1", "K_+2", "K_-2", "K*_+2", "K*_-2", "Beta_1", "Alpha_1", "Beta_2", "Alpha_2" };
-  if ((error = gmcmc_model_set_param_names(model, param_names)) != 0) {
-    // Clean up
-    free(temperatures);
-    gmcmc_dataset_destroy(dataset);
-    fputs("Unable to set parameter names\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -5;
-  }
-
-  // Set up blocking for parameters - either fixed blocks or random blocks
-  // (This is used for higher-dimensional problems with ill-conditioned metric
-  // tensors)
-  // Either 'fixed'
-  int * blocks = malloc(10 * sizeof(int));
-  blocks[0] = 0; blocks[1] = 1; blocks[2] = 2; blocks[3] = 3; blocks[4] = 4;
-  blocks[5] = 5; blocks[6] = 6; blocks[7] = 7; blocks[8] = 8; blocks[9] = 9;
-  int block_sizes[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  if ((error = gmcmc_model_set_blocking(model, &blocks, block_sizes, 1)) != 0) {
-    // Clean up
-    free(blocks);
-    free(temperatures);
-    gmcmc_dataset_destroy(dataset);
-    fputs("Unable to set parameter blocking\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -6;
-  }
-  free(blocks);
-  // or 'random'
-  /*int block_sizes[] = { 1, 1, 1 };
-  gmcmc_model_set_blocking(model, 3, block_sizes, NULL);*/
-#endif
 
   /*
    * ION model settings

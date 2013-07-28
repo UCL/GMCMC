@@ -127,32 +127,31 @@ const double * gmcmc_model_get_params(const gmcmc_model * model) {
  */
 const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size_t i) {
   if (i > model->n)
-    return NULL;
+    GMCMC_ERROR_VAL("Prior index is out of range", GMCMC_EINVAL, NULL);
   return model->priors[i];
 }
-
-// int gmcmc_model_set_blocking(gmcmc_model *, int **, const int *, int);
-// int gmcmc_model_get_block(const gmcmc_model *, int **, int *, int);
 
 /**
  * Calculates the proposal mean vector and covariance matrix based on the
  * likelihood.
  *
  * @param [in]  model        the model
- * @param [in]  likelihood   likelihood value
- * @param [in]  serdata      serialised data output from the likelihood function
  * @param [in]  params       parameter vector
- * @param [in]  n            size of the parameter vector
+ * @param [in]  likelihood   likelihood value
  * @param [in]  temperature  chain temperature
  * @param [in]  stepsize     parameter step size
+ * @param [in]  serdata      serialised data output from the likelihood function
  * @param [out] mean         mean vector
  * @param [out] covariance   covariance matrix
  * @param [in]  ldc          leading dimension of the covariance matrix
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_proposal(const gmcmc_model * model, double log_likelihood, const void * serdata, const double * params, size_t n, double temperature, double stepsize, double * mean, double * covariance, size_t ldc) {
-  return model->proposal(log_likelihood, serdata, params, n, temperature, stepsize, mean, covariance, ldc);
+int gmcmc_proposal(const gmcmc_model * model, const double * params,
+                   double likelihood, double temperature, double stepsize, const void * serdata,
+                   double * mean, double * covariance, size_t ldc) {
+  return model->proposal(gmcmc_model_get_num_params(model), params, likelihood,
+                         temperature, stepsize, serdata, mean, covariance, ldc);
 }
 
 /**
@@ -169,7 +168,8 @@ int gmcmc_proposal(const gmcmc_model * model, double log_likelihood, const void 
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params, double * log_likelihood, void ** serdata, size_t * size) {
+int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params,
+                     double * log_likelihood, void ** serdata, size_t * size) {
   return model->likelihood(data, model, params, log_likelihood, serdata, size);
 }
 

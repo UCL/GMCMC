@@ -5,7 +5,7 @@
 /**
  * How often to save posterior samples.
  */
-#define POSTERIOR_SAVE_SIZE 1000
+#define POSTERIOR_SAVE_SIZE 20000
 
 /**
  * Where to write the samples to.

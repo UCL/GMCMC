@@ -34,8 +34,8 @@ extern const gmcmc_likelihood_function gmcmc_ion_likelihood_mh;
  *                                    states in the bottom-right
  *
  * @return 0 on success,
- *         EINVAL if calculate_Q_matrix is NULL, or
- *         ENOMEM if there is not enough memory to create the data object.
+ *         GMCMC_EINVAL if calculate_Q_matrix is NULL, or
+ *         GMCMC_ENOMEM if there is not enough memory to create the data object.
  */
 int gmcmc_ion_model_create(gmcmc_ion_model **, unsigned int, unsigned int, void (*)(const double *, double *, size_t));
 

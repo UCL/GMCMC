@@ -1,11 +1,12 @@
 MATLAB_HOME = /opt/MATLAB/R2013a
 MATLAB_ARCH = glnxa64
+SUNDIALS_HOME = $(HOME)/sundials-2.5.0
 CC = gcc
-CPPFLAGS = -I. -I.. -I$(MATLAB_HOME)/extern/include
+CPPFLAGS = -I. -I.. -I$(MATLAB_HOME)/extern/include -I$(SUNDIALS_HOME)/include
 CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
-LDFLAGS = -L. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
+LDFLAGS = -L. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) -L$(SUNDIALS_HOME)/lib \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH)
-LDLIBS = -lgmcmc -lmx -lmex -lmat
+LDLIBS = -lgmcmc -lsundials_cvodes -lsundials_nvecserial -lmx -lmex -lmat
 
 VPATH = . examples gmcmc
 
@@ -18,14 +19,14 @@ ODE_examples = FitzHugh_Benchmark_1_MH FitzHugh_Benchmark_1_Simp_mMALA \
                FitzHugh_Benchmark_3_MH FitzHugh_Benchmark_3_Simp_mMALA \
                FitzHugh_Benchmark_4_MH FitzHugh_Benchmark_4_Simp_mMALA \
                FitzHugh_Benchmark_5_MH FitzHugh_Benchmark_5_Simp_mMALA \
-               FitzHugh_Benchmark_6_MH FitzHugh_Benchmark_6_Simp_mMALA \
-               Locke_Benchmark_1_MH Locke_Benchmark_1_Simp_mMALA \
-               ODE_FHN_MH_PopMCMC ODE_FHN_Simp_mMALA_ICs_PopMCMC ODE_FHN_Simp_mMALA_PopMCMC \
-               ODE_Roberta_MH_PopMCMC ODE_RobertaObs_MH_PopMCMC ODE_RobertaObs_Simp_mMALA_PopMCMC ODE_Roberta_Simp_mMALA_PopMCMC
+               FitzHugh_Benchmark_6_MH FitzHugh_Benchmark_6_Simp_mMALA
+#                Locke_Benchmark_1_MH Locke_Benchmark_1_Simp_mMALA \
+#                ODE_FHN_MH_PopMCMC ODE_FHN_Simp_mMALA_ICs_PopMCMC ODE_FHN_Simp_mMALA_PopMCMC \
+#                ODE_Roberta_MH_PopMCMC ODE_RobertaObs_MH_PopMCMC ODE_RobertaObs_Simp_mMALA_PopMCMC ODE_Roberta_Simp_mMALA_PopMCMC
 
 all: libgmcmc.so
 
-examples: $(ION_examples) #$(ODE_examples)
+examples: $(ION_examples) $(ODE_examples)
 
 test: libgmcmc.so
 	cd test && $(MAKE)

@@ -1,4 +1,4 @@
-#ifndef GMCMC_ION_MODEL_H
+#ifndef GMCMC_ODE_MODEL_H
 #define GMCMC_ODE_MODEL_H
 
 #include <gmcmc/gmcmc_model.h>
@@ -21,28 +21,36 @@ extern const gmcmc_proposal_function gmcmc_ode_proposal_mh;
 extern const gmcmc_likelihood_function gmcmc_ode_likelihood_mh;
 
 /**
- * Creates an Ion Channel model-specific data object.
- *
- * @param [out] ion_model           the Ion Channel model
- * @param [in]  closed              the number of closed states in the model
- * @param [in]  open                the number of open states in the model
- * @param [in]  calculate_Q_matrix  a function to calculate the Q matrix based
- *                                    on the current parameter values.  The
- *                                    closed states are presumed to be stored in
- *                                    the top-left of the matrix and the open
- *                                    states in the bottom-right
- *
- * @return 0 on success,
- *         EINVAL if calculate_Q_matrix is NULL, or
- *         ENOMEM if there is not enough memory to create the data object.
+ * ODE model proposal function using Simplified M-MALA.
  */
-int gmcmc_ion_model_create(gmcmc_ion_model **, unsigned int, unsigned int, void (*)(const double *, size_t, double *, size_t));
+extern const gmcmc_proposal_function gmcmc_ode_proposal_simp_mmala;
 
 /**
- * Destroys the Ion Channel model-specific data.
- *
- * @param [in] ion_model  the Ion Channel model-specific data object to destroy
+ * ODE model likelihood function using Simplified M-MALA.
  */
-void gmcmc_ion_model_destroy(gmcmc_ion_model *);
+extern const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala;
 
-#endif /* GMCMC_ION_MODEL_H */
+/**
+ * Creates an ODE model-specific data object.
+ *
+ * @param [out] ode_model   the ODE model
+ * @param [in]  observed    the number of observed species in the model
+ * @param [in]  unobserved  the number of unobserved species in the model
+ * @param [in]  solve       function to solve system of ODEs
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if solve is NULL,
+ *         GMCMC_ENOMEM if there is not enough memory to create the data object.
+ */
+int gmcmc_ode_model_create(gmcmc_ode_model **, unsigned int, unsigned int,
+                           int (*)(size_t, const double *, const double *,
+                                   double *, size_t));
+
+/**
+ * Destroys the ODE model-specific data.
+ *
+ * @param [in] ode_model  the ODE model-specific data object to destroy
+ */
+void gmcmc_ode_model_destroy(gmcmc_ode_model *);
+
+#endif /* GMCMC_ODE_MODEL_H */

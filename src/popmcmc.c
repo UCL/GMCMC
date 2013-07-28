@@ -277,13 +277,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       GMCMC_ERROR("Unable to allocate proposal mean and covariance", GMCMC_ENOMEM);
     }
 
-    // TODO: Blocking loop
-
     // Calculate the proposal mean and covariance based on the previous
     // parameter values, likelihood and geometry
-    if ((error = gmcmc_proposal(model, chain->log_likelihood, chain->chainspecific,
-                                chain->params, num_params, chain->temperature,
-                                chain->stepsize, mean, covariance, ldc)) != 0) {
+    if ((error = gmcmc_proposal(model, chain->params, chain->log_likelihood,
+                                chain->temperature, chain->stepsize, chain->chainspecific,
+                                mean, covariance, ldc)) != 0) {
       free(params);
       free(log_prior);
       free(mean);
@@ -307,6 +305,21 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(mean);
       free(covariance);
       GMCMC_ERROR("Error evaluating prior", error);
+    }
+
+    // Calculate the sum of the log prior now.  If it is -Inf then the proposed
+    // parameters lie outside the prior, the likelihood will evaluate to zero
+    // later on and the sample will be rejected.  This saves calculating the
+    // MVN log PDF for the current and proposed samples, proposal mean and
+    // covariance for the proposed samples and the likelihood of the proposed
+    // parameters.
+    double sum_log_prior_params = sum(num_params, log_prior);
+    if (isinf(sum_log_prior_params) == -1) {
+      free(params);
+      free(log_prior);
+      free(mean);
+      free(covariance);
+      return 0;
     }
 
     // Calculate new given old
@@ -335,9 +348,8 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
     // Calculate the mean and covariance based on the proposed parameter values,
     // likelihood and geometry
-    if ((error = gmcmc_proposal(model, log_likelihood,
-                                chainspecific, params, num_params,
-                                chain->temperature, chain->stepsize, mean,
+    if ((error = gmcmc_proposal(model, params, log_likelihood,chain->temperature,
+                                chain->stepsize, chainspecific, mean,
                                 covariance, ldc)) != 0) {
       free(params);
       free(log_prior);
@@ -357,21 +369,28 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
     // Accept or reject according to ratio
     double ratio = log_likelihood * chain->temperature +
-                   sum(num_params, log_prior) + pxxt -
+                   sum_log_prior_params + pxxt -
                    chain->log_likelihood * chain->temperature -
                    sum(num_params, chain->log_prior) - pxtx;
 
     if (isgreater(ratio, 0.0) || log(1.0 - gmcmc_prng64_get_double(rng)) < min(0.0, ratio)) {   // = log(1.0) !!
-      memcpy(chain->params, params, num_params * sizeof(double));
-      memcpy(chain->log_prior, log_prior, num_params * sizeof(double));
+      // Swap pointers rather than copy
+      free(chain->params);
+      chain->params = params;
+      free(chain->log_prior);
+      chain->log_prior = log_prior;
       chain->log_likelihood = log_likelihood;
       chain->accepted_mutation++;        // accept proposal
     }
+    else {
+      // Proposed parameters rejected
+      free(params);
+      free(log_prior);
+    }
 
-    free(params);
-    free(log_prior);
     free(mean);
     free(covariance);
+
   } // if not sampling from prior (temperature > 0.0)
 
   return 0;
