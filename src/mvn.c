@@ -39,29 +39,24 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
     GMCMC_ERROR("Failed to allocate cholesky", GMCMC_ENOMEM);
   for (size_t j = 0; j < n; j++)
     memcpy(&cholC[j * ldcc], &C[j * ldc], n * sizeof(double));
-  long info = clapack_dpotrf(CblasLower, n, cholC, ldc);
+  long info = clapack_dpotrf(CblasLower, n, cholC, ldcc);
   if (info != 0) {
     free(cholC);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_ELINAL);
   }
 
-  double * z = malloc(n * sizeof(double));
-  if (z == NULL) {
-    free(cholC);
-    GMCMC_ERROR("Unable to allocate standard normal vector", GMCMC_ENOMEM);
-  }
-
-  // z = ~N(0,1)
+  // x = ~N(0,1)
   for (size_t i = 0; i < n; i++)
-    z[i] = gmcmc_randn(rng);
+    x[i] = gmcmc_randn(rng);
 
-  // Use memcpy and BLAS DGEMV (matrix-vector product y = Ax + y) to compute
-  // x = mean + Az
-  memcpy(x, mean, n * sizeof(double));
-  cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, cholC, ldc, z, 1, 1.0, x, 1);
+  // Use BLAS DTRMV (matrix-vector product) to compute x = Ax
+  cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, cholC, ldcc, x, 1);
+
+  // Add the mean
+  for (size_t i = 0; i < n; i++)
+    x[i] += mean[i];
 
   free(cholC);
-  free(z);
 
   return 0;
 }
@@ -147,9 +142,9 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
   for (size_t i = 0; i < n; i++)
     x_mu[i] = x[i] - mean[i];
 
-  // Use CBLAS DSYMV to compute mean = (x - mu)'*inv(covariance) = inv(covariance)'*(x - mu)
+  // Use CBLAS DSYMV to compute inv(covariance)*(x - mu)
   cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x_mu, 1, 0.0, x_muTinv, 1);
-  // Use CBLAS DDOT to compute (x - mu)'*inv(cov)*x_mu
+  // Use CBLAS DDOT to compute (x - mu)'*inv(covariance)*x_mu
   double p = cblas_ddot(n, x_muTinv, 1, x_mu, 1);
 
   free(inv);

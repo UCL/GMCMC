@@ -215,7 +215,7 @@ int main() {
   if (CU_get_error() != CUE_SUCCESS)
     CUNIT_ERROR("Failed to add test to suite");
 
-  CU_pSuite gamma_5_1 = CU_add_suite("gamma(5,1)", init_3_05, cleanup);
+  CU_pSuite gamma_5_1 = CU_add_suite("gamma(5,1)", init_5_1, cleanup);
   if (CU_get_error() != CUE_SUCCESS)
     CUNIT_ERROR("Failed to add suite to registry");
 

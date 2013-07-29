@@ -1,6 +1,7 @@
 #include <gmcmc/gmcmc_ode_model.h>
 #include <gmcmc/gmcmc_errno.h>
 #include <string.h>
+#include <cblas.h>
 #include "mvn.c"
 
 /**
@@ -33,8 +34,9 @@ static inline double sum(size_t n, const double * x) {
 struct gmcmc_ode_model {
   unsigned int observed, unobserved;    /**< Number of observed and unobserved*/
                                         /*   species                          */
-  int (*solve)(size_t, const double *,  /**< Function to solve system of ODEs */
+  int (*solve)(size_t, size_t,          /**< Function to solve system of ODEs */
                const double *,          /*   using solver of choice           */
+               const double *,
                double *, size_t);
 };
 
@@ -89,7 +91,8 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
   // Solve the system of equations using the function specified in the ODE model
   int error;
-  if ((error = ode_model->solve(num_timepoints, timepoints, params, simdata, lds)) != 0) {
+  if ((error = ode_model->solve(num_timepoints, num_species, timepoints, params,
+                                simdata, lds)) != 0) {
     free(simdata);
     GMCMC_ERROR("Failed to solve system of ODEs", error);
   }
@@ -142,16 +145,65 @@ static int ode_proposal_simp_mmala(size_t n, const double * params,
                                    double likelihood, double temperature,
                                    double stepsize, const void * serdata,
                                    double * mean, double * covariance, size_t ldc) {
-  // TODO: Simplified M-MALA ODE proposal function
-  (void)n;
-  (void)params;
-  (void)likelihood;
-  (void)temperature;
-  (void)stepsize;
-  (void)serdata;
-  (void)mean;
-  (void)covariance;
-  (void)ldc;
+  (void)likelihood;     // Unused
+
+  // Unpack the serialised data
+  size_t ldfi = (n + 1u) & ~1u;
+  const double * gradient_ll = (const double *)serdata;
+  const double * gradient_log_prior = &gradient_ll[n];
+  const double * FI = &gradient_log_prior[n];
+  const double * hessian_log_prior = &FI[ldfi * n];
+
+  // Calculate posterior gradient and metric tensor
+  size_t ldg = (n + 1u) & ~1u;
+  double * gradient = NULL, * G = NULL;
+  if ((gradient = malloc(n * sizeof(double))) == NULL ||
+      (G = malloc(n * ldg * sizeof(double))) == NULL) {
+    free(gradient);
+    free(G);
+    GMCMC_ERROR("Failed to allocate posterior gradients", GMCMC_ENOMEM);
+  }
+  // Posterior_Grad   = Chain.GradLL*Chain.Temp + Chain.GradLogPrior;
+  for (size_t i = 0; i < n; i++)
+    gradient[i] = gradient_ll[i] * temperature + gradient_log_prior[i];
+  // Posterior_G      = Chain.FI*Chain.Temp - diag(Chain.HessianLogPrior);
+  for (size_t j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++)
+      G[j * ldg + i] = FI[j * ldfi + i] * temperature;
+    G[j * ldg + j] -= hessian_log_prior[j];
+  }
+
+
+  // Calculate cholesky
+  long info = clapack_dpotrf(CblasLower, n, G, ldg);
+  if (info != 0) {
+    free(gradient);
+    free(G);
+    GMCMC_ERROR("Posterior gradient is not positive definite", GMCMC_ELINAL);
+  }
+
+  // NaturalGradient  = (CholG\(CholG'\Posterior_Grad'))';
+  cblas_dtrsv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, G, ldg, gradient, 1);
+  cblas_dtrsv(CblasColMajor, CblasLower, CblasTrans, CblasNonUnit, n, G, ldg, gradient, 1);
+
+  // Proposal_Mean    = CurrentParas + (StepSize^2/2)*NaturalGradient;
+  for (size_t i = 0; i < n; i++)
+    mean[i] = params[i] + ((stepsize * stepsize) / 2.0) * gradient[i];
+
+  // Proposal_Covariance = CholG\(CholG'\( diag(ones(1, NumOfParas)*(StepSize^2)) )); % Stepsize is squared in the covariance term
+  for (size_t j = 0; j < n; j++) {
+    for (size_t i = 0; i < j; i++)
+      covariance[j * ldc + i] = 0.0;
+    covariance[j * ldc + j] = stepsize * stepsize;
+    for (size_t i = j + 1; i < n; i++)
+      covariance[j * ldc + i] = 0.0;
+  }
+  cblas_dtrsm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans, CblasNonUnit, n, n, 1.0, G, ldg, covariance, ldc);
+  cblas_dtrsm(CblasColMajor, CblasLeft, CblasLower, CblasTrans, CblasNonUnit, n, n, 1.0, G, ldg, covariance, ldc);
+
+  free(gradient);
+  free(G);
+
   return 0;
 }
 const gmcmc_proposal_function gmcmc_ode_proposal_simp_mmala = &ode_proposal_simp_mmala;
@@ -187,7 +239,7 @@ const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala = &ode_likelihoo
  */
 int gmcmc_ode_model_create(gmcmc_ode_model ** ode_model, unsigned int observed,
                            unsigned int unobserved,
-                           int (*solve)(size_t, const double *, const double *,
+                           int (*solve)(size_t, size_t, const double *, const double *,
                                    double *, size_t)) {
   if (solve == NULL)
     GMCMC_ERROR("solve is NULL", GMCMC_EINVAL);

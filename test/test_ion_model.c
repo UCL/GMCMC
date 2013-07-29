@@ -101,8 +101,8 @@ static int init_castillo_katz() {
 
 static void test_castillo_katz_ion_proposal_mh0() {
   // Input arguments
-  double params[] = {  0.725404224946106, -0.0630548731896562,  0.714742903826096, -0.204966058299775 };
-  double likelihood = 2.134142999129227e+02;
+  double params[] = { 2.88570752304669842, -1.54006338257304520, 2.17189240073973311, 2.70691937020932816 };
+  double likelihood = 1926.08217818508683195;
   double temperature = 0.0;
   double stepsize = 1.0;
 
@@ -117,34 +117,34 @@ static void test_castillo_katz_ion_proposal_mh0() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0],  0.725404224946106,  1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], -0.0630548731896562, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2],  0.714742903826096,  1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3], -0.204966058299775,  1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[0],  2.88570752304669842, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[1], -1.54006338257304520, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[2],  2.17189240073973311, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[3],  2.70691937020932816, 1.0e-15);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 1.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 1.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 1.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 1.0, 1.0e-02);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 1.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 1.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 1.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 1.0, 1.0e-15);
 }
 
 static void test_castillo_katz_ion_proposal_mh1() {
   // Input arguments
-  double params[] = { 3.4665789e+00, 2.1221985e-01, -1.3872798e+00, -7.0527936e-01 };
-  double likelihood = -8.9007692e+02;
+  double params[] = { 3.46657887197742420, 0.21221985055729120, -1.38727977182536200, -0.70527935730707281 };
+  double likelihood = -890.07691930595535723;
   double temperature = 1.693508780843028e-05;
   double stepsize = 0.8;
 
@@ -159,34 +159,34 @@ static void test_castillo_katz_ion_proposal_mh1() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0],  3.4665789e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1],  2.1221985e-01, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2], -1.3872798e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3], -7.0527936e-01, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL(mean[0],  3.46657887197742420, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[1],  0.21221985055729120, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[2], -1.38727977182536200, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[3], -0.70527935730707281, 1.0e-15);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 0.64, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 0.64, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 0.64, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 0.64, 1.0e-02);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 0.64, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 0.64, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 0.64, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 0.64, 1.0e-15);
 }
 
 static void test_castillo_katz_ion_proposal_mh2() {
   // Input arguments
-  double params[] = { 2.6762215e+00, -8.0350436e-01, 7.5516193e-01, 3.6432629e+00 };
-  double likelihood = 9.9686730e+02;
+  double params[] = { 2.67622147429655843, -0.80350436045150375, 0.75516192694289952, 3.64326288442972235 };
+  double likelihood = 996.86730497900316550;
   double temperature = 0.000541922809870;
   double stepsize = 1.2;
 
@@ -201,34 +201,34 @@ static void test_castillo_katz_ion_proposal_mh2() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0],  2.6762215e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], -8.0350436e-01, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2],  7.5516193e-01, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3],  3.6432629e+00, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL(mean[0],  2.67622147429655843, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[1], -0.80350436045150375, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[2],  0.75516192694289952, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[3],  3.64326288442972235, 1.0e-15);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 1.44, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 1.44, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 1.44, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.00, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 1.44, 1.0e-02);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 1.44, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 1.44, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 1.44, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.00, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 1.44, 1.0e-15);
 }
 
 static void test_castillo_katz_ion_proposal_mh3() {
   // Input arguments
-  double params[] = { -9.1429320e-01, -1.4124436e+00,  2.3061665e+00,  2.3206083e+00 };
-  double likelihood = 1.8617143e+03;
+  double params[] = { -0.91429320430028871, -1.41244361420492504, 2.30616647892381454, 2.32060827609643727 };
+  double likelihood = 1861.71426557036124905;
   double temperature = 0.004115226337449;
   double stepsize = 0.512;
 
@@ -243,34 +243,34 @@ static void test_castillo_katz_ion_proposal_mh3() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0], -9.1429320e-01, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], -1.4124436e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2],  2.3061665e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3],  2.3206083e+00, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL(mean[0], -0.91429320430028871, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[1], -1.41244361420492504, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[2],  2.30616647892381454, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[3],  2.32060827609643727, 1.0e-15);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 0.262144, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 0.262144, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 0.262144, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 0.262144, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 0.262144, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 0.262144, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 0.262144, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.000000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 0.262144, 1.0e-15);
 }
 
 static void test_castillo_katz_ion_proposal_mh4() {
   // Input arguments
-  double params[] = { 1.2474997e+00, 2.3760790e+00, 2.9115780e+00, 3.2896986e+00 };
-  double likelihood = 2.0286676e+03;
+  double params[] = { 1.24749972433837053, 2.37607895190583918, 2.91157798303740289, 3.28969863650566108 };
+  double likelihood = 2028.66763919470463406;
   double temperature = 0.017341529915833;
   double stepsize = 1.44;
 
@@ -285,28 +285,28 @@ static void test_castillo_katz_ion_proposal_mh4() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0], 1.2474997e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], 2.3760790e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2], 2.9115780e+00, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3], 3.2896986e+00, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL(mean[0], 1.24749972433837053, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[1], 2.37607895190583918, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[2], 2.91157798303740289, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(mean[3], 3.28969863650566108, 1.0e-15);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 2.0736, 1.0e-04)
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 2.0736, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 2.0736, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.0000, 1.0e-04);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 2.0736, 1.0e-04);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 2.0736, 1.0e-15)
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 2.0736, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 2.0736, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.0000, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 2.0736, 1.0e-15);
 }
 
 static void test_castillo_katz_ion_likelihood_mh0() {
@@ -323,7 +323,7 @@ static void test_castillo_katz_ion_likelihood_mh0() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL(likelihood, 2.134142999129227e+02, 1.0e-03);
+  CU_ASSERT_DOUBLE_EQUAL(likelihood, 213.414299912922587, 1.0e-12);
 }
 
 #include "test_castillo_katz.c"

@@ -50,16 +50,17 @@
 /**
  * ODE solver function.
  *
- * @param [in]  n           the number of timepoints
- * @param [in]  timepoints  the timepoints
- * @param [in]  params      the current parameter values
- * @param [out] simdata     simulated data from the system of ODEs
- * @param [in]  lds         leading dimension of simdata
+ * @param [in]  num_timepoints  the number of timepoints
+ * @param [in]  num_species     the number of species
+ * @param [in]  timepoints      the timepoints
+ * @param [in]  params          the current parameter values
+ * @param [out] simdata         simulated data from the system of ODEs
+ * @param [in]  lds             leading dimension of simdata
  *
  * @return 0 on success,
  *         GMCMC_ELINAL if there was an error with a CVODES solver function.
  */
-static int cvodes_solve(size_t, const double *, const double *, double *, size_t);
+static int cvodes_solve(size_t, size_t, const double *, const double *, double *, size_t);
 
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
@@ -330,10 +331,18 @@ static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void * userdata) {
   (void)t;      // Unused
 
   // Parameters are stored in userdata
-  realtype * params = (realtype *)userdata;
+  double * params = (double *)userdata;
+
+  // Reparameterise if necessary (and convert to CVODES type)
+#ifdef LOG10SPACE
+  realtype a = pow(10.0, params[0]);
+  realtype b = pow(10.0, params[1]);
+  realtype c = pow(10.0, params[2]);
+#else
   realtype a = params[0];
   realtype b = params[1];
   realtype c = params[2];
+#endif
 
   realtype v = NV_Ith_S(y, 0);
   realtype r = NV_Ith_S(y, 1);
@@ -352,29 +361,20 @@ static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void * userdata) {
 /**
  * ODE solver function.
  *
- * @param [in]  n           the number of timepoints
- * @param [in]  timepoints  the timepoints
- * @param [in]  params      the current parameter values
- * @param [out] simdata     simulated data from the system of ODEs
- * @param [in]  lds         leading dimension of simdata
+ * @param [in]  num_timepoints  the number of timepoints
+ * @param [in]  num_species     the number of species
+ * @param [in]  timepoints      the timepoints
+ * @param [in]  params          the current parameter values
+ * @param [out] simdata         simulated data from the system of ODEs
+ * @param [in]  lds             leading dimension of simdata
  *
  * @return 0 on success,
  *         GMCMC_ELINAL if there was an error with a CVODES solver function.
  */
-static int cvodes_solve(size_t n, const double * timepoints, const double * params,
+static int cvodes_solve(size_t num_timepoints, size_t num_species,
+                        const double * timepoints, const double * params,
                         double * simdata, size_t lds) {
-  const unsigned int num_species = 2;
   const unsigned int num_params = 3;
-
-  realtype cvodes_params[num_params];
-  // Reparameterise if necessary (and convert to CVODES type)
-#ifdef LOG10SPACE
-  for (unsigned int i = 0; i < num_params; i++)
-    cvodes_params[i] = pow(10.0, params[i]);
-#else
-  for (unsigned int i = 0; i < num_params; i++)
-    cvodes_params[i] = params[i];
-#endif
 
   realtype cvodes_ics[num_species];
 #ifdef INFER_ICS
@@ -403,7 +403,7 @@ static int cvodes_solve(size_t n, const double * timepoints, const double * para
     GMCMC_ERROR("Failed to initialise ODE solver", GMCMC_ELINAL);
 
   // Set user data
-  if ((error = CVodeSetUserData(cvode_mem, (void *)cvodes_params)) != CV_SUCCESS) {
+  if ((error = CVodeSetUserData(cvode_mem, (void *)params)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
     GMCMC_ERROR("Failed to set ODE solver user data", GMCMC_ELINAL);
   }
@@ -426,7 +426,7 @@ static int cvodes_solve(size_t n, const double * timepoints, const double * para
 
   // Advance solution in time
   N_Vector yout = N_VNew_Serial(num_species);
-  for (size_t i = 1; i < n; i++) {
+  for (size_t i = 1; i < num_timepoints; i++) {
     double tret;
     if ((error = CVode(cvode_mem, timepoints[i], yout, &tret, CV_NORMAL)) != CV_SUCCESS) {
       CVodeFree(&cvode_mem);

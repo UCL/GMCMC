@@ -64,8 +64,8 @@ static void test_sample() {
   }
   double variance = m2 / (N - 1);
 
-  CU_ASSERT_DOUBLE_EQUAL(mean, expected_mean, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(variance, expected_variance, 1.0e-02);
+  CU_ASSERT_DOUBLE_EQUAL(mean, expected_mean, 1.0e-04);
+  CU_ASSERT_DOUBLE_EQUAL(variance, expected_variance, 1.0e-03);
 }
 
 static void test_pdf_0_1() {

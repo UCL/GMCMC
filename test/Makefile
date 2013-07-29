@@ -37,7 +37,7 @@ test_normal: test_normal.c gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 test_lognormal: test_lognormal.c gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(@) $(<) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
-test_gamma: test_lognormal.c gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
+test_gamma: test_gamma.c gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(@) $(<) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 test_mvn: test_mvn.c ../src/mvn.c gmcmc_rng.h gmcmc_errno.h

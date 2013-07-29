@@ -4,7 +4,7 @@
 #include <gmcmc/gmcmc_rng.h>
 #include <gmcmc/gmcmc_distribution.h>
 
-#define N 10000000
+#define N 100000000
 
 static gmcmc_prng64 * rng;
 
@@ -43,7 +43,7 @@ static void test_uniform_m2_4() {
     CU_ASSERT(x <  4.0);
 
     // Test PDF
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.1667, 1.0e-04);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.166666666666667, 1.0e-15);
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;
@@ -52,8 +52,8 @@ static void test_uniform_m2_4() {
   }
   double variance = m2 / (N - 1);
 
-  CU_ASSERT_DOUBLE_EQUAL(mean, 1.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(variance, 3.0, 1.0e-02);
+  CU_ASSERT_DOUBLE_EQUAL(mean, 1.0, 1.0e-04);
+  CU_ASSERT_DOUBLE_EQUAL(variance, 3.0, 1.0e-04);
 }
 
 static void test_uniform_0_10000() {
@@ -79,7 +79,7 @@ static void test_uniform_0_10000() {
     CU_ASSERT(x < 10000.0);
 
     // Test PDF
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.0001, 1.0e-08);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.0001, 1.0e-15);
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;
@@ -88,8 +88,8 @@ static void test_uniform_0_10000() {
   }
   double variance = m2 / (N - 1);
 
-  CU_ASSERT_DOUBLE_EQUAL(mean, 5.0e+03, 1.0e+01);
-  CU_ASSERT_DOUBLE_EQUAL(variance, 8.33e+06, 1.0e+04);
+  CU_ASSERT_DOUBLE_EQUAL(mean, 5000.0, 1.0e-01);
+  CU_ASSERT_DOUBLE_EQUAL(variance, 8333333.3333, 1.0e+03);
 }
 
 static void test_uniform_m2_10() {
@@ -115,7 +115,7 @@ static void test_uniform_m2_10() {
     CU_ASSERT(x < 10.0);
 
     // Test PDF
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.0833, 1.0e-04);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.083333333333333, 1.0e-15);
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;
@@ -124,8 +124,8 @@ static void test_uniform_m2_10() {
   }
   double variance = m2 / (N - 1);
 
-  CU_ASSERT_DOUBLE_EQUAL(mean, 4.0, 1.0e-02);
-  CU_ASSERT_DOUBLE_EQUAL(variance, 12.0, 1.0e-02);
+  CU_ASSERT_DOUBLE_EQUAL(mean, 4.0, 1.0e-04);
+  CU_ASSERT_DOUBLE_EQUAL(variance, 12.0, 1.0e-03);
 }
 
 static void test_uniform_1em2_1e9() {
@@ -160,8 +160,8 @@ static void test_uniform_1em2_1e9() {
   }
   double variance = m2 / (N - 1);
 
-  CU_ASSERT_DOUBLE_EQUAL(mean, 5.0e+08, 1.0e+06);
-  CU_ASSERT_DOUBLE_EQUAL(variance, 8.33e+16, 1.0e+14);
+  CU_ASSERT_DOUBLE_EQUAL(mean, 5.0e+08, 1.0e+05);
+  CU_ASSERT_DOUBLE_EQUAL(variance, 8.333333e+16, 1.0e+13);
 }
 
 #define CUNIT_ERROR(message) \

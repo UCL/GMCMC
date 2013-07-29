@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "../src/mvn.c"
 
-#define N 10000000
+#define N 100000000
 
 static double * X;
 static size_t ldx;
@@ -28,46 +28,56 @@ static int cleanup_sample() {
 }
 
 static void test_mvn_sample0() {
+  // Input arguments
   double mu[] = { 0.537667139546100, 1.833885014595086, -2.258846861003648, 0.862173320368121 };
   double sigma[] = { 13.448159045144756,  9.262621609097568, -4.625091506787965, 10.644757941358025,
                       9.262621609097568, 11.603005022466061, -1.117456379707958, 10.081095682477658,
                      -4.625091506787965, -1.117456379707958,  4.506432405029324, -2.394987833402893,
                      10.644757941358025, 10.081095682477658, -2.394987833402893, 11.378597393300055 };
 
+  // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
 
-  double expected_mu[] = { 0.0, 0.0, 0.0, 0.0 };
+  // Generate N samples and simultaneously calculate the sample mean using the
+  // online algorithm from Knuth
+  double mean[] = { 0.0, 0.0, 0.0, 0.0 };
   int error;
   for (size_t i = 0; i < N; i++) {
+    // Generate sample
     if ((error = gmcmc_mvn_sample(4, mu, sigma, 4, rng, &X[i * ldx])) != 0)
       GMCMC_ERROR_VOID("Failed to create sample", error);
+
+    // Calculate mean
     for (size_t j = 0; j < 4; j++) {
-      double delta = X[i * ldx + j] - expected_mu[j];
-      expected_mu[j] += delta / (i + 1);
+      double delta = X[i * ldx + j] - mean[j];
+      mean[j] += delta / (i + 1);
     }
   }
 
+  // x(j) -= mean
   for (size_t j = 0; j < N; j++) {
     for (size_t i = 0; i < 4; i++)
-      X[j * ldx + i] -= expected_mu[i];
+      X[j * ldx + i] -= mean[i];
   }
 
-  double expected_sigma[16];
+  // cov = \frac{1}{N - 1} \sum_{j=1}^N (x_j - mean)*(x_j - mean)^T
+  double cov[16];
+  const double alpha = 1.0 / (N - 1.0);
   for (size_t j = 0; j < 4; j++) {
     for (size_t i = 0; i < 4; i++)
-      expected_sigma[j * 4 + i] = 0.0;
+      cov[j * 4 + i] = 0.0;
     for (size_t k = 0; k < N; k++) {
-      double temp = (1.0 / (N - 1.0)) * X[k * ldx + j];
+      const double temp = alpha * X[k * ldx + j];
       for (size_t i = 0; i < 4; i++)
-        expected_sigma[j * 4 + i] += temp * X[k * ldx + i];
+        cov[j * 4 + i] += temp * X[k * ldx + i];
     }
   }
 
   for (size_t i = 0; i < 4; i++)
-    CU_ASSERT_DOUBLE_EQUAL(expected_mu[i], mu[i], 1.0e-02);
+    CU_ASSERT_DOUBLE_EQUAL(mean[i], mu[i], 1.0e-03);
   for (size_t j = 0; j < 4; j++) {
     for (size_t i = 0; i < 4; i++)
-      CU_ASSERT_DOUBLE_EQUAL(expected_sigma[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+      CU_ASSERT_DOUBLE_EQUAL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
   }
 }
 

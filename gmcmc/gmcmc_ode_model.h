@@ -43,7 +43,7 @@ extern const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala;
  *         GMCMC_ENOMEM if there is not enough memory to create the data object.
  */
 int gmcmc_ode_model_create(gmcmc_ode_model **, unsigned int, unsigned int,
-                           int (*)(size_t, const double *, const double *,
+                           int (*)(size_t, size_t, const double *, const double *,
                                    double *, size_t));
 
 /**
