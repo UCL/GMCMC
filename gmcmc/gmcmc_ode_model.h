@@ -29,6 +29,11 @@ extern const gmcmc_likelihood_function gmcmc_ode_likelihood_mh;
 extern const gmcmc_proposal_function gmcmc_ode_proposal_simp_mmala;
 
 /**
+ * ODE model proposal function using Simplified M-MALA (truncated).
+ */
+extern const gmcmc_proposal_function gmcmc_ode_proposal_simp_mmala_trunc;
+
+/**
  * ODE model likelihood function using Simplified M-MALA.
  */
 extern const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala;

@@ -226,7 +226,7 @@ int main(int argc, char * argv[]) {
 
   // Create the model
   gmcmc_model * model;
-  if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ode_proposal_simp_mmala, gmcmc_ode_likelihood_simp_mmala)) != 0) {
+  if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ode_proposal_simp_mmala_trunc, gmcmc_ode_likelihood_simp_mmala)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
