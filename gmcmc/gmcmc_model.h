@@ -1,6 +1,8 @@
 /*
  * gmcmc_model.h
  *
+ * Defines a GMCMC model with proposal and likelihood functions.
+ *
  *  Created on: 11 June 2013
  *      Author: Gary Macindoe
  */
@@ -160,9 +162,6 @@ int gmcmc_model_set_stepsize(gmcmc_model *, double);
  */
 double gmcmc_model_get_stepsize(const gmcmc_model *);
 
-
-// int gmcmc_model_set_blocking(gmcmc_model *, int **, const int *, int);
-// int gmcmc_model_get_block(const gmcmc_model *, int **, int *, int);
 
 /**
  * Stores a pointer to any model-specific data and functions in the model.

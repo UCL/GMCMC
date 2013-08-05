@@ -1,6 +1,8 @@
 /*
  * gmcmc_rng.h
  *
+ * Contains parallel RNGs for use with GMCMC.
+ *
  *  Created on: 11 June 2013
  *      Author: Gary Macindoe
  */

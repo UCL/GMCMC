@@ -4,14 +4,14 @@
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation
  * @param [in] data     the data to use in the simulation
- * @param [in] rng      a parallel RNG to use
+ * @param [in] rngs     parallel RNGs to use (one per temperature)
  *
  * @return 0 on success, non-zero on error.
  */
 int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options * options,
                       const gmcmc_model * model, const gmcmc_dataset * data,
-                      const gmcmc_prng64 * rng) {
-  int error;
+                      const gmcmc_prng64 ** rngs) {
+  int error = 0;
 
   /*
    * Initialise chains
@@ -24,33 +24,49 @@ int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options * options,
     GMCMC_ERROR("Unable to allocate chains", GMCMC_ENOMEM);
 
   // Initialise the chains
-// #pragma omp parallel for
+#pragma omp parallel for
   for (size_t j = 0; j < num_chains; j++) {
-    if ((error = gmcmc_chain_create(&chains[j], model, data, options->temperatures[j], rng)) != 0) {
-      // Destroy any chains already created
-      for (size_t k = 0; k < j; k++)
-        gmcmc_chain_destroy(chains[k]);
-      free(chains);
-      GMCMC_ERROR("Unable to initialise chains", error);
+#pragma omp flush(error)
+    if (error == 0) {
+      int myerror = gmcmc_chain_create(&chains[j], model, data, options->temperatures[j], rngs[j]);
+      if (myerror != 0) {
+        error = myerror;
+#pragma omp flush(error)
+      }
     }
+  }
+  if (error != 0) {
+    // Destroy any chains already created
+    for (size_t k = 0; k < num_chains; k++)
+      gmcmc_chain_destroy(chains[k]);
+    free(chains);
+    GMCMC_ERROR("Unable to initialise chains", error);
   }
 
   // Burn-in loop
   for (size_t i = 0; i < options->num_burn_in_samples; i++) {
     // Update each chain in the population in parallel
-// #pragma omp parallel for
+#pragma omp parallel for
     for (size_t j = 0; j < num_chains; j++) {
-      if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
-        for (size_t k = 0; k < num_chains; k++)
-          gmcmc_chain_destroy(chains[k]);
-        free(chains);
-        GMCMC_ERROR("Error updating chains", error);
+#pragma omp flush(error)
+      if (error == 0) {
+        int myerror = gmcmc_chain_update(chains[j], model, data, rngs[j]);
+        if (myerror != 0) {
+          error = myerror;
+#pragma omp flush(error)
+        }
       }
+    }
+    if (error != 0) {
+      for (size_t k = 0; k < num_chains; k++)
+        gmcmc_chain_destroy(chains[k]);
+      free(chains);
+      GMCMC_ERROR("Error updating chains", error);
     }
 
 
     // Exchange chains between temperatures
-    gmcmc_chain_exchange(chains, num_chains, rng);
+    gmcmc_chain_exchange(chains, num_chains, rngs[0]);
 
     // Adjust parameter proposal widths
     if (i % options->adapt_rate == 0) {
@@ -106,19 +122,27 @@ int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options * options,
   // Posterior
   for (size_t i = 0; i < options->num_posterior_samples; i++) {
     // Update each chain in the population in parallel
-// #pragma omp parallel for
+#pragma omp parallel for
     for (size_t j = 0; j < num_chains; j++) {
-      if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
-        for (size_t k = 0; k < num_chains; k++)
-          gmcmc_chain_destroy(chains[k]);
-        free(chains);
-        GMCMC_ERROR("Error updating chains", error);
+#pragma omp flush(error)
+      if (error == 0) {
+        int myerror = gmcmc_chain_update(chains[j], model, data, rngs[j]);
+        if (myerror != 0) {
+          error = myerror;
+#pragma omp flush(error)
+        }
       }
+    }
+    if (error != 0) {
+      for (size_t k = 0; k < num_chains; k++)
+        gmcmc_chain_destroy(chains[k]);
+      free(chains);
+      GMCMC_ERROR("Error updating chains", error);
     }
 
 
     // Exchange chains between temperatures
-    gmcmc_chain_exchange(chains, num_chains, rng);
+    gmcmc_chain_exchange(chains, num_chains, rngs[0]);
 
     // Report acceptance ratios
     if (i % options->adapt_rate == 0) {

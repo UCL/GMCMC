@@ -1,4 +1,4 @@
-#include "matlab.h"
+#include <gmcmc/gmcmc_matlab.h>
 
 #include <string.h>
 #include <math.h>
@@ -9,9 +9,14 @@
 #include <matrix.h>
 
 /**
+ * How often to save posterior samples.
+ */
+size_t gmcmc_matlab_posterior_save_size = 1000;
+
+/**
  * Where to write the samples to.
  */
-const char * outputID;
+const char * gmcmc_matlab_outputID = NULL;
 
 /**
  * Creates an array of cells in Matlab containing fields for the parameters,
@@ -122,9 +127,9 @@ static int write_matlab_field(mxArray * cells, const char * name, size_t index, 
  *         GMCMC_EIO     if there was an error writing the Matlab structure
  *                         array to a file.
  */
-int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
-                 size_t i, size_t j,
-                 const double * params, const double * log_prior, double log_likelihood) {
+int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
+                               size_t i, size_t j,
+                               const double * params, const double * log_prior, double log_likelihood) {
   static mxArray * burn_in = NULL, * posterior = NULL;
 
   const size_t num_params = gmcmc_model_get_num_params(model);
@@ -147,10 +152,10 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
     if (i == options->num_burn_in_samples - 1 && j == options->num_temperatures - 1) {
       // Format the filename for the burn in samples
       char * filename;
-      size_t outputlen = strlen(outputID) + 22 + floor(log10(options->num_burn_in_samples));
+      size_t outputlen = strlen(gmcmc_matlab_outputID) + 22 + floor(log10(options->num_burn_in_samples));
       if ((filename = malloc(outputlen)) == NULL)
         GMCMC_ERROR("Failed to allocate space for burn in file name", GMCMC_ENOMEM);
-      snprintf(filename, outputlen, "%s_BurnIn_%zu.mat", outputID, options->num_burn_in_samples);
+      snprintf(filename, outputlen, "%s_BurnIn_%zu.mat", gmcmc_matlab_outputID, options->num_burn_in_samples);
 
       // Open a Matlab file
       MATFile * file = matOpen(filename, "w7.3");       // Use HDF5
@@ -173,9 +178,9 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
     }
   }
   else {
-    // Lazily create a Matlab struct-of-arrays big enough to hold POSTERIOR_SAVE_SIZE posterior samples
+    // Lazily create a Matlab struct-of-arrays big enough to hold gmcmc_matlab_posterior_save_size posterior samples
     if (posterior == NULL) {
-      if ((posterior = create_matlab_array(POSTERIOR_SAVE_SIZE, options->num_temperatures, num_params)) == NULL)
+      if ((posterior = create_matlab_array(gmcmc_matlab_posterior_save_size, options->num_temperatures, num_params)) == NULL)
         GMCMC_ERROR("Failed to create burn in Matlab array", GMCMC_ENOMEM);
     }
 
@@ -184,20 +189,20 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
 
     // Copy the current parameters, log prior and log likelihood into the arrays
     int error;
-    if ((error = write_matlab_field(posterior, "Paras", j, i % POSTERIOR_SAVE_SIZE, params)) != 0 ||
-        (error = write_matlab_field(posterior, "LogPrior", j, i % POSTERIOR_SAVE_SIZE, log_prior)) != 0 ||
-        (error = write_matlab_field(posterior, "LL", j, i % POSTERIOR_SAVE_SIZE, &log_likelihood)) != 0)
+    if ((error = write_matlab_field(posterior, "Paras", j, i % gmcmc_matlab_posterior_save_size, params)) != 0 ||
+        (error = write_matlab_field(posterior, "LogPrior", j, i % gmcmc_matlab_posterior_save_size, log_prior)) != 0 ||
+        (error = write_matlab_field(posterior, "LL", j, i % gmcmc_matlab_posterior_save_size, &log_likelihood)) != 0)
       GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
 
     // If the arrays are full write them to a file
-    if ((i % POSTERIOR_SAVE_SIZE == POSTERIOR_SAVE_SIZE - 1 ||
+    if ((i % gmcmc_matlab_posterior_save_size == gmcmc_matlab_posterior_save_size - 1 ||
         i == options->num_posterior_samples - 1) && j == options->num_temperatures - 1) {
       // Format the filename for the burn in samples
       char * filename;
-      size_t outputlen = strlen(outputID) + 25 + floor(log10(i + 1));
+      size_t outputlen = strlen(gmcmc_matlab_outputID) + 25 + floor(log10(i + 1));
       if ((filename = malloc(outputlen)) == NULL)
         GMCMC_ERROR("Failed to allocate space for burn in file name", GMCMC_ENOMEM);
-      snprintf(filename, outputlen, "%s_Posterior_%zu.mat", outputID, i + 1);
+      snprintf(filename, outputlen, "%s_Posterior_%zu.mat", gmcmc_matlab_outputID, i + 1);
 
       // Open a Matlab file
       MATFile * file = matOpen(filename, "w7.3");       // Use HDF5
@@ -225,86 +230,3 @@ int write_matlab(const gmcmc_popmcmc_options * options, const gmcmc_model * mode
 
   return 0;
 }
-
-#ifdef TEST
-int main(int argc, char * argv[]) {
-  outputID = "test";
-
-  double temperatures[] = { 1.0 };
-  gmcmc_popmcmc_options options = {
-    .num_posterior_samples = 10,
-    .num_burn_in_samples = 10,
-    .temperatures = temperatures,
-    .num_temperatures = 1,
-    .adapt_rate = 50,
-    .upper_step_size = 0.5,
-    .lower_step_size = 0.2,
-    .acceptance = NULL,
-    .write = write_matlab
-  };
-
-  int error;
-
-  size_t num_params = 4;
-  gmcmc_distribution ** priors;
-  if ((priors = malloc(num_params * sizeof(gmcmc_distribution *))) == NULL)
-    GMCMC_ERROR("Failed to allocate priors", GMCMC_ENOMEM);
-  for (size_t i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.0, 1.0)) != 0) {
-      for (size_t j = 0; j < i; j++)
-        gmcmc_distribution_destroy(priors[j]);
-      free(priors);
-      GMCMC_ERROR("Failed to create prior", error);
-    }
-  }
-
-  gmcmc_model * model;
-  if ((error = gmcmc_model_create(&model, num_params, priors, NULL, NULL)) != 0) {
-    for (size_t j = 0; j < num_params; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    GMCMC_ERROR("Failed to create model", error);
-  }
-
-  for (size_t j = 0; j < num_params; j++)
-    gmcmc_distribution_destroy(priors[j]);
-  free(priors);
-
-
-  size_t n = options.num_burn_in_samples + options.num_posterior_samples;
-  for (size_t i = 0; i < n; i++) {
-    double params[] = { i * num_params + 0.0, i * num_params + 1.0, i * num_params + 2.0, i * num_params + 3.0 };
-    double log_prior[] = { i * num_params + 4.0, i * num_params + 5.0, i * num_params + 6.0, i * num_params + 7.0 };
-    double log_likelihood = i;
-
-    fprintf(stderr, "params{%zu} = ", i);
-    for (size_t j = 0; j < num_params; j++) {
-      fprintf(stderr, "%.15f", params[j]);
-      if (j < num_params - 1)
-        fprintf(stderr, ", ");
-      else
-        fprintf(stderr, "\n");
-    }
-
-    fprintf(stderr, "log_prior{%zu} = ", i);
-    for (size_t j = 0; j < num_params; j++) {
-      fprintf(stderr, "%.15f", log_prior[j]);
-      if (j < num_params - 1)
-        fprintf(stderr, ", ");
-      else
-        fprintf(stderr, "\n");
-    }
-
-    fprintf(stderr, "log_likelihood{%zu} = %.15f\n", i, log_likelihood);
-
-    if ((error = options.write(&options, model, i, 0, params, log_prior, log_likelihood)) != 0) {
-      gmcmc_model_destroy(model);
-      GMCMC_ERROR("Failed to write samples", error);
-    }
-  }
-
-  gmcmc_model_destroy(model);
-
-  return 0;
-}
-#endif

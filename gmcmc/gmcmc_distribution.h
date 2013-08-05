@@ -1,6 +1,8 @@
 /*
  * gmcmc_distribution.h
  *
+ * Probability distributions for use as priors with GMCMC.
+ *
  *  Created on: 11 June 2013
  *      Author: Gary Macindoe
  */

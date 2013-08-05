@@ -1,7 +1,16 @@
 #include <gmcmc/gmcmc_ode_model.h>
 #include <gmcmc/gmcmc_errno.h>
+
+#include <stdlib.h>
 #include <string.h>
 #include <cblas.h>
+#include <math.h>
+
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_dense.h>
+#include <nvector/nvector_serial.h>
+
+#include "clapack.h"
 #include "mvn.c"
 
 /**
@@ -25,19 +34,37 @@ static inline double sum(size_t n, const double * x) {
   return sum;
 }
 
+#include "cvodes.c"
+
 /**
  * ODE model-specific data.
  *
  * In addition to data common to all models, ODE models have a number of
- * observed and unobserved species and a function to solve a system of ODEs.
+ * observed and unobserved species and a function to evaluate the right-hand
+ * side of a system of ODEs.
  */
 struct gmcmc_ode_model {
-  unsigned int observed, unobserved;    /**< Number of observed and unobserved*/
-                                        /*   species                          */
-  int (*solve)(size_t, size_t,          /**< Function to solve system of ODEs */
-               const double *,          /*   using solver of choice           */
-               const double *,
-               double *, size_t);
+  /**
+   * Number of observed and unobserved species.
+   */
+  unsigned int observed, unobserved;
+
+  /**
+   * Function to evaluate the right-hand side of a system of ODEs.
+   */
+  gmcmc_ode_rhs rhs;
+
+  /**
+   * Fixed initial conditions for the system of ODEs.  Will be NULL if the
+   * initial conditions are being inferred as part of the parameter vector in
+   * the model.
+   */
+  double * ics;
+
+  /**
+   * ODE integrator options.
+   */
+  cvodes_options options;
 };
 
 /**
@@ -75,6 +102,8 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   (void)serdata;
   (void)size;
 
+  const size_t num_params = gmcmc_model_get_num_params(model);
+
   // Get a pointer to the ODE model-specific data
   const gmcmc_ode_model * ode_model = (gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
   const unsigned int num_species = ode_model->observed + ode_model->unobserved;
@@ -82,6 +111,9 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   // Get the timepoints
   const size_t num_timepoints = gmcmc_dataset_get_num_timepoints(dataset);
   const double * timepoints = gmcmc_dataset_get_timepoints(dataset);
+
+  // Get initial conditions
+  const double * ics = (ode_model->ics != NULL) ? ode_model->ics : &params[num_params - num_species];
 
   // Allocate simulated data
   double * simdata;
@@ -91,8 +123,10 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
   // Solve the system of equations using the function specified in the ODE model
   int error;
-  if ((error = ode_model->solve(num_timepoints, num_species, timepoints, params,
-                                simdata, lds)) != 0) {
+  if ((error = cvodes_solve(ode_model->rhs,
+                            num_timepoints, num_species, num_params,
+                            timepoints, ics, params, &ode_model->options,
+                            simdata, NULL, lds)) != 0) {
     free(simdata);
     GMCMC_ERROR("Failed to solve system of ODEs", error);
   }
@@ -104,34 +138,26 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     GMCMC_ERROR("Failed to allocate log likelihood", GMCMC_ENOMEM);
   }
 
-  // Create the covariance matrix based on the noise covariance
+  // The covariance matrix for observed species j is diagonal with noisecov[j]
+  // repeated along the diagonal
   const double * noisecov = (const double *)gmcmc_dataset_get_auxdata(dataset);
-  double * covariance;
-  size_t ldc = (num_timepoints + 1u) & ~1u;
-  if ((covariance = calloc(num_timepoints, ldc * sizeof(double))) == NULL) {
-    free(ll);
-    free(simdata);
-    GMCMC_ERROR("Failed to allocate covariance", GMCMC_ENOMEM);
-  }
+  for (size_t j = 0; j < ode_model->observed; j++) {
+    // Subtract the real data from the simulated data so that it has zero mean
+    const double * data = gmcmc_dataset_get_data(dataset, j);
+    for (size_t i = 0; i < num_timepoints; i++)
+      simdata[j * lds + i] -= data[i];
 
-  for (size_t i = 0; i < ode_model->observed; i++) {
-    for (size_t j = 0; j < num_timepoints; j++)
-      covariance[j * ldc + j] = noisecov[i];
-
-    // Calculate an element of the log likelihood
-    if ((error = gmcmc_mvn_logpdf(num_timepoints, &simdata[i * lds], gmcmc_dataset_get_data(dataset, i), covariance, ldc, &ll[i])) != 0) {
-      free(covariance);
+    // Calculate an element of the log likelihood using the optimised PDF
+    if ((error = gmcmc_mvn_logpdf0(num_timepoints, &simdata[j * lds], noisecov[j], &ll[j])) != 0) {
       free(ll);
       free(simdata);
       GMCMC_ERROR("Failed to calculate log normal PDF", GMCMC_ENOMEM);
     }
   }
 
-  free(covariance);
-  free(simdata);
-
   *likelihood = sum(ode_model->observed, ll);
 
+  free(simdata);
   free(ll);
 
   return 0;
@@ -149,9 +175,9 @@ static int ode_proposal_simp_mmala(size_t n, const double * params,
 
   // Unpack the serialised data
   size_t ldfi = (n + 1u) & ~1u;
-  const double * gradient_ll = (const double *)serdata;
-  const double * gradient_log_prior = &gradient_ll[n];
-  const double * FI = &gradient_log_prior[n];
+  const double * gradient_ll = serdata;
+  const double * gradient_log_prior = &gradient_ll[ldfi];
+  const double * FI = &gradient_log_prior[ldfi];
   const double * hessian_log_prior = &FI[ldfi * n];
 
   // Calculate posterior gradient and metric tensor
@@ -211,16 +237,125 @@ const gmcmc_proposal_function gmcmc_ode_proposal_simp_mmala = &ode_proposal_simp
 /**
  * ODE model likelihood function using Simplified M-MALA.
  */
-static int ode_likelihood_simp_mmala(const gmcmc_dataset * data, const gmcmc_model * model,
+static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_model * model,
                                      const double * params,
                                      double * likelihood, void ** serdata, size_t * size) {
-  // TODO: Simplified M-MALA ODE likelihood function
-  (void)data;
-  (void)model;
-  (void)params;
-  (void)likelihood;
-  (void)serdata;
-  (void)size;
+  const size_t num_params = gmcmc_model_get_num_params(model);
+
+  // Get a pointer to the ODE model-specific data
+  const gmcmc_ode_model * ode_model = (gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
+  const unsigned int num_species = ode_model->observed + ode_model->unobserved;
+
+  // Get the timepoints
+  const size_t num_timepoints = gmcmc_dataset_get_num_timepoints(dataset);
+  const double * timepoints = gmcmc_dataset_get_timepoints(dataset);
+
+  // Get initial conditions
+  const double * ics = (ode_model->ics != NULL) ? ode_model->ics : &params[num_params - num_species];
+
+  // Allocate simulated data
+  double * simdata;
+  size_t lds = (num_timepoints + 1u) & ~1u;
+  if ((simdata = malloc(lds * num_species * sizeof(double))) == NULL)
+    GMCMC_ERROR("Failed to allocate simulated data", GMCMC_ENOMEM);
+
+  // Allocate sensitivities
+  double * sensitivities;
+  if ((sensitivities = malloc(lds * num_species * num_params * sizeof(double))) == NULL) {
+    free(simdata);
+    GMCMC_ERROR("Failed to allocate sensitivities", GMCMC_ENOMEM);
+  }
+
+  // Solve the system of equations using the function specified in the ODE model
+  int error;
+  if ((error = cvodes_solve(ode_model->rhs,
+                            num_timepoints, num_species, num_params,
+                            timepoints, ics, params, &ode_model->options,
+                            simdata, sensitivities, lds)) != 0) {
+    free(simdata);
+    free(sensitivities);
+    GMCMC_ERROR("Failed to solve system of ODEs", error);
+  }
+
+  // Allocate the log likelihood
+  double * ll;
+  if ((ll = malloc(ode_model->observed * sizeof(double))) == NULL) {
+    free(simdata);
+    free(sensitivities);
+    GMCMC_ERROR("Failed to allocate log likelihood", GMCMC_ENOMEM);
+  }
+
+  // The covariance matrix for observed species j is diagonal with noisecov[j]
+  // repeated along the diagonal
+  const double * noisecov = (const double *)gmcmc_dataset_get_auxdata(dataset);
+  for (size_t j = 0; j < ode_model->observed; j++) {
+    // Subtract the real data from the simulated data so that it has zero mean
+    const double * data = gmcmc_dataset_get_data(dataset, j);
+    for (size_t i = 0; i < num_timepoints; i++)
+      simdata[j * lds + i] -= data[i];
+
+    // Calculate an element of the log likelihood using the optimised PDF
+    if ((error = gmcmc_mvn_logpdf0(num_timepoints, &simdata[j * lds], noisecov[j], &ll[j])) != 0) {
+      free(ll);
+      free(simdata);
+      free(sensitivities);
+      GMCMC_ERROR("Failed to calculate log normal PDF", GMCMC_ENOMEM);
+    }
+  }
+
+  *likelihood = sum(ode_model->observed, ll);
+
+  free(ll);
+
+  // Calculate the gradient of the log-likelihood
+  size_t ldfi = (num_params + 1u) & ~1u;
+  *size = (num_params + 3) * ldfi;
+  if ((*serdata = calloc(*size, sizeof(double))) == NULL) {
+    free(simdata);
+    free(sensitivities);
+    GMCMC_ERROR("Failed to allocate gradient structure", GMCMC_ENOMEM);
+  }
+  *size *= sizeof(double);
+
+  // Unpack serialised data structure
+  double * gradient_ll = *serdata;            // Length num_params
+  double * gradient_log_prior = &gradient_ll[ldfi];     // Length num_params (start on aligned offset)
+  double * FI = &gradient_log_prior[ldfi];              // Length num_params * ldfi
+  double * hessian_log_prior = &FI[num_params * ldfi];
+
+  // Calculate gradients for each of the parameters i.e. d(LL)/d(Parameter)
+  for (size_t j = 0; j < num_params; j++) {
+    const double * sens_j = &sensitivities[j * num_species * lds];      // Sensitivities of parameter j
+
+    // Calculate the gradient of the log-likelihood
+    for (size_t i = 0; i < ode_model->observed; i++)
+      gradient_ll[j] -= cblas_ddot(num_timepoints, &simdata[i * lds], 1, &sens_j[i * lds], 1) / noisecov[i];
+
+    // TODO: Add log transformation if necessary
+
+
+    // Calculate gradient of the log prior
+    const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
+    gradient_log_prior[j] = gmcmc_distribution_pdf_1st_order(prior, params[j]);
+
+    // Calculate the Hessian of the log prior
+    hessian_log_prior[j] = gmcmc_distribution_pdf_2nd_order(prior, params[j]);
+
+    // Calculate metric tensor
+    for (size_t i = j; i < num_params; i++) {
+      const double * sens_i = &sensitivities[i * num_species * lds];    // Sensitivities of parameter i
+      for (size_t k = 0; k < ode_model->observed; k++)
+        FI[j * ldfi + i] += cblas_ddot(num_timepoints, &sens_i[k * lds], 1, &sens_j[k * lds], 1) / noisecov[k];
+
+      // TODO: Add log transformation if necessary
+
+      FI[i * ldfi + j] = FI[j * ldfi + i];
+    }
+  }
+
+  free(simdata);
+  free(sensitivities);
+
   return 0;
 }
 const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala = &ode_likelihood_simp_mmala;
@@ -231,25 +366,27 @@ const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala = &ode_likelihoo
  * @param [out] ode_model   the ODE model
  * @param [in]  observed    the number of observed species in the model
  * @param [in]  unobserved  the number of unobserved species in the model
- * @param [in]  solve       function to solve system of ODEs
+ * @param [in]  rhs         function to evaluate the right-hand side of a system
+ *                            of ODEs
  *
  * @return 0 on success,
- *         GMCMC_EINVAL if solve is NULL,
+ *         GMCMC_EINVAL if rhs is NULL,
  *         GMCMC_ENOMEM if there is not enough memory to create the data object.
  */
 int gmcmc_ode_model_create(gmcmc_ode_model ** ode_model, unsigned int observed,
-                           unsigned int unobserved,
-                           int (*solve)(size_t, size_t, const double *, const double *,
-                                   double *, size_t)) {
-  if (solve == NULL)
-    GMCMC_ERROR("solve is NULL", GMCMC_EINVAL);
+                           unsigned int unobserved, gmcmc_ode_rhs rhs) {
+  if (rhs == NULL)
+    GMCMC_ERROR("rhs is NULL", GMCMC_EINVAL);
 
   if ((*ode_model = malloc(sizeof(gmcmc_ode_model))) == NULL)
     GMCMC_ERROR("Unable to allocate ODE model", GMCMC_ENOMEM);
 
   (*ode_model)->observed = observed;
   (*ode_model)->unobserved = unobserved;
-  (*ode_model)->solve = solve;
+  (*ode_model)->rhs = rhs;
+  (*ode_model)->ics = NULL;
+  (*ode_model)->options.abstol = 1.0e-06;
+  (*ode_model)->options.reltol = 1.0e-06;
 
   return 0;
 }
@@ -260,5 +397,123 @@ int gmcmc_ode_model_create(gmcmc_ode_model ** ode_model, unsigned int observed,
  * @param [in] ode_model  the ODE model-specific data object to destroy
  */
 void gmcmc_ode_model_destroy(gmcmc_ode_model * ode_model) {
+  if (ode_model != NULL)
+    free(ode_model->ics);
   free(ode_model);
+}
+
+/**
+ * Gets a pointer to the initial conditions of the system of ODEs.  If the
+ * initial conditions are to be inferred then they will be stored in the end of
+ * the parameter vector in the model and this function will return NULL.
+ *
+ * @param [in] ode_model  the ODE model
+ *
+ * @return a pointer to the initial conditions, or NULL if they are being
+ *           inferred as part of the model.
+ */
+const double * gmcmc_ode_model_get_initial_conditions(const gmcmc_ode_model * ode_model) {
+  return ode_model->ics;
+}
+
+/**
+ * Sets the initial conditions for the system of ODEs.  If the initial
+ * conditions are to be inferred then set them to NULL here and append the
+ * initial conditions to the end of the parameter vector in the model along with
+ * associated prior distributions for each one.
+ *
+ * @param [in] ode_model  the ODE model
+ * @param [in] ics        the initial conditions (may be NULL)
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if ics is not NULL and the initial conditions could not
+ *                        be copied into the model.
+ */
+int gmcmc_ode_model_set_initial_conditions(gmcmc_ode_model * ode_model, const double * ics) {
+  if (ics == NULL) {
+    free(ode_model->ics);
+    ode_model->ics = NULL;
+  }
+  else {
+    double * new_ics = malloc((ode_model->observed + ode_model->unobserved) * sizeof(double));
+    if (new_ics == NULL)
+      GMCMC_ERROR("Failed to allocate new initial conditions", GMCMC_ENOMEM);
+    memcpy(new_ics, ics, (ode_model->observed + ode_model->unobserved) * sizeof(double));
+    free(ode_model->ics);
+    ode_model->ics = new_ics;
+  }
+  return 0;
+}
+
+/**
+ * Gets the integration tolerances used by the ODE solver.
+ *
+ * @param [in]  ode_model  the ODE model
+ * @param [out] abstol     the absolute tolerance
+ * @param [out] reltol     the relative tolerance
+ */
+void gmcmc_ode_model_get_tolerances(const gmcmc_ode_model * ode_model,
+                                    double * abstol, double * reltol) {
+  *abstol = ode_model->options.abstol;
+  *reltol = ode_model->options.reltol;
+}
+
+/**
+ * Sets the integration tolerances used by the ODE solver.
+ *
+ * @param [in] ode_model  the ODE model
+ * @param [in] abstol     the absolute tolerance
+ * @param [in] reltol     the relative tolerance
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if either tolerance is less than or equal to zero.
+ */
+int gmcmc_ode_model_set_tolerances(gmcmc_ode_model * ode_model,
+                                   double abstol, double reltol) {
+  if (islessequal(abstol, 0.0) || islessequal(reltol, 0.0))
+    GMCMC_ERROR("Absolute and relative integrator tolerances cannot be less than"
+                " or equal to zero", GMCMC_EINVAL);
+  ode_model->options.abstol = abstol;
+  ode_model->options.reltol = reltol;
+  return 0;
+}
+
+/**
+ * Gets the number of observed species in the ODE model.
+ *
+ * @param [in] ode_model  the ODE model
+ *
+ * @return the number of observed species in the ODE model.
+ */
+unsigned int gmcmc_ode_model_get_num_observed(const gmcmc_ode_model * ode_model) {
+  return ode_model->observed;
+}
+
+/**
+ * Gets the number of unobserved species in the ODE model.
+ *
+ * @param [in] ode_model  the ODE model
+ *
+ * @return the number of unobserved species in the ODE model.
+ */
+unsigned int gmcmc_ode_model_get_num_unobserved(const gmcmc_ode_model * ode_model) {
+  return ode_model->unobserved;
+}
+
+/**
+ * Evaluates the ODE right-hand side at a particular timepoint.
+ *
+ * @param [in]  ode_model  the ODE model
+ * @param [in]  t       the current timepoint
+ * @param [in]  y       current values of the time-dependent variables
+ * @param [out] ydot    values of the time-dependent variables at time t
+ * @param [in]  params  function parameters
+ *
+ * @return = 0 on success,
+ *         > 0 if the current values in y are invalid,
+ *         < 0 if one of the parameter values is incorrect.
+ */
+int gmcmc_ode_model_rhs(const gmcmc_ode_model * ode_model, double t,
+                        const double * y, double * yout, const double * params) {
+  return ode_model->rhs(t, y, yout, params);
 }

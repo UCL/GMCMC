@@ -1,6 +1,8 @@
 /*
  * gmcmc_popmcmc.h
  *
+ * Contains declarations of functions to perform population MCMC on GMCMC models.
+ *
  *  Created on: 11 June 2013
  *      Author: Gary Macindoe
  */
@@ -92,7 +94,7 @@ typedef struct gmcmc_popmcmc_options {
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation
  * @param [in] data     the data to use in the simulation
- * @param [in] rng      a parallel RNG to use
+ * @param [in] rng      a RNG to use
  *
  * @return 0 on success, non-zero on error.
  */
@@ -105,12 +107,12 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options *, const gmcmc_model *,
  * @param [in] options  MCMC options struct
  * @param [in] model    the model to use in the simulation
  * @param [in] data     the data to use in the simulation
- * @param [in] rng      a parallel RNG to use
+ * @param [in] rngs     parallel RNGs to use (one per temperature)
  *
  * @return 0 on success, non-zero on error.
  */
 int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                      const gmcmc_dataset *, const gmcmc_prng64 *);
+                      const gmcmc_dataset *, const gmcmc_prng64 **);
 
 /**
  * Performs a population MCMC simulation in parallel using MPI.  All callback

@@ -25,7 +25,7 @@
 // #define LOG10SPACE_ICS
 
 // Whether to infer initial conditions
-#define INFER_ICS
+// #define INFER_ICS
 
 #define MPI_ERROR_CHECK(call, msg) \
   do { \
@@ -56,7 +56,7 @@
  *         > 0 if the current values in y are invalid,
  *         < 0 if one of the parameter values is incorrect.
  */
-static int fitzhughnagumo(double, const double *, double *, const double *);
+static int locke_2005a(double, const double *, double *, const double *);
 
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
@@ -64,7 +64,7 @@ int main(int argc, char * argv[]) {
   MPI_ERROR_CHECK(MPI_Init(&argc, &argv), "Failed to initialise MPI");
 
   // Default dataset file
-  const char * data_file = "data/FitzHugh_Benchmark_Data.mat";
+  const char * data_file = "data/Locke_Benchmark_Data.mat";
 
   // Process command line options
   int c;
@@ -100,7 +100,7 @@ int main(int argc, char * argv[]) {
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
-  mcmc_options.num_temperatures = 10;
+  mcmc_options.num_temperatures = 1;//20;
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
@@ -113,7 +113,7 @@ int main(int argc, char * argv[]) {
     return -2;
   }
   for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
-    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
+    temperatures[i] = 1.0;//pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
   mcmc_options.temperatures = temperatures;
 
   // Set number of burn-in and posterior samples
@@ -135,9 +135,9 @@ int main(int argc, char * argv[]) {
    * Common model settings
    */
 #ifdef INFER_ICS
-  const unsigned int num_params = 5;    // Parameters and initial conditions
+  const unsigned int num_params = 28;    // Parameters and initial conditions
 #else
-  const unsigned int num_params = 3;    // Just parameters
+  const unsigned int num_params = 22;    // Just parameters
 #endif
 
   // Set up priors for each of the parameters (and initial conditions)
@@ -151,7 +151,7 @@ int main(int argc, char * argv[]) {
 
 #ifdef LOG10SPACE
   // Set up priors for log space
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < 22; i++) {
     if ((error = gmcmc_distribution_create_uniform(&priors[i], -2.0, 2.0)) != 0) {
       // Clean up
       for (unsigned int j = 0; j < i; j++)
@@ -165,7 +165,7 @@ int main(int argc, char * argv[]) {
   }
 #else
   // Set up priors for standard space
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < 22; i++) {
     if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.0, 10.0)) != 0) {
       // Clean up
       for (unsigned int j = 0; j < i; j++)
@@ -182,7 +182,7 @@ int main(int argc, char * argv[]) {
 #ifdef INFER_ICS
 #ifdef LOG10SPACE_ICS
   // Set up priors for log space
-  for (unsigned int i = 3; i < 5; i++) {
+  for (unsigned int i = 22; i < 28; i++) {
     if ((error = gmcmc_distribution_create_normal(&priors[i], 0.0, 1.0)) != 0) {
       // Clean up
       for (unsigned int j = 0; j < i; j++)
@@ -196,17 +196,77 @@ int main(int argc, char * argv[]) {
   }
 #else
   // Set up priors for standard space
-  for (unsigned int i = 3; i < 5; i++) {
-    if ((error = gmcmc_distribution_create_normal(&priors[i], 0.0, 2.0)) != 0) {
+
+  // Prior for IC 1
+  if ((error = gmcmc_distribution_create_uniform(&priors[22], 0.0, 0.5)) != 0) {
       // Clean up
-      for (unsigned int j = 0; j < i; j++)
-        gmcmc_distribution_destroy(priors[i]);
-      free(priors);
-      free(temperatures);
-      fputs("Unable to create priors\n", stderr);
-      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-      return -3;
-    }
+    for (unsigned int j = 0; j < 22; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    free(temperatures);
+    fputs("Unable to create priors\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -3;
+  }
+
+  // Prior for IC 2
+  if ((error = gmcmc_distribution_create_uniform(&priors[23], 11.0, 16.0)) != 0) {
+    // Clean up
+    for (unsigned int j = 0; j < 23; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    free(temperatures);
+    fputs("Unable to create priors\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -3;
+  }
+
+  // Prior for IC 3
+  if ((error = gmcmc_distribution_create_uniform(&priors[24], 7.0, 12.0)) != 0) {
+    // Clean up
+    for (unsigned int j = 0; j < 24; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    free(temperatures);
+    fputs("Unable to create priors\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -3;
+  }
+
+  // Prior for IC 4
+  if ((error = gmcmc_distribution_create_uniform(&priors[25], 0.0, 4.0)) != 0) {
+      // Clean up
+    for (unsigned int j = 0; j < 25; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    free(temperatures);
+    fputs("Unable to create priors\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -3;
+  }
+
+  // Prior for IC 5
+  if ((error = gmcmc_distribution_create_uniform(&priors[26], 4.0, 8.0)) != 0) {
+    // Clean up
+    for (unsigned int j = 0; j < 26; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    free(temperatures);
+    fputs("Unable to create priors\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -3;
+  }
+
+  // Prior for IC 6
+  if ((error = gmcmc_distribution_create_uniform(&priors[27], 0.0, 3.0)) != 0) {
+    // Clean up
+    for (unsigned int j = 0; j < 27; j++)
+      gmcmc_distribution_destroy(priors[j]);
+    free(priors);
+    free(temperatures);
+    fputs("Unable to create priors\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -3;
   }
 #endif
 #endif
@@ -245,9 +305,17 @@ int main(int argc, char * argv[]) {
 
   // Set up starting values for all temperatures
 #ifdef INFER_ICS
-  double params[] = { 0.2, 0.2, 3.0, -1.0, 1.0 };
+  // Parameters and initial conditions
+  double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
+                       5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
+                       0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
+                       5.3527,  0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
 #else
-  double params[] = { 0.2, 0.2, 3.0 };
+  // Just parameters
+  double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
+                       5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
+                       0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
+                       5.3527 };
 #endif
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     // Clean up
@@ -266,7 +334,7 @@ int main(int argc, char * argv[]) {
    * ODE model settings
    */
   gmcmc_ode_model * ode_model;
-  if ((error = gmcmc_ode_model_create(&ode_model, 2, 0, fitzhughnagumo)) != 0) {
+  if ((error = gmcmc_ode_model_create(&ode_model, 6, 0, locke_2005a)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
@@ -277,7 +345,7 @@ int main(int argc, char * argv[]) {
   }
 
 #ifndef INFER_ICS
-  double ics[] = { -1.0, 1.0 };
+  double ics[] = {0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
   gmcmc_ode_model_set_initial_conditions(ode_model, ics);
 #endif
 
@@ -338,41 +406,127 @@ int main(int argc, char * argv[]) {
  *         > 0 if the current values in y are invalid,
  *         < 0 if one of the parameter values is incorrect.
  */
-static int fitzhughnagumo(double t, const double * y, double * ydot, const double * params) {
+static int locke_2005a(double t, const double * y, double * ydot, const double * params) {
   (void)t;      // Unused
 
+  // Model variables
+  const double a = 1;
+  const double b = 2;
+
+  // Model parameters
   // Reparameterise if necessary
-#ifdef LOG10SPACE
-  double a = pow(10.0, params[0]);
-  double b = pow(10.0, params[1]);
-  double c = pow(10.0, params[2]);
-#else
-  double a = params[0];
-  double b = params[1];
-  double c = params[2];
-#endif
+// #ifdef LOG10SPACE
+//   double g1 = pow(10.0, params[ 0]);
+//   double g2 = pow(10.0, params[ 1]);
+//
+//   double k1 = pow(10.0, params[ 2]);
+//   double k2 = pow(10.0, params[ 3]);
+//   double k3 = pow(10.0, params[ 4]);
+//   double k4 = pow(10.0, params[ 5]);
+//   double k5 = pow(10.0, params[ 6]);
+//   double k6 = pow(10.0, params[ 7]);
+//
+//   double m1 = pow(10.0, params[ 8]);
+//   double m2 = pow(10.0, params[ 9]);
+//   double m3 = pow(10.0, params[10]);
+//   double m4 = pow(10.0, params[11]);
+//   double m5 = pow(10.0, params[12]);
+//   double m6 = pow(10.0, params[13]);
+//
+//   double n1 = pow(10.0, params[14]);
+//   double n2 = pow(10.0, params[15]);
+//
+//   double p1 = pow(10.0, params[16]);
+//   double p2 = pow(10.0, params[17]);
+//
+//   double r1 = pow(10.0, params[18]);
+//   double r2 = pow(10.0, params[19]);
+//   double r3 = pow(10.0, params[20]);
+//   double r4 = pow(10.0, params[21]);
+// #else
+  double g1 = params[ 0];
+  double g2 = params[ 1];
 
-#ifdef LOG10SPACE_ICS
-  double v = pow(10.0, y[0]);
-  double r = pow(10.0, y[1]);
-#else
-  double v = y[0];
-  double r = y[1];
-#endif
+  double k1 = params[ 2];
+  double k2 = params[ 3];
+  double k3 = params[ 4];
+  double k4 = params[ 5];
+  double k5 = params[ 6];
+  double k6 = params[ 7];
 
-  // d/dt(V) = c*(V-(V^3)/3+R)
-  double vt = c * (v - ((v*v*v) / 3.0) + r);
+  double m1 = params[ 8];
+  double m2 = params[ 9];
+  double m3 = params[10];
+  double m4 = params[11];
+  double m5 = params[12];
+  double m6 = params[13];
 
-  // d/dt(R) = -(V-a+b*R)/c
-  double rt = -(v - a + b * r) / c;
+  double n1 = params[14];
+  double n2 = params[15];
 
-#ifdef LOG10SPACE_ICS
-  ydot[0] = log10(vt);
-  ydot[1] = log10(rt);
-#else
-  ydot[0] = vt;
-  ydot[1] = rt;
-#endif
+  double p1 = params[16];
+  double p2 = params[17];
+
+  double r1 = params[18];
+  double r2 = params[19];
+  double r3 = params[20];
+  double r4 = params[21];
+// #endif
+
+// #ifdef LOG10SPACE_ICS
+//   double LHYm  = pow(10.0, y[0]);
+//   double LHYc  = pow(10.0, y[1]);
+//   double LHYn  = pow(10.0, y[2]);
+//   double TOC1m = pow(10.0, y[3]);
+//   double TOC1c = pow(10.0, y[4]);
+//   double TOC1n = pow(10.0, y[5]);
+// #else
+  double LHYm  = y[0];
+  double LHYc  = y[1];
+  double LHYn  = y[2];
+  double TOC1m = y[3];
+  double TOC1c = y[4];
+  double TOC1n = y[5];
+// #endif
+
+  // Model states
+
+  // d/dt(LHYm) = (n1*TOC1n^a)/(g1^a + TOC1n^a) - (m1*LHYm)/(k1 + LHYm)
+//   double LHYmt = (n1 * pow(TOC1n, a)) / (pow(g1, a) + pow(TOC1n, a)) - (m1 * LHYm) / (k1 + LHYm);
+  double LHYmt = (n1 * TOC1n) / (g1 + TOC1n) - (m1 * LHYm) / (k1 + LHYm);
+
+  // d/dt(LHYc) = p1*LHYm - r1*LHYc + r2*LHYn - (m2*LHYc)/(k2 + LHYc)
+  double LHYct = p1 * LHYm - r1 * LHYc + r2 * LHYn - (m2 * LHYc) / (k2 + LHYc);
+
+  // d/dt(LHYn) = r1*LHYc - r2*LHYn - (m3*LHYn)/(k3 + LHYn)
+  double LHYnt = r1 * LHYc - r2 * LHYn - (m3 * LHYn) / (k3 + LHYn);
+
+  // d/dt(TOC1m) = (n2*g2^b)/(g2^b + LHYn^b) - (m4*TOC1m)/(k4 + TOC1m)
+//   double TOC1mt = (n2 * pow(g2, b)) / (pow(g2, b) + pow(LHYn, b)) - (m4 * TOC1m) / (k4 + TOC1m);
+  double TOC1mt = (n2 * g2*g2) / (g2*g2 + LHYn * LHYn) - (m4 * TOC1m) / (k4 + TOC1m);
+
+  // d/dt(TOC1c) = p2*TOC1m - r3*TOC1c + r4*TOC1n - (m5*TOC1c)/(k5 + TOC1c)
+  double TOC1ct = p2 * TOC1m - r3 * TOC1c + r4 * TOC1n - (m5 * TOC1c) / (k5 + TOC1c);
+
+  // d/dt(TOC1n) = r3*TOC1c - r4*TOC1n - (m6*TOC1n)/(k6 + TOC1n)
+  double TOC1nt = r3 * TOC1c - r4 * TOC1n - (m6 * TOC1n) / (k6 + TOC1n);
+
+
+// #ifdef LOG10SPACE_ICS
+//   ydot[0] = log10(LHYmt);
+//   ydot[1] = log10(LHYct);
+//   ydot[2] = log10(LHYnt);
+//   ydot[3] = log10(TOC1mt);
+//   ydot[4] = log10(TOC1ct);
+//   ydot[5] = log10(TOC1nt);
+// #else
+  ydot[0] = LHYmt;
+  ydot[1] = LHYct;
+  ydot[2] = LHYnt;
+  ydot[3] = TOC1mt;
+  ydot[4] = TOC1ct;
+  ydot[5] = TOC1nt;
+// #endif
 
   return 0;
 }

@@ -156,3 +156,41 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
 
   return 0;
 }
+
+/**
+ * Calculates the log PDF of the multivariate normal distribution with
+ * Mean = [ 0   Sigma = [ s 0 0
+ *          0             0 s 0
+ *          0 ]           0 0 s ]
+ * for some scalar s.
+ *
+ * When Sigma is assumed to be dense evaluating the multivariate normal PDF is
+ * an O(n^3) operation due to the Cholesky decomposition and inverse of the
+ * covariance matrix.  If Sigma is diagonal then this can be reduced to O(n).
+ *
+ * @param [in]  n      the dimensionality of the distribution
+ * @param [in]  x      the sample vector
+ * @param [in]  sigma  the value along the diagonal of the covariance matrix
+ * @param [out] res    the probability of x
+ *
+ * @return 0 on success, GMCMC_EINVAL if sigma is less than or equal to zero.
+ */
+static inline int gmcmc_mvn_logpdf0(size_t n, const double * x, double sigma, double * res) {
+  if (islessequal(sigma, 0.0))
+    return GMCMC_EINVAL;
+
+  if (n == 0) {
+    *res = -INFINITY;
+    return 0;
+  }
+
+  // (x - mu)' * inv(Sigma) * (x - mu) becomes sum(x^2)/sigma
+  double p = 0.0;
+  for (size_t i = 0; i < n; i++)
+    p += x[i] * x[i];
+
+  // log(det(Sigma)) becomes n * log(sigma)
+  *res = -(n / 2.0) * (M_LOG2PI + log(sigma)) - (p / (2.0 * sigma));
+
+  return 0;
+}

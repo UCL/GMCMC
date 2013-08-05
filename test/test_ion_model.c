@@ -1,8 +1,27 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
+
 #include <gmcmc/gmcmc_errno.h>
 #include <gmcmc/gmcmc_ion_model.h>
+
+#include <gmcmc/gmcmc_matlab.h>
+
 #include <stdlib.h>
+
+#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
+  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
+  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
+  CU_assertImplementation(( \
+    fabs(expected) > 0.0 ? \
+    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
+  CU_assertImplementation(( \
+    fabs(expected) > 0.0 ? \
+    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
 
 static gmcmc_dataset * data;
 static gmcmc_model * model;
@@ -15,6 +34,9 @@ static int cleanup() {
   return 0;
 }
 
+/**
+ * Q matrix for Castillo Katz model.
+ */
 static void castillo_katz(const double * params, double * Q, size_t ldq) {
   // Rename for clarity
   double K_1   = pow(10.0, params[0]);
@@ -40,55 +62,69 @@ static void castillo_katz(const double * params, double * Q, size_t ldq) {
 static int init_castillo_katz() {
   int error;
 
-  // Load the dataset
-  if ((error = gmcmc_dataset_create_matlab_ion(&data, "../data/ION_dCK_0,5s.mat")) != 0)
-    GMCMC_ERROR("Failed to create Castillo Katz dataset", error);
+  /*
+   * Common model settings
+   */
+  const unsigned int num_params = 4;
 
-  // Create the priors for each of the parameters
+  // Set up priors for each of the parameters
   gmcmc_distribution ** priors;
-  if ((priors = malloc(4 * sizeof(gmcmc_distribution *))) == NULL) {
-    gmcmc_dataset_destroy(data);
-    GMCMC_ERROR("Failed to allocate priors", GMCMC_ENOMEM);
-  }
+  if ((priors = malloc(num_params * sizeof(gmcmc_distribution *))) == NULL)
+    GMCMC_ERROR("Failed to allocate space for priors", GMCMC_ENOMEM);
 
-  for (int i = 0; i < 4; i++) {
+  // Set up priors for log space
+  for (unsigned int i = 0; i < num_params; i++) {
     if ((error = gmcmc_distribution_create_uniform(&priors[i], -2.0, 4.0)) != 0) {
-      for (int j = 0; j < i; j++)
-        gmcmc_distribution_destroy(priors[j]);
+      // Clean up
+      for (unsigned int j = 0; j < i; j++)
+        gmcmc_distribution_destroy(priors[i]);
       free(priors);
-      gmcmc_dataset_destroy(data);
-      GMCMC_ERROR("Failed to create prior", error);
+      GMCMC_ERROR("Unable to create priors", error);
     }
   }
 
-  // Create the model
-  if ((error = gmcmc_model_create(&model, 4, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
-    for (int j = 0; j < 4; j++)
-      gmcmc_distribution_destroy(priors[j]);
+  // Load the data
+  if ((error = gmcmc_dataset_create_matlab_ion(&data, "../data/ION_dCK_0,5s.mat")) != 0) {
+    // Clean up
+    for (unsigned int i = 0; i < num_params; i++)
+      gmcmc_distribution_destroy(priors[i]);
     free(priors);
-    gmcmc_dataset_destroy(data);
-    GMCMC_ERROR("Failed to create Castillo Katz model", error);
+    GMCMC_ERROR("Unable to load data", error);
   }
 
-  // Don't need priors any more
-  for (int j = 0; j < 4; j++)
-    gmcmc_distribution_destroy(priors[j]);
+  // Create the model
+  if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
+    // Clean up
+    for (unsigned int i = 0; i < num_params; i++)
+      gmcmc_distribution_destroy(priors[i]);
+    free(priors);
+    gmcmc_dataset_destroy(data);
+    GMCMC_ERROR("Unable to create model", error);
+  }
+
+  // Priors have been copied into model so don't need them here any more
+  for (unsigned int i = 0; i < num_params; i++)
+    gmcmc_distribution_destroy(priors[i]);
   free(priors);
 
-  // Set initial parameter values
+  // Set up starting values for all temperatures
   double params[] = { 2.0, 2.0, 3.0, 3.0 };
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
-    gmcmc_model_destroy(model);
+    // Clean up
     gmcmc_dataset_destroy(data);
-    GMCMC_ERROR("Failed to set initial parameters", error);
+    gmcmc_model_destroy(model);
+    GMCMC_ERROR("Unable to set initial parameter values", error);
   }
 
   // Set initial step size
   gmcmc_model_set_stepsize(model, 1.0);
 
-  // Create ion model specific stuff
+  /*
+   * ION model settings
+   */
   gmcmc_ion_model * ion_model;
   if ((error = gmcmc_ion_model_create(&ion_model, 2, 1, castillo_katz)) != 0) {
+    // Clean up
     gmcmc_dataset_destroy(data);
     gmcmc_model_destroy(model);
     GMCMC_ERROR("Unable to create Ion Channel specific model", error);
@@ -96,234 +132,7 @@ static int init_castillo_katz() {
 
   gmcmc_model_set_modelspecific(model, ion_model);
 
-  return 0;
-}
-
-static void test_castillo_katz_ion_proposal_mh0() {
-  // Input arguments
-  double params[] = { 2.88570752304669842, -1.54006338257304520, 2.17189240073973311, 2.70691937020932816 };
-  double likelihood = 1926.08217818508683195;
-  double temperature = 0.0;
-  double stepsize = 1.0;
-
-  // Output arguments
-  double mean[4], covariance[4 * 4];
-  size_t ldc = 4;
-
-  // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
-
-  // Check return value
-  CU_ASSERT(error == 0);
-
-  // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0],  2.88570752304669842, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], -1.54006338257304520, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2],  2.17189240073973311, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3],  2.70691937020932816, 1.0e-15);
-
-  // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 1.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 1.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 1.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 1.0, 1.0e-15);
-}
-
-static void test_castillo_katz_ion_proposal_mh1() {
-  // Input arguments
-  double params[] = { 3.46657887197742420, 0.21221985055729120, -1.38727977182536200, -0.70527935730707281 };
-  double likelihood = -890.07691930595535723;
-  double temperature = 1.693508780843028e-05;
-  double stepsize = 0.8;
-
-  // Output arguments
-  double mean[4], covariance[4 * 4];
-  size_t ldc = 4;
-
-  // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
-
-  // Check return value
-  CU_ASSERT(error == 0);
-
-  // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0],  3.46657887197742420, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1],  0.21221985055729120, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2], -1.38727977182536200, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3], -0.70527935730707281, 1.0e-15);
-
-  // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 0.64, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 0.64, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 0.64, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 0.64, 1.0e-15);
-}
-
-static void test_castillo_katz_ion_proposal_mh2() {
-  // Input arguments
-  double params[] = { 2.67622147429655843, -0.80350436045150375, 0.75516192694289952, 3.64326288442972235 };
-  double likelihood = 996.86730497900316550;
-  double temperature = 0.000541922809870;
-  double stepsize = 1.2;
-
-  // Output arguments
-  double mean[4], covariance[4 * 4];
-  size_t ldc = 4;
-
-  // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
-
-  // Check return value
-  CU_ASSERT(error == 0);
-
-  // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0],  2.67622147429655843, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], -0.80350436045150375, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2],  0.75516192694289952, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3],  3.64326288442972235, 1.0e-15);
-
-  // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 1.44, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 1.44, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 1.44, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.00, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 1.44, 1.0e-15);
-}
-
-static void test_castillo_katz_ion_proposal_mh3() {
-  // Input arguments
-  double params[] = { -0.91429320430028871, -1.41244361420492504, 2.30616647892381454, 2.32060827609643727 };
-  double likelihood = 1861.71426557036124905;
-  double temperature = 0.004115226337449;
-  double stepsize = 0.512;
-
-  // Output arguments
-  double mean[4], covariance[4 * 4];
-  size_t ldc = 4;
-
-  // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
-
-  // Check return value
-  CU_ASSERT(error == 0);
-
-  // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0], -0.91429320430028871, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], -1.41244361420492504, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2],  2.30616647892381454, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3],  2.32060827609643727, 1.0e-15);
-
-  // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 0.262144, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 0.262144, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 0.262144, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.000000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 0.262144, 1.0e-15);
-}
-
-static void test_castillo_katz_ion_proposal_mh4() {
-  // Input arguments
-  double params[] = { 1.24749972433837053, 2.37607895190583918, 2.91157798303740289, 3.28969863650566108 };
-  double likelihood = 2028.66763919470463406;
-  double temperature = 0.017341529915833;
-  double stepsize = 1.44;
-
-  // Output arguments
-  double mean[4], covariance[4 * 4];
-  size_t ldc = 4;
-
-  // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
-
-  // Check return value
-  CU_ASSERT(error == 0);
-
-  // Check mean
-  CU_ASSERT_DOUBLE_EQUAL(mean[0], 1.24749972433837053, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[1], 2.37607895190583918, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[2], 2.91157798303740289, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(mean[3], 3.28969863650566108, 1.0e-15);
-
-  // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 0], 2.0736, 1.0e-15)
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 1], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 2], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 3], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 4], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 5], 2.0736, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 6], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 7], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 8], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[ 9], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[10], 2.0736, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[11], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[12], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[13], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[14], 0.0000, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(covariance[15], 2.0736, 1.0e-15);
-}
-
-static void test_castillo_katz_ion_likelihood_mh0() {
-  // Input argument
-  double params[] = {  0.725404224946106, -0.0630548731896562,  0.714742903826096, -0.204966058299775 };
-
-  // Output argument
-  double likelihood;
-
-  // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
-
-  // Check return value
-  CU_ASSERT(error == 0);
-
-  // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL(likelihood, 213.414299912922587, 1.0e-12);
+  return error;
 }
 
 #include "test_castillo_katz.c"
@@ -345,30 +154,6 @@ int main() {
   CU_pSuite castillo_katz = CU_add_suite("Castillo Katz", init_castillo_katz, cleanup);
   if (CU_get_error() != CUE_SUCCESS)
     CUNIT_ERROR("Failed to add suite to registry");
-
-  CU_ADD_TEST(castillo_katz, test_castillo_katz_ion_proposal_mh0);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(castillo_katz, test_castillo_katz_ion_proposal_mh1);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(castillo_katz, test_castillo_katz_ion_proposal_mh2);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(castillo_katz, test_castillo_katz_ion_proposal_mh3);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(castillo_katz, test_castillo_katz_ion_proposal_mh4);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(castillo_katz, test_castillo_katz_ion_likelihood_mh0);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
 
 #include "test_castillo_katz_main.c"
 

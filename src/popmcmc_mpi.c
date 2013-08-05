@@ -413,14 +413,14 @@ static int gmcmc_chain_mpi_recv(gmcmc_chain ** chain, int source, int tag, MPI_C
   if ((error = MPI_Recv(&size, 1, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving chain specific data size", GMCMC_EIPC);
 
-  // If the area for chain specific data needs to be resized or allocated
-//   if (size != (*chain)->size || (*chain)->chainspecific == NULL) {
-//     free((*chain)->chainspecific);
-//
-//     (*chain)->size = size;
-//     if (((*chain)->chainspecific = malloc(size)) == NULL)
-//       GMCMC_ERROR("Failed to allocate chain specific data", GMCMC_ENOMEM);
-//   }
+  // If the area for chain specific data needs to be resized
+  if (size != (*chain)->size) {
+    free((*chain)->chainspecific);
+
+    if (((*chain)->chainspecific = malloc(size)) == NULL)
+      GMCMC_ERROR("Failed to allocate chain specific data", GMCMC_ENOMEM);
+    (*chain)->size = size;
+  }
 
   if ((error = MPI_Recv((*chain)->chainspecific, size, MPI_BYTE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving chain specific data", GMCMC_EIPC);

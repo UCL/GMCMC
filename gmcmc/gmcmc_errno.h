@@ -1,6 +1,8 @@
 /*
  * gmcmc_errno.h
  *
+ * Defines error handling functions, macros and error codes.
+ *
  *  Created on: 20 May 2013
  *      Author: Gary Macindoe
  */

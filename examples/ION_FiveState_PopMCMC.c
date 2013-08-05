@@ -14,8 +14,9 @@
 #include <gmcmc/gmcmc_dataset.h>
 #include <gmcmc/gmcmc_popmcmc.h>
 
+#include <gmcmc/gmcmc_matlab.h>
+
 #include "acceptance.h"
-#include "matlab.h"
 
 // Whether to use log space for parameter values - helps with very small/large values
 #define LOG10SPACE
@@ -73,7 +74,10 @@ int main(int argc, char * argv[]) {
   }
 
   // Output file
-  outputID = argv[optind];
+  gmcmc_matlab_outputID = argv[optind];
+
+  // How often to save posterior samples
+  gmcmc_matlab_posterior_save_size = 5000;
 
   // Handle MPI errors ourselves
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
@@ -101,8 +105,8 @@ int main(int argc, char * argv[]) {
   mcmc_options.temperatures = temperatures;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   = 1000;
-  mcmc_options.num_posterior_samples = 1000;
+  mcmc_options.num_burn_in_samples   = 2000;
+  mcmc_options.num_posterior_samples = 5000;
 
   // Set iteration interval for adapting stepsizes
   mcmc_options.adapt_rate      =  50;
@@ -111,7 +115,7 @@ int main(int argc, char * argv[]) {
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
-  mcmc_options.write = write_matlab;
+  mcmc_options.write = gmcmc_matlab_popmcmc_write;
 
   int error;
 

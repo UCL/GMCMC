@@ -1,3 +1,6 @@
+#ifndef GMCMC_CLAPACK_H
+#define GMCMC_CLAPACK_H
+
 #include <stdlib.h>
 #include <cblas.h>
 /**
@@ -154,3 +157,5 @@ static inline long clapack_dgesv(long n, long nrhs, double * A, long lda, double
 
   return info;
 }
+
+#endif

@@ -6,7 +6,7 @@ CPPFLAGS = -I.. -I$(MATLAB_HOME)/extern/include -I$(SUNDIALS_HOME)/include
 CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -pipe
 LDFLAGS = -L.. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) -L$(SUNDIALS_HOME)/lib \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH)
-LDLIBS = -lgmcmc -lsundials_cvodes -lsundials_nvecserial -lmx -lmex -lmat -lcunit
+LDLIBS = -lgmcmc -lgmcmc_matlab -lsundials_cvodes -lsundials_nvecserial -lmx -lmex -lmat -lcunit
 
 VPATH = . ../gmcmc
 
