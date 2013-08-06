@@ -1,12 +1,8 @@
-MATLAB_HOME = /opt/MATLAB/R2013a
-MATLAB_ARCH = glnxa64
-CC = gcc
-CPPFLAGS = -I../.. -I$(MATLAB_HOME)/extern/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe -fPIC
-LDFLAGS = -L../.. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) \
-          -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH) -Wl,--no-undefined \
-          -Wl,-soname=libgmcmc_matlab.so -Wl,--export-dynamic
-LDLIBS =  -lgmcmc -lmx -lmex -lmat -lm -lstdc++
+include ../../make.inc
+CPPFLAGS = -I../.. $(MATLAB_CPPFLAGS)
+CFLAGS += -fPIC
+LDFLAGS = -L../.. $(MATLAB_LDFLAGS) -Wl,--export-dynamic -Wl,-soname=libgmcmc_matlab.so
+LDLIBS =  -lgmcmc $(MATLAB_LDLIBS)
 OBJS = ion_dataset.o ode_dataset.o popmcmc_write.o
 
 VPATH = . ../../gmcmc

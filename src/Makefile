@@ -1,12 +1,9 @@
-CC = gcc
-CPPFLAGS = -I.. -I$(HOME)/sundials-2.5.0/include
-# CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -O0 -pipe -fPIC -fopenmp -pthread
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe -fPIC -fopenmp -pthread
-# CFLAGS = -std=c99 -Wall -Wextra -xHost -O2 -fPIC -fopenmp -pthread
-LDFLAGS = -L$(HOME)/sundials-2.5.0/lib -Wl,--export-dynamic -Wl,-soname=libgmcmc.so
-LDLIBS = -lmpi -ldl -lhwloc -lrt -lnsl -lutil -lm -lhwloc -ldl -lpthread \
-         -lsundials_cvodes -lsundials_nvecserial \
-         -lreflapack -lrefblas -lrefcblas -lgomp
+include ../make.inc
+CPPFLAGS = -I.. $(MPI_CPPFLAGS) $(SUNDIALS_CPPFLAGS) $(LAPACK_CPPFLAGS) $(OMP_CPPFLAGS)
+CFLAGS += -fPIC -fopenmp -pthread
+LDFLAGS = $(MPI_LDFLAGS) $(SUNDIALS_LDFLAGS) $(LAPACK_LDFLAGS) $(OMP_LDFLAGS) \
+          -Wl,--export-dynamic -Wl,-soname=libgmcmc.so
+LDLIBS = $(MPI_LDLIBS) $(SUNDIALS_LDLIBS) $(LAPACK_LDLIBS) $(OMP_LDLIBS)
 OBJS = distribution/gamma.o distribution/lognormal.o distribution/normal.o distribution/uniform.o \
        rng/mt19937.o rng/mt19937-64.o rng/dcmt521.o rng/dcmt607.o rng/dcmt1279.o rng/dcmt2203.o rng/dcmt2281.o rng/dcmt3217.o rng/dcmt4253.o rng/dcmt4423.o rng/dcmt9689.o \
        errno.o dataset.o distribution.o rng.o model.o ion_model.o ode_model.o popmcmc.o

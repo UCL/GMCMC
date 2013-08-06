@@ -92,7 +92,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
     GMCMC_ERROR("Failed to set integration tolerances", GMCMC_ELINAL);
   }
 
-  N_Vector * yS;
+  N_Vector * yS = NULL;
   if (sensitivities != NULL) {
     // Set sensitivity initial conditions
     yS = N_VCloneVectorArray_Serial(num_params, y);
@@ -156,7 +156,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       simdata[j * lds + i] = NV_Ith_S(y, j);
 
     // Extract the sensitivity solution
-    if (sensitivities != NULL) {
+    if (yS != NULL && sensitivities != NULL) {
       if ((error = CVodeGetSens(cvode_mem, &tret, yS)) != 0) {
         CVodeFree(&cvode_mem);
         GMCMC_ERROR("Failed to extract sensitivities", GMCMC_ELINAL);
@@ -169,7 +169,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
     }
   }
   N_VDestroy(y);
-  if (sensitivities != NULL)
+  if (yS != NULL)
     N_VDestroyVectorArray_Serial(yS, num_params);
 
   // Free solver memory

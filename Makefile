@@ -1,13 +1,7 @@
-MATLAB_HOME = /opt/MATLAB/R2013a
-MATLAB_ARCH = glnxa64
-SUNDIALS_HOME = $(HOME)/sundials-2.5.0
-CC = gcc
+include make.inc
 CPPFLAGS = -I. -I..
-# CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -O0 -pipe
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
-LDFLAGS = -L. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) -L$(SUNDIALS_HOME)/lib \
-          -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH)
-LDLIBS = -lgmcmc -lgmcmc_matlab -lsundials_cvodes -lsundials_nvecserial -lmx -lmex -lmat
+LDFLAGS = -L. $(SUNDIALS_LDFLAGS) $(MATLAB_LDFLAGS)
+LDLIBS = -lgmcmc -lgmcmc_matlab $(SUNDIALS_LDLIBS) $(MATLAB_LDLIBS)
 
 VPATH = . examples gmcmc
 
