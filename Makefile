@@ -1,7 +1,7 @@
 include make.inc
-CPPFLAGS = -I. -I..
-LDFLAGS = -L. $(SUNDIALS_LDFLAGS) $(MATLAB_LDFLAGS)
-LDLIBS = -lgmcmc -lgmcmc_matlab $(SUNDIALS_LDLIBS) $(MATLAB_LDLIBS)
+CPPFLAGS = -I. -I.. $(MPI_CPPFLAGS)
+LDFLAGS = -L. $(SUNDIALS_LDFLAGS) $(MPI_LDFLAGS) $(MATLAB_LDFLAGS)
+LDLIBS = -lgmcmc -lgmcmc_matlab $(SUNDIALS_LDLIBS) $(MPI_LDLIBS) $(MATLAB_LDLIBS)
 
 VPATH = . examples gmcmc
 
@@ -25,10 +25,10 @@ clean:
 	rm -f examples/acceptance.o $(addprefix examples/,$(addsuffix .o,$(ION_examples) $(ODE_examples))) $(ION_examples) $(ODE_examples)
 
 libgmcmc.so:
-	cd src && $(MAKE)
+	cd src && $(MAKE) ../libgmcmc.so
 
 libgmcmc_matlab.so: libgmcmc.so
-	cd src/matlab && $(MAKE)
+	cd src/matlab && $(MAKE) ../../libgmcmc_matlab.so
 
 examples/acceptance.o: acceptance.h
 $(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ion_model.h gmcmc_popmcmc.h gmcmc_matlab.h acceptance.h
