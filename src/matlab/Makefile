@@ -18,8 +18,11 @@ all: ../../libgmcmc_matlab.so
 clean:
 	rm -f $(OBJS) ../../libgmcmc_matlab.so
 
-../../libgmcmc_matlab.so: $(OBJS)
+../../libgmcmc_matlab.so: $(OBJS) ../../libgmcmc.so
 	$(CC) $(LDFLAGS) -shared $(^) -o $(@) $(LOADLIBES) $(LDLIBS)
+
+../../libgmcmc.so:
+	cd .. && $(MAKE)
 
 ion_dataset.o: gmcmc_matlab.h gmcmc_dataset.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h gmcmc_errno.h
 ode_dataset.o: gmcmc_matlab.h gmcmc_dataset.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h gmcmc_errno.h

@@ -54,6 +54,27 @@ extern const gmcmc_likelihood_function gmcmc_ode_likelihood_simp_mmala;
 typedef int (*gmcmc_ode_rhs)(double, const double *, double *, const double *);
 
 /**
+ *  This function computes the sensitivity right-hand side for all sensitivity
+ * equations at once. It must compute the vectors (df/dy)s_i(t) + (df/dp_i) and
+ * store them in ySdot[i].
+ *
+ * @param [in]  t      is the current value of the independent variable
+ * @param [in]  y      is the current value of the state vector, y(t)
+ * @param [in]  ydot   is the current value of the right-hand side of the state
+ *                      equations
+ * @param [in]  yS     contains the current values of the sensitivity vectors
+ * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
+ *                       sensitivity right-hand side vectors
+ * @param [in]  params  function parameters
+ *
+ * @return = 0 on success,
+ *         > 0 if the current values in y are invalid,
+ *         < 0 if one of the parameter values is incorrect.
+ */
+typedef int (*gmcmc_ode_rhs_sens)(double, const double *, const double *,
+                                  const double **, double **, const double *);
+
+/**
  * Creates an ODE model-specific data object.
  *
  * @param [out] ode_model   the ODE model
@@ -146,10 +167,11 @@ unsigned int gmcmc_ode_model_get_num_unobserved(const gmcmc_ode_model *);
  * This function computes the ODE right-hand side for a given value of the
  * independent variable t and state vector y.
  *
- * @param [in]  t       the current value of the independent variable
- * @param [in]  y       the current value of the dependent variable vector, y(t)
- * @param [out] yout    the output vector f(t,y)
- * @param [in]  params  function parameters
+ * @param [in] ode_model  the ODE model
+ * @param [in]  t         the current value of the independent variable
+ * @param [in]  y         the current value of the dependent variable vector, y(t)
+ * @param [out] yout      the output vector f(t,y)
+ * @param [in]  params    function parameters
  *
  * @return = 0 on success,
  *         > 0 if the current values in y are invalid,
@@ -157,5 +179,39 @@ unsigned int gmcmc_ode_model_get_num_unobserved(const gmcmc_ode_model *);
  */
 int gmcmc_ode_model_rhs(const gmcmc_ode_model *, double, const double *,
                         double *, const double *);
+
+/**
+ * Sets the function used to compute the sensitivity right-hand side.  If set to
+ * NULL and sensitivity analysis is required then finite differences will be
+ * used.
+ *
+ * @param [in] ode_model  the ODE model
+ * @param [in] rhs_sens   the function used to compute the sensitivity
+ *                          right-hand side
+ */
+void gmcmc_ode_model_set_rhs_sens(gmcmc_ode_model *, gmcmc_ode_rhs_sens);
+
+/**
+ *  This function computes the sensitivity right-hand side for all sensitivity
+ * equations at once. It must compute the vectors (df/dy)s_i(t) + (df/dp_i) and
+ * store them in ySdot[i].
+ *
+ * @param [in] ode_model  the ODE model
+ * @param [in]  t      is the current value of the independent variable
+ * @param [in]  y      is the current value of the state vector, y(t)
+ * @param [in]  ydot   is the current value of the right-hand side of the state
+ *                      equations
+ * @param [in]  yS     contains the current values of the sensitivity vectors
+ * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
+ *                       sensitivity right-hand side vectors
+ * @param [in]  params  function parameters
+ *
+ * @return = 0 on success,
+ *         > 0 if the current values in y are invalid,
+ *         < 0 if one of the parameter values is incorrect.
+ */
+int gmcmc_ode_model_rhs_sens(const gmcmc_ode_model *, double, const double *,
+                             const double *, const double **, double **,
+                             const double *);
 
 #endif /* GMCMC_ODE_MODEL_H */

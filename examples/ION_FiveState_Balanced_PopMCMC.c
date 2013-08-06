@@ -109,9 +109,9 @@ int main(int argc, char * argv[]) {
   mcmc_options.num_posterior_samples = 5000;
 
   // Set iteration interval for adapting stepsizes
-  mcmc_options.adapt_rate      =  50;
-  mcmc_options.upper_step_size =   0.5;
-  mcmc_options.lower_step_size =   0.2;
+  mcmc_options.adapt_rate            =  50;
+  mcmc_options.upper_acceptance_rate =   0.5;
+  mcmc_options.lower_acceptance_rate =   0.2;
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
@@ -150,7 +150,7 @@ int main(int argc, char * argv[]) {
 #else
   // Set up priors for standard space
   for (unsigned int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create_uniform(&priors[i], 1.0e-2, 1.0e10)) != 0) {
+    if ((error = gmcmc_distribution_create_uniform(&priors[i], 1.0e-02, 1.0e+10)) != 0) {
       // Clean up
       for (unsigned int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);
@@ -202,7 +202,7 @@ int main(int argc, char * argv[]) {
 #ifdef LOG10SPACE
   double params[] = { 7.6990, 3.3010, 8.6990, 3.3010, 1.1761, 3.4771, 4.1761, 2.6990, 8.6990 };
 #else
-  double params[] = { 5e7, 2000, 5e8, 2000, 15, 3000, 15000, 500, 5e8 };
+  double params[] = { 5.0e+07, 2.0e+03, 5.0e+08, 2.0e+03, 15, 3.0e+03, 1.5e+04, 500, 5.0e+08 };
 #endif
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     // Clean up
@@ -303,7 +303,7 @@ static void calculate_Q_matrix(const double * params, double * Q, size_t ldq) {
   double KStar_m2 = (Alpha_2 / Beta_2) * (Beta_1 / Alpha_1) * (K_m2 / K_p2) * KStar_p2; // k*_{-2}
 
   // Agonist concentration
-  double X_A = 1e-7;    // This should become an extra variable to be passed
+  double X_A = 1.0e-07;    // This should become an extra variable to be passed
 
   // Construct Q matrix - [1 2 3] are closed states, [4 5] are open
   // Q_FF

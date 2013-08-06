@@ -64,9 +64,9 @@ int gmcmc_popmcmc(const gmcmc_popmcmc_options * options,
 
         // Don't update chain 0 unless it is the only chain
         if (j > 0 || options->num_temperatures == 1) {
-          if (mutations[j] < options->lower_step_size)
+          if (mutations[j] < options->lower_acceptance_rate)
             chains[j]->stepsize *= 0.8;
-          else if (mutations[j] > options->upper_step_size)
+          else if (mutations[j] > options->upper_acceptance_rate)
             chains[j]->stepsize *= 1.2;
         }
         stepsizes[j] = chains[j]->stepsize;

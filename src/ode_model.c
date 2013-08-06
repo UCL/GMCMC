@@ -55,6 +55,11 @@ struct gmcmc_ode_model {
   gmcmc_ode_rhs rhs;
 
   /**
+   * Function to evaluate the sensitivities right-hand side.
+   */
+  gmcmc_ode_rhs_sens rhs_sens;
+
+  /**
    * Fixed initial conditions for the system of ODEs.  Will be NULL if the
    * initial conditions are being inferred as part of the parameter vector in
    * the model.
@@ -121,11 +126,15 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   if ((simdata = malloc(lds * num_species * sizeof(double))) == NULL)
     GMCMC_ERROR("Failed to allocate simulated data", GMCMC_ENOMEM);
 
+  // Copy initial conditions into simulated data
+  for (size_t j = 0; j < num_species; j++)
+    simdata[j * lds] = ics[j];
+
   // Solve the system of equations using the function specified in the ODE model
   int error;
-  if ((error = cvodes_solve(ode_model->rhs,
+  if ((error = cvodes_solve(ode_model->rhs, NULL,
                             num_timepoints, num_species, num_params,
-                            timepoints, ics, params, &ode_model->options,
+                            timepoints, params, &ode_model->options,
                             simdata, NULL, lds)) != 0) {
     free(simdata);
     GMCMC_ERROR("Failed to solve system of ODEs", error);
@@ -341,11 +350,33 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
     GMCMC_ERROR("Failed to allocate sensitivities", GMCMC_ENOMEM);
   }
 
+  // Copy initial conditions into simulated data
+  for (size_t j = 0; j < num_species; j++)
+    simdata[j * lds] = ics[j];
+
+  // Copy sensitivity initial conditions into sensitivities
+  if (ode_model->ics == NULL) {
+    // Initial conditions are being inferred as part of the parameter vector
+    size_t num_real_params = num_params - num_species;
+    for (size_t j = 0; j < num_real_params * num_species; j++)
+      sensitivities[j * lds] = 0.0;
+    double * sensitivities_ics = &sensitivities[num_real_params * num_species * lds];
+    for (size_t j = 0; j < num_species; j++) {
+      for (size_t i = 0; i < num_species; i++)
+        sensitivities_ics[(j * num_species + i) * lds] = (i == j) ? 1.0 : 0.0;
+    }
+  }
+  else {
+    // Initial conditions are fixed
+    for (size_t j = 0; j < num_params * num_species; j++)
+      sensitivities[j * lds] = 0.0;
+  }
+
   // Solve the system of equations using the function specified in the ODE model
   int error;
-  if ((error = cvodes_solve(ode_model->rhs,
+  if ((error = cvodes_solve(ode_model->rhs, ode_model->rhs_sens,
                             num_timepoints, num_species, num_params,
-                            timepoints, ics, params, &ode_model->options,
+                            timepoints, params, &ode_model->options,
                             simdata, sensitivities, lds)) != 0) {
     free(simdata);
     free(sensitivities);
@@ -459,6 +490,7 @@ int gmcmc_ode_model_create(gmcmc_ode_model ** ode_model, unsigned int observed,
   (*ode_model)->observed = observed;
   (*ode_model)->unobserved = unobserved;
   (*ode_model)->rhs = rhs;
+  (*ode_model)->rhs_sens = NULL;
   (*ode_model)->ics = NULL;
   (*ode_model)->options.abstol = 1.0e-06;
   (*ode_model)->options.reltol = 1.0e-06;
@@ -589,6 +621,46 @@ unsigned int gmcmc_ode_model_get_num_unobserved(const gmcmc_ode_model * ode_mode
  *         < 0 if one of the parameter values is incorrect.
  */
 int gmcmc_ode_model_rhs(const gmcmc_ode_model * ode_model, double t,
-                        const double * y, double * yout, const double * params) {
-  return ode_model->rhs(t, y, yout, params);
+                        const double * y, double * ydot, const double * params) {
+  return ode_model->rhs(t, y, ydot, params);
+}
+
+/**
+ * Sets the function used to compute the sensitivity right-hand side.  If set to
+ * NULL and sensitivity analysis is required then finite differences will be
+ * used.
+ *
+ * @param [in] ode_model  the ODE model
+ * @param [in] rhs_sens   the function used to compute the sensitivity
+ *                          right-hand side
+ */
+void gmcmc_ode_model_set_rhs_sens(gmcmc_ode_model * ode_model,
+                                  gmcmc_ode_rhs_sens rhs_sens) {
+  ode_model->rhs_sens = rhs_sens;
+}
+
+/**
+ *  This function computes the sensitivity right-hand side for all sensitivity
+ * equations at once. It must compute the vectors (df/dy)s_i(t) + (df/dp_i) and
+ * store them in ySdot[i].
+ *
+ * @param [in] ode_model  the ODE model
+ * @param [in]  t      is the current value of the independent variable
+ * @param [in]  y      is the current value of the state vector, y(t)
+ * @param [in]  ydot   is the current value of the right-hand side of the state
+ *                      equations
+ * @param [in]  yS     contains the current values of the sensitivity vectors
+ * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
+ *                       sensitivity right-hand side vectors
+ * @param [in]  params  function parameters
+ *
+ * @return = 0 on success,
+ *         > 0 if the current values in y are invalid,
+ *         < 0 if one of the parameter values is incorrect.
+ */
+int gmcmc_ode_model_rhs_sens(const gmcmc_ode_model * ode_model, double t,
+                             const double * y, const double * ydot,
+                             const double ** yS, double ** ySdot,
+                             const double * params) {
+  return ode_model->rhs_sens(t, y, ydot, yS, ySdot, params);
 }

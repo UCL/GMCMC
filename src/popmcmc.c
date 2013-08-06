@@ -15,11 +15,11 @@
  */
 typedef struct {
   double temperature;           /**< Chain temperature */
-  double stepsize;              /**< Parameter step size */                     // TODO: stepsize will be an array with blocking
-  uint64_t accepted_mutation;   /**< Number of samples accepted */              // TODO: accepted_mutation will be an array with blocking
-  uint64_t attempted_mutation;  /**< Number of total sample proposals */        // TODO: attempted_mutation will be an array with blocking
-  uint64_t accepted_exchange;   /**< Number of chain swaps accepted */          // TODO: accepted_exchange will be an array with blocking
-  uint64_t attempted_exchange;  /**< Number of chain swaps proposed */          // TODO: attempted_exchange will be an array with blocking
+  double stepsize;              /**< Parameter step size */
+  uint64_t accepted_mutation;   /**< Number of samples accepted */
+  uint64_t attempted_mutation;  /**< Number of total sample proposals */
+  uint64_t accepted_exchange;   /**< Number of chain swaps accepted */
+  uint64_t attempted_exchange;  /**< Number of chain swaps proposed */
   uint32_t n;                   /**< Number of parameters */
   double * params;              /**< Parameter vector */
   double * log_prior;           /**< Log prior vector */

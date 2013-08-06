@@ -7,6 +7,21 @@
 
 #define N 100000000
 
+#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
+  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
+  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
+  CU_assertImplementation(( \
+    fabs(expected) > 0.0 ? \
+    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
+  CU_assertImplementation(( \
+    fabs(expected) > 0.0 ? \
+    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+
 static double * X;
 static size_t ldx;
 static gmcmc_prng64 * rng;
@@ -74,10 +89,10 @@ static void test_mvn_sample0() {
   }
 
   for (size_t i = 0; i < 4; i++)
-    CU_ASSERT_DOUBLE_EQUAL(mean[i], mu[i], 1.0e-03);
+    CU_ASSERT_DOUBLE_EQUAL_REL(mean[i], mu[i], 1.0e-03);
   for (size_t j = 0; j < 4; j++) {
     for (size_t i = 0; i < 4; i++)
-      CU_ASSERT_DOUBLE_EQUAL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+      CU_ASSERT_DOUBLE_EQUAL_REL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
   }
 }
 
@@ -92,7 +107,7 @@ static void test_mvn_logpdf0() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.947891684361871, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -9.947891684361871, 1.0e-07);
 }
 
 static void test_mvn_logpdf1() {
@@ -106,7 +121,7 @@ static void test_mvn_logpdf1() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -258.775212615819271, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -258.775212615819271, 1.0e-07);
 }
 
 static void test_mvn_logpdf2() {
@@ -120,7 +135,7 @@ static void test_mvn_logpdf2() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -295.398490010123794, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -295.398490010123794, 1.0e-07);
 }
 
 static void test_mvn_logpdf3() {
@@ -134,7 +149,7 @@ static void test_mvn_logpdf3() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -68.391938315208805, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -68.391938315208805, 1.0e-07);
 }
 
 static void test_mvn_logpdf4() {
@@ -148,7 +163,7 @@ static void test_mvn_logpdf4() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -38.482498473538847, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -38.482498473538847, 1.0e-07);
 }
 
 static void test_mvn_logpdf5() {
@@ -162,7 +177,7 @@ static void test_mvn_logpdf5() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -5.869592466035105, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -5.869592466035105, 1.0e-07);
 }
 
 static void test_mvn_logpdf6() {
@@ -176,7 +191,7 @@ static void test_mvn_logpdf6() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -705.446602776540431, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -705.446602776540431, 1.0e-07);
 }
 
 static void test_mvn_logpdf7() {
@@ -190,7 +205,7 @@ static void test_mvn_logpdf7() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -4.545736055402437, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -4.545736055402437, 1.0e-07);
 }
 
 static void test_mvn_logpdf8() {
@@ -204,7 +219,7 @@ static void test_mvn_logpdf8() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -37.064643570968364, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -37.064643570968364, 1.0e-07);
 }
 
 static void test_mvn_logpdf9() {
@@ -218,7 +233,7 @@ static void test_mvn_logpdf9() {
   double res;
   gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -1691.658265773746280, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_ABS(res, -1691.658265773746280, 1.0e-07);
 }
 
 #define CUNIT_ERROR(message) \

@@ -109,9 +109,9 @@ int main(int argc, char * argv[]) {
   mcmc_options.num_posterior_samples = 5000;
 
   // Set iteration interval for adapting stepsizes
-  mcmc_options.adapt_rate      =  50;
-  mcmc_options.upper_step_size =   0.5;
-  mcmc_options.lower_step_size =   0.2;
+  mcmc_options.adapt_rate            =  50;
+  mcmc_options.upper_acceptance_rate =   0.5;
+  mcmc_options.lower_acceptance_rate =   0.2;
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
@@ -150,7 +150,7 @@ int main(int argc, char * argv[]) {
 #else
   // Set up priors for standard space
   for (unsigned int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.0, 10000.0)) != 0) {
+    if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.01, 10000.0)) != 0) {
       // Clean up
       for (unsigned int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);

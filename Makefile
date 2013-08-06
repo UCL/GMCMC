@@ -3,8 +3,8 @@ MATLAB_ARCH = glnxa64
 SUNDIALS_HOME = $(HOME)/sundials-2.5.0
 CC = gcc
 CPPFLAGS = -I. -I..
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -O0 -pipe
-# CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
+# CFLAGS = -std=c99 -pedantic -Wall -Wextra -ggdb -O0 -pipe
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
 LDFLAGS = -L. -L$(MATLAB_HOME)/bin/$(MATLAB_ARCH) -L$(SUNDIALS_HOME)/lib \
           -Wl,-rpath-link,$(MATLAB_HOME)/bin/$(MATLAB_ARCH)
 LDLIBS = -lgmcmc -lgmcmc_matlab -lsundials_cvodes -lsundials_nvecserial -lmx -lmex -lmat
@@ -15,10 +15,7 @@ VPATH = . examples gmcmc
 
 ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
 
-ODE_examples = FitzHugh_Benchmark_1_MH FitzHugh_Benchmark_1_Simp_mMALA \
-               FitzHugh_Benchmark_2_MH FitzHugh_Benchmark_2_Simp_mMALA \
-               FitzHugh_Benchmark_3_MH FitzHugh_Benchmark_3_Simp_mMALA \
-               FitzHugh_Benchmark_4_MH FitzHugh_Benchmark_4_Simp_mMALA \
+ODE_examples = FitzHugh_Benchmark_MH FitzHugh_Benchmark_Simp_mMALA \
                Locke_Benchmark_MH Locke_Benchmark_Simp_mMALA
 
 all: libgmcmc.so libgmcmc_matlab.so
@@ -36,7 +33,7 @@ clean:
 libgmcmc.so:
 	cd src && $(MAKE)
 
-libgmcmc_matlab.so:
+libgmcmc_matlab.so: libgmcmc.so
 	cd src/matlab && $(MAKE)
 
 examples/acceptance.o: acceptance.h

@@ -16,7 +16,7 @@
   CU_assertImplementation(( \
     fabs(expected) > 0.0 ? \
     ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
 #define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
   CU_assertImplementation(( \
     fabs(expected) > 0.0 ? \

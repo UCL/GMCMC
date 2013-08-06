@@ -39,19 +39,20 @@ typedef struct gmcmc_popmcmc_options {
   unsigned int num_temperatures;
 
   /**
-   * How often to adapt the step sizes.  Set to 1 for every iteration.
+   * How often to adapt the step sizes based on the upper and lower acceptance
+   * rate bounds.  Set to 1 for every iteration.
    */
   unsigned int adapt_rate;
 
   /**
-   * Upper bound for step sizes.
+   * Upper bound for acceptance ratios.
    */
-  double upper_step_size;
+  double upper_acceptance_rate;
 
   /**
-   * Lower bound for step sizes.
+   * Lower bound for acceptance ratios.
    */
-  double lower_step_size;
+  double lower_acceptance_rate;
 
   /**
    * If this function is not NULL it is called every adapt_rate iterations to

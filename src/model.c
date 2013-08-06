@@ -15,6 +15,7 @@ struct gmcmc_model {
   size_t n;                             /**< Number of parameters in model */
   double stepsize;                      /**< Parameter stepsize (default 0.05) */
   void * modelspecific;                 /**< Model specific parameters and data (may be NULL) */
+  bool logspace;                        /**< Whether the parameter values are in log space */
 };
 
 /**
@@ -56,6 +57,7 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
   (*model)->n = n;
   (*model)->stepsize = 0.05;
   (*model)->modelspecific = NULL;
+  (*model)->logspace = false;
 
   return 0;
 }

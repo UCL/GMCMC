@@ -7,6 +7,7 @@ typedef struct {
 
 typedef struct {
   gmcmc_ode_rhs rhs;
+  gmcmc_ode_rhs_sens rhs_sens;
   const double * params;
 } cvodes_userdata;
 
@@ -19,45 +20,60 @@ static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void * userdata) {
 }
 
 /**
+ * Wrapper round gmcmc_ode_rhs_sens to make it match CVSensRhsFn.
+ */
+static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
+                           N_Vector * yS, N_Vector * ySdot, void * userdata,
+                           N_Vector tmp1, N_Vector tmp2) {
+  (void)Ns;
+  (void)tmp1;
+  (void)tmp2;
+  cvodes_userdata * data = (cvodes_userdata *)userdata;
+  return 0;//data->rhs_sens(t, NV_DATA_S(y), NV_DATA_S(ydot), data->params);
+}
+
+/**
  * Solves an initial value problem using CVODES to integrate over a system of
- * ODEs with forward sensitivity analysis for all parameters.
+ * ODEs with optional forward sensitivity analysis.  The initial conditions for
+ * the system and for the sensitivity analysis are expected to be in the first
+ * rows of simdata and sensitivities, respectively.
  *
- * @param [in]  rhs            the right-hand side of the system of ODEs
- * @param [in]  num_timepoints the number of timepoints
- * @param [in]  num_ics        the number of independent variables
- * @param [in]  num_params     the number of parameters
- * @param [in]  timepoints     the timepoints at which data is to be returned
- * @param [in]  ics            initial conditions
- * @param [in]  params         parameters
- * @param [in]  options        options for the integrator
- * @param [out] simdata        contains the state values for each species at
- *                               each timepoint in column-major order.  If
- *                               options.xdotcalc is true then the rhs will be
- *                               evaluated once at time = 0 and simdata need
- *                               only be 1 * num_species.
- * @param [out] sensitivities  sensitivities of each parameter with respect to
- *                               each independent variable.  The sensitivity of
- *                               parameter j with respect to variable k at
- *                               timepoint i is stored at (j * num_ics + k) * lds + i
- *                               Set to NULL if sensitivities are not to be
- *                               calculated.
- * @param [in]  lds            leading dimension of simdata and sensitivities
+ * @param [in]  rhs             the right-hand side of the system of ODEs
+ * @param [in]  rhs_sens        the sensitivities right-hand side
+ * @param [in]  num_timepoints  the number of timepoints
+ * @param [in]  num_species     the number of independent variables
+ * @param [in]  num_params      the number of parameters
+ * @param [in]  timepoints      the timepoints at which data is to be returned
+ * @param [in]  params          parameters
+ * @param [in]  options         options for the integrator
+ * @param [out] simdata         contains the state values for each species at
+ *                                each timepoint in column-major order.  If
+ *                                options.xdotcalc is true then the rhs will be
+ *                                evaluated once at time = 0 and simdata need
+ *                                only be 1 * num_species.
+ * @param [out] sensitivities   sensitivities of each parameter with respect to
+ *                                each independent variable.  The sensitivity of
+ *                                parameter j with respect to variable k at
+ *                                timepoint i is stored at (j * num_ics + k) * lds + i
+ *                                Set to NULL if sensitivities are not to be
+ *                                calculated.
+ * @param [in]  lds             leading dimension of simdata and sensitivities
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there was not enough memory to create the solver,
  *         GMCMC_ELINAL if the solver failed to integrate the system of ODEs.
  */
-static int cvodes_solve(gmcmc_ode_rhs rhs,
-                        size_t num_timepoints, size_t num_ics, size_t num_params,
-                        const double * timepoints, const double * ics,
-                        const double * params, const cvodes_options * options,
+static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
+                        size_t num_timepoints, size_t num_species, size_t num_params,
+                        const double * timepoints, const double * params,
+                        const cvodes_options * options,
                         double * simdata, double * sensitivities, size_t lds) {
   int error;
 
-  // Set vector of initial values and copy into simdata
-  N_Vector y = N_VNew_Serial(num_ics);
-  for (size_t i = 0; i < num_ics; i++)
-    NV_Ith_S(y, i) = simdata[i * lds] = ics[i];
+  // Set vector of initial values
+  N_Vector y = N_VNew_Serial(num_species);
+  for (size_t i = 0; i < num_species; i++)
+    NV_Ith_S(y, i) = simdata[i * lds];
 
   // Create CVODES object
   void * cvode_mem;
@@ -81,14 +97,22 @@ static int cvodes_solve(gmcmc_ode_rhs rhs,
     // Set sensitivity initial conditions
     yS = N_VCloneVectorArray_Serial(num_params, y);
     for (size_t j = 0; j < num_params; j++) {
-      for (size_t i = 0; i < num_ics; i++)
-        NV_Ith_S(yS[j], i) = sensitivities[(j * num_ics + i) * lds] = 0.0;
+      for (size_t i = 0; i < num_species; i++)
+        NV_Ith_S(yS[j], i) = sensitivities[(j * num_species + i) * lds];
     }
 
     // Activate sensitivity calculations
-    if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != 0) {
-      CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+    if (rhs_sens == NULL) {
+      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != 0) {
+        CVodeFree(&cvode_mem);
+        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+      }
+    }
+    else {
+      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != 0) {
+        CVodeFree(&cvode_mem);
+        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+      }
     }
 
     // Set sensitivity tolerances
@@ -108,14 +132,14 @@ static int cvodes_solve(gmcmc_ode_rhs rhs,
   }
 
   // Set optional inputs
-  cvodes_userdata userdata = { rhs, params };
+  cvodes_userdata userdata = { rhs, rhs_sens, params };
   if ((error = CVodeSetUserData(cvode_mem, &userdata)) != 0) {
     CVodeFree(&cvode_mem);
     GMCMC_ERROR("Failed to set userdata", GMCMC_ELINAL);
   }
 
   // Attach linear solver module
-  if ((error = CVDense(cvode_mem, num_ics)) != 0) {
+  if ((error = CVDense(cvode_mem, num_species)) != 0) {
     CVodeFree(&cvode_mem);
     GMCMC_ERROR("Failed to attach linear solver", GMCMC_ELINAL);
   }
@@ -128,7 +152,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs,
       GMCMC_ERROR("Failed to advance solution", GMCMC_ELINAL);
     }
 
-    for (size_t j = 0; j < num_ics; j++)
+    for (size_t j = 0; j < num_species; j++)
       simdata[j * lds + i] = NV_Ith_S(y, j);
 
     // Extract the sensitivity solution
@@ -139,8 +163,8 @@ static int cvodes_solve(gmcmc_ode_rhs rhs,
       }
 
       for (size_t j = 0; j < num_params; j++) {
-        for (size_t k = 0; k < num_ics; k++)
-          sensitivities[(j * num_ics + k) * lds + i] = NV_Ith_S(yS[j], k);
+        for (size_t k = 0; k < num_species; k++)
+          sensitivities[(j * num_species + k) * lds + i] = NV_Ith_S(yS[j], k);
       }
     }
   }

@@ -109,9 +109,9 @@ int main(int argc, char * argv[]) {
   mcmc_options.num_posterior_samples = 5000;
 
   // Set iteration interval for adapting stepsizes
-  mcmc_options.adapt_rate      =  50;
-  mcmc_options.upper_step_size =   0.5;
-  mcmc_options.lower_step_size =   0.2;
+  mcmc_options.adapt_rate            =  50;
+  mcmc_options.upper_acceptance_rate =   0.5;
+  mcmc_options.lower_acceptance_rate =   0.2;
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
@@ -150,7 +150,7 @@ int main(int argc, char * argv[]) {
 #else
   // Set up priors for standard space
   for (unsigned int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create_uniform(&priors[i], 1.0e-2, 1.0e9)) != 0) {
+    if ((error = gmcmc_distribution_create_uniform(&priors[i], 1.0e-02, 1.0e+10)) != 0) {
       // Clean up
       for (unsigned int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[i]);
@@ -202,7 +202,7 @@ int main(int argc, char * argv[]) {
 #ifdef LOG10SPACE
   double params[] = { 7.6990, 3.3010, 8.6990, 3.3010, 8.6990, -0.4771, 1.1761, 3.4771, 4.1761, -0.3010 };
 #else
-  double params[] = { 50000000, 2000, 500000000, 2000, 500000000, 0.3333, 15, 3000, 15000, 0.5000 };
+  double params[] = { 5.0e+07, 2.0e+03, 5.0e+08, 2.0e+03, 5.0e+08, 0.333333, 15, 3.0e+03, 1.5e+04, 0.5 };
 #endif
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     // Clean up

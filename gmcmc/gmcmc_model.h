@@ -12,6 +12,7 @@
 
 #include <gmcmc/gmcmc_distribution.h>
 #include <gmcmc/gmcmc_dataset.h>
+#include <stdbool.h>
 
 /**
  * A model.

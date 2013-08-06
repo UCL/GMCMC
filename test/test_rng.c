@@ -1,8 +1,25 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
+
 #include <gmcmc/gmcmc_errno.h>
 #include <gmcmc/gmcmc_rng.h>
+
 #include <stdlib.h>
+
+#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
+  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
+  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
+  CU_assertImplementation(( \
+    fabs(expected) > 0.0 ? \
+    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
+#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
+  CU_assertImplementation(( \
+    fabs(expected) > 0.0 ? \
+    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
+    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
 
 #define N 10000000
 
@@ -213,8 +230,8 @@ static void test_get() {
     double variance = m2 / (N - 1);
 
     double n = rngs[i]->type->max - rngs[i]->type->min + 1;
-    CU_ASSERT_DOUBLE_EQUAL(mean, (double)(rngs[i]->type->min + rngs[i]->type->max) / 2.0, 1.0e+07);
-    CU_ASSERT_DOUBLE_EQUAL(variance, (n * n - 1.0) / 12.0, 1.0e+16);
+    CU_ASSERT_DOUBLE_EQUAL_REL(mean, (double)(rngs[i]->type->min + rngs[i]->type->max) / 2.0, 1.0e-03);
+    CU_ASSERT_DOUBLE_EQUAL_REL(variance, (n * n - 1.0) / 12.0, 1.0e-03);
   }
 }
 
@@ -243,8 +260,8 @@ static void test_get_double() {
     }
     double variance = m2 / (N - 1);
 
-    CU_ASSERT_DOUBLE_EQUAL(mean, 0.5, 1.0e-03);
-    CU_ASSERT_DOUBLE_EQUAL(variance, 0.0833, 1.0e-02);
+    CU_ASSERT_DOUBLE_EQUAL_REL(mean, 0.5, 1.0e-03);
+    CU_ASSERT_DOUBLE_EQUAL_REL(variance, 0.0833333, 1.0e-03);
   }
 }
 
