@@ -1,15 +1,9 @@
-/**
- * CVODES integrator options.
- */
-typedef struct {
-  double abstol, reltol;        /**< Absolute and relative tolerances */
-} cvodes_options;
+#include "cvodes.h"
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_lapack.h>
+#include <nvector/nvector_serial.h>
 
-typedef struct {
-  gmcmc_ode_rhs rhs;
-  gmcmc_ode_rhs_sens rhs_sens;
-  const double * params;
-} cvodes_userdata;
+#include <gmcmc/gmcmc_errno.h>
 
 /**
  * Wrapper round gmcmc_ode_rhs to make it match CVRhsFn.
@@ -63,7 +57,7 @@ static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
  *         GMCMC_ENOMEM if there was not enough memory to create the solver,
  *         GMCMC_ELINAL if the solver failed to integrate the system of ODEs.
  */
-static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
+int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
                         size_t num_timepoints, size_t num_species, size_t num_params,
                         const double * timepoints, const double * params,
                         const cvodes_options * options,
@@ -139,7 +133,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
   }
 
   // Attach linear solver module
-  if ((error = CVDense(cvode_mem, num_species)) != 0) {
+  if ((error = CVLapackDense(cvode_mem, num_species)) != 0) {
     CVodeFree(&cvode_mem);
     GMCMC_ERROR("Failed to attach linear solver", GMCMC_ELINAL);
   }

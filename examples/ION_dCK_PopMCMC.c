@@ -4,6 +4,8 @@
 #include <math.h>
 #include <getopt.h>
 
+#include <sys/time.h>
+
 #include <mpi.h>
 
 #include <gmcmc/gmcmc_errno.h>
@@ -52,57 +54,24 @@ int main(int argc, char * argv[]) {
   // parsing the arguments for our program
   MPI_ERROR_CHECK(MPI_Init(&argc, &argv), "Failed to initialise MPI");
 
-  // Default dataset file
-  const char * data_file = "data/ION_dCK_0,5s.mat";
-
-  // Process command line options
-  int c;
-  while ((c = getopt(argc, argv, "d:")) != -1) {
-    switch (c) {
-      case 'd':
-        data_file = optarg;
-        break;
-      default:
-        fprintf(stdout, "Usage: %s [-d <dataset>] output\n", argv[0]);
-        return -1;
-    }
-  }
-
-  if (optind >= argc) {
-    fprintf(stdout, "Usage: %s [-d <dataset>] output\n", argv[0]);
-    return -1;
-  }
-
-  // Output file
-  gmcmc_matlab_outputID = argv[optind];
-
-  // How often to save posterior samples
-  gmcmc_matlab_posterior_save_size = 5000;
-
   // Handle MPI errors ourselves
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
+  // Get the MPI process ID and number of cores
+  int rank, size;
+  MPI_ERROR_CHECK(MPI_Comm_rank(MPI_COMM_WORLD, &rank), "Unable to get MPI rank");
+  MPI_ERROR_CHECK(MPI_Comm_size(MPI_COMM_WORLD, &size), "Unable to get MPI communicator size");
+
+  // Default dataset file
+  const char * data_file = "data/ION_dCK_0,5s.mat";
+
   /*
-   * Set up MCMC options
+   * Set up default MCMC options
    */
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
   mcmc_options.num_temperatures = 10;
-
-  // Set up temperature schedule
-  // Since we are using MPI we *could* just initialise the temperatures this
-  // process needs but there isn't necessarily going to be a 1-1 mapping of
-  // processes to temperatures so initialise them all here just in case.
-  double * temperatures = malloc(mcmc_options.num_temperatures * sizeof(double));
-  if (temperatures == NULL) {
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    fputs("Unable to allocate temperature schedule\n", stderr);
-    return -2;
-  }
-  for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
-    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
-  mcmc_options.temperatures = temperatures;
 
   // Set number of burn-in and posterior samples
   mcmc_options.num_burn_in_samples   = 2000;
@@ -118,6 +87,49 @@ int main(int argc, char * argv[]) {
   mcmc_options.write = gmcmc_matlab_popmcmc_write;
 
   int error;
+  if ((error = parse_options(argc, argv, &mcmc_options)) != 0) {
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return error;
+  }
+
+  // Output file
+  gmcmc_matlab_outputID = argv[optind];
+
+  // How often to save posterior samples
+  gmcmc_matlab_posterior_save_size = 15000000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
+
+  // Save burn-in
+  gmcmc_matlab_save_burn_in = true;
+
+  // Set up temperature schedule
+  // Since we are using MPI we *could* just initialise the temperatures this
+  // process needs but there isn't necessarily going to be a 1-1 mapping of
+  // processes to temperatures so initialise them all here just in case.
+  double * temperatures = malloc(mcmc_options.num_temperatures * sizeof(double));
+  if (temperatures == NULL) {
+    fputs("Unable to allocate temperature schedule\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -2;
+  }
+  for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
+    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
+  mcmc_options.temperatures = temperatures;
+
+  // Print out MCMC options on node 0
+  if (rank == 0) {
+    fprintf(stdout, "Number of cores: %d\n", size);
+    fprintf(stdout, "Number of temperatures: %u\n", mcmc_options.num_temperatures);
+    fputs("Temperature scale:", stdout);
+    for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
+      fprintf(stdout, "%15.6f", mcmc_options.temperatures[i]);
+    fputs("\n", stdout);
+    fprintf(stdout, "Number of burn-in samples: %zu\n", mcmc_options.num_burn_in_samples);
+    fprintf(stdout, "Number of posterior samples: %zu\n", mcmc_options.num_posterior_samples);
+    fprintf(stdout, "Step size adapt rate: %u\n", mcmc_options.adapt_rate);
+    fprintf(stdout, "Upper acceptance rate: %1.4f\n", mcmc_options.upper_acceptance_rate);
+    fprintf(stdout, "Lower acceptance rate: %1.4f\n", mcmc_options.lower_acceptance_rate);
+  }
+
 
   /*
    * Common model settings
@@ -234,9 +246,6 @@ int main(int argc, char * argv[]) {
   /*
    * Create a parallel random number generator to use
    */
-  // Get the MPI process ID
-  int rank;
-  MPI_ERROR_CHECK(MPI_Comm_rank(MPI_COMM_WORLD, &rank), "Unable to get MPI rank");
 
   // Create a parallel RNG for the MPI process
   gmcmc_prng64 * rng;
@@ -254,10 +263,32 @@ int main(int argc, char * argv[]) {
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3241);
 
+  // Start timer
+  struct timeval start, stop;
+  if (rank == 0)  {
+    if (gettimeofday(&start, NULL) != 0) {
+      fputs("gettimeofday failed\n", stderr);
+      return -5;
+    }
+  }
+
   /*
    * Call main population MCMC routine using MPI
    */
   error = gmcmc_popmcmc_mpi(&mcmc_options, model, dataset, rng);
+
+  if (rank == 0) {
+    // Stop timer
+    if (gettimeofday(&stop, NULL) != 0) {
+      fputs("gettimeofday failed\n", stderr);
+      return -6;
+    }
+
+    double time = ((double)(stop.tv_sec - start.tv_sec) +
+                   (double)(stop.tv_usec - start.tv_usec) * 1.e-6);
+
+    fprintf(stdout, "Simulation took %.3f seconds\n", time);
+  }
 
   // Clean up (dataset, model, rng)
   free(temperatures);

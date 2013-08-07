@@ -1,1 +1,1 @@
-make.inc.cluster
+make.inc.laptop

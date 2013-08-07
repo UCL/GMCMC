@@ -15,3 +15,5 @@
 void acceptance_monitor(const gmcmc_popmcmc_options *, const gmcmc_model *,
                         size_t, const double *,
                         const double *, const double *);
+
+int parse_options(int argc, char * argv[], gmcmc_popmcmc_options * options);

@@ -6,12 +6,9 @@
 #include <cblas.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>
-#include <cvodes/cvodes_dense.h>
-#include <nvector/nvector_serial.h>
-
 #include "clapack.h"
 #include "mvn.c"
+#include "cvodes.h"
 
 /**
  * Computes the sum of x.
@@ -33,8 +30,6 @@ static inline double sum(size_t n, const double * x) {
 
   return sum;
 }
-
-#include "cvodes.c"
 
 /**
  * ODE model-specific data.

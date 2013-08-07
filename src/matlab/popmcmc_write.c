@@ -8,10 +8,17 @@
 #include <mat.h>
 #include <matrix.h>
 
+static inline size_t min(size_t a, size_t b) { return (a < b) ? a : b; }
+
 /**
  * How often to save posterior samples.
  */
-size_t gmcmc_matlab_posterior_save_size = 1000;
+size_t gmcmc_matlab_posterior_save_size = 10000;
+
+/**
+ * Whether to save burn-in samples or not.
+ */
+bool gmcmc_matlab_save_burn_in = true;
 
 /**
  * Where to write the samples to.
@@ -134,7 +141,7 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
 
   const size_t num_params = gmcmc_model_get_num_params(model);
 
-  if (i < options->num_burn_in_samples) {
+  if (gmcmc_matlab_save_burn_in && i < options->num_burn_in_samples) {
     // Lazily create a Matlab struct-of-arrays big enough to hold all the burn in samples
     if (burn_in == NULL) {
       if ((burn_in = create_matlab_array(options->num_burn_in_samples, options->num_temperatures, num_params)) == NULL)
@@ -178,9 +185,12 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
     }
   }
   else {
-    // Lazily create a Matlab struct-of-arrays big enough to hold gmcmc_matlab_posterior_save_size posterior samples
+    // Lazily create a Matlab struct-of-arrays big enough to hold
+    // gmcmc_matlab_posterior_save_size posterior samples
     if (posterior == NULL) {
-      if ((posterior = create_matlab_array(gmcmc_matlab_posterior_save_size, options->num_temperatures, num_params)) == NULL)
+      if ((posterior = create_matlab_array(min(gmcmc_matlab_posterior_save_size,
+                                               options->num_posterior_samples),
+                                           options->num_temperatures, num_params)) == NULL)
         GMCMC_ERROR("Failed to create burn in Matlab array", GMCMC_ENOMEM);
     }
 
@@ -189,12 +199,15 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
 
     // Copy the current parameters, log prior and log likelihood into the arrays
     int error;
-    if ((error = write_matlab_field(posterior, "Paras", j, i % gmcmc_matlab_posterior_save_size, params)) != 0 ||
-        (error = write_matlab_field(posterior, "LogPrior", j, i % gmcmc_matlab_posterior_save_size, log_prior)) != 0 ||
-        (error = write_matlab_field(posterior, "LL", j, i % gmcmc_matlab_posterior_save_size, &log_likelihood)) != 0)
+    if ((error = write_matlab_field(posterior, "Paras", j,
+                                    i % gmcmc_matlab_posterior_save_size, params)) != 0 ||
+        (error = write_matlab_field(posterior, "LogPrior", j,
+                                    i % gmcmc_matlab_posterior_save_size, log_prior)) != 0 ||
+        (error = write_matlab_field(posterior, "LL", j,
+                                    i % gmcmc_matlab_posterior_save_size, &log_likelihood)) != 0)
       GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
 
-    // If the arrays are full write them to a file
+    // If the arrays are full or this is the last sample write them to a file
     if ((i % gmcmc_matlab_posterior_save_size == gmcmc_matlab_posterior_save_size - 1 ||
         i == options->num_posterior_samples - 1) && j == options->num_temperatures - 1) {
       // Format the filename for the burn in samples

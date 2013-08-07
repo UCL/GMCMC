@@ -16,6 +16,8 @@
 #include <gmcmc/gmcmc_model.h>
 #include <gmcmc/gmcmc_popmcmc.h>
 
+#include <stdbool.h>
+
 /**
  * Loads an ion channel dataset from a Matlab file.  The file must contain a
  * real-valued column vector named "TimePoints" containing strictly increasing
@@ -58,6 +60,11 @@ int gmcmc_dataset_create_matlab_ode(gmcmc_dataset **, const char *);
  * How often to save posterior samples.
  */
 extern size_t gmcmc_matlab_posterior_save_size;
+
+/**
+ * Whether to save burn-in samples or not.
+ */
+extern bool gmcmc_matlab_save_burn_in;
 
 /**
  * Where to write the samples to.
