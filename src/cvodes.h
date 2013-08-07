@@ -10,12 +10,6 @@ typedef struct {
   double abstol, reltol;        /**< Absolute and relative tolerances */
 } cvodes_options;
 
-typedef struct {
-  gmcmc_ode_rhs rhs;
-  gmcmc_ode_rhs_sens rhs_sens;
-  const double * params;
-} cvodes_userdata;
-
 /**
  * Solves an initial value problem using CVODES to integrate over a system of
  * ODEs with optional forward sensitivity analysis.  The initial conditions for

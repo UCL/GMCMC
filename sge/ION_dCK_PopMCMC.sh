@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_mem=1G,tmem=1G
+#$ -l h_vmem=1G,tmem=1G
 #$ -cwd
 #$ -j y
 #$ -S /bin/bash

@@ -4,9 +4,11 @@
 # GCC
 CC = gcc
 CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
+
 # ICC
 # CC = icc
 # CFLAGS = -std=c99 -Wall -Wextra -xHost -O2
+
 
 # BLAS/CBLAS/LAPACK
 # Reference
@@ -51,6 +53,7 @@ SUNDIALS_LDLIBS = -lsundials_cvodes -lsundials_nvecserial
 
 
 # MATLAB
-MATLAB_CPPFLAGS = -I/opt/MATLAB/R2013a/extern/include
-MATLAB_LDFLAGS = -L/opt/MATLAB/R2013a/bin/glnxa64 -Wl,-rpath-link,/opt/MATLAB/R2013a/bin/glnxa64
-MATLAB_LDLIBS = -lmx -lmex -lmat
+MATLAB_ROOT = /opt/MATLAB/R2013a
+MATLAB_CPPFLAGS = -I$(MATLAB_ROOT)/extern/include
+MATLAB_LDFLAGS = -L$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath-link,$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath,$(MATLAB_ROOT)/sys/os/glnxa64
+MATLAB_LDLIBS = -lmx -lmex -lmat -lm -lstdc++

@@ -4,6 +4,8 @@
 #include <math.h>
 #include <getopt.h>
 
+#include <sys/time.h>
+
 #include <mpi.h>
 
 #include <gmcmc/gmcmc_errno.h>
@@ -16,7 +18,7 @@
 
 #include <gmcmc/gmcmc_matlab.h>
 
-#include "acceptance.h"
+#include "common.h"
 
 // Whether to infer initial conditions
 #define INFER_ICS
@@ -39,7 +41,7 @@
   } while (false)
 
 /**
- * Function to evaluate the right-hand side of a system of ODEs.
+ * Function to evaluate the right-hand side of the Fitz Hugh Nagumo model.
  *
  * @param [in]  t       the current timepoint
  * @param [in]  y       current values of the time-dependent variables
@@ -52,63 +54,49 @@
  */
 static int fitzhughnagumo(double, const double *, double *, const double *);
 
+/**
+ * Function to evaluate the sensitivities right-hand side of the Fitz Hugh
+ * Nagumo model.
+ *
+ * @param [in]  t      is the current value of the independent variable
+ * @param [in]  y      is the current value of the state vector, y(t)
+ * @param [in]  ydot   is the current value of the right-hand side of the state
+ *                      equations
+ * @param [in]  yS     contains the current values of the sensitivity vectors
+ * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
+ *                       sensitivity right-hand side vectors
+ * @param [in]  params  function parameters
+ *
+ * @return = 0 on success,
+ *         > 0 if the current values in y are invalid,
+ *         < 0 if one of the parameter values is incorrect.
+ */
+static int fitzhughnagumo_sens(double, const double *, const double *,
+                               const double **, double **, const double *);
+
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
   MPI_ERROR_CHECK(MPI_Init(&argc, &argv), "Failed to initialise MPI");
 
-  // Default dataset file
-  const char * data_file = "data/FitzHugh_Benchmark_Data.mat";
-
-  // Process command line options
-  int c;
-  while ((c = getopt(argc, argv, "d:")) != -1) {
-    switch (c) {
-      case 'd':
-        data_file = optarg;
-        break;
-      default:
-        fprintf(stdout, "Usage: %s [-d <dataset>] output\n", argv[0]);
-        return -1;
-    }
-  }
-
-  if (optind >= argc) {
-    fprintf(stdout, "Usage: %s [-d <dataset>] output\n", argv[0]);
-    return -1;
-  }
-
-  // Output file
-  gmcmc_matlab_outputID = argv[optind];
-
-
-  // How often to save posterior samples.
-  gmcmc_matlab_posterior_save_size = 20000;
-
   // Handle MPI errors ourselves
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
+  // Get the MPI process ID and number of cores
+  int rank, size;
+  MPI_ERROR_CHECK(MPI_Comm_rank(MPI_COMM_WORLD, &rank), "Unable to get MPI rank");
+  MPI_ERROR_CHECK(MPI_Comm_size(MPI_COMM_WORLD, &size), "Unable to get MPI communicator size");
+
+  // Default dataset file
+  const char * data_file = "data/FitzHugh_Benchmark_Data_1000.mat";
+
   /*
-   * Set up MCMC options
+   * Set up default MCMC options
    */
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
   mcmc_options.num_temperatures = 10;
-
-  // Set up temperature schedule
-  // Since we are using MPI we *could* just initialise the temperatures this
-  // process needs but there isn't necessarily going to be a 1-1 mapping of
-  // processes to temperatures so initialise them all here just in case.
-  double * temperatures = malloc(mcmc_options.num_temperatures * sizeof(double));
-  if (temperatures == NULL) {
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    fputs("Unable to allocate temperature schedule\n", stderr);
-    return -2;
-  }
-  for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
-    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
-  mcmc_options.temperatures = temperatures;
 
   // Set number of burn-in and posterior samples
   mcmc_options.num_burn_in_samples   =  5000;
@@ -124,6 +112,40 @@ int main(int argc, char * argv[]) {
   mcmc_options.write = gmcmc_matlab_popmcmc_write;
 
   int error;
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return error;
+  }
+
+  // Output file
+  gmcmc_matlab_outputID = argv[optind];
+
+  // How often to save posterior samples
+  gmcmc_matlab_posterior_save_size = 12500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
+
+  // Save burn-in
+  gmcmc_matlab_save_burn_in = true;
+
+  // Set up temperature schedule
+  // Since we are using MPI we *could* just initialise the temperatures this
+  // process needs but there isn't necessarily going to be a 1-1 mapping of
+  // processes to temperatures so initialise them all here just in case.
+  double * temperatures = malloc(mcmc_options.num_temperatures * sizeof(double));
+  if (temperatures == NULL) {
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    fputs("Unable to allocate temperature schedule\n", stderr);
+    return -2;
+  }
+  for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
+    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
+  mcmc_options.temperatures = temperatures;
+
+  // Print out MCMC options on node 0
+  if (rank == 0) {
+    fprintf(stdout, "Number of cores: %d\n", size);
+    print_options(stdout, &mcmc_options);
+  }
+
 
   /*
    * Common model settings
@@ -244,19 +266,30 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, ode_model);
 
+//   gmcmc_ode_model_set_rhs_sens(ode_model, fitzhughnagumo_sens);
+
   gmcmc_ode_model_set_tolerances(ode_model, 1.0e-08, 1.0e-08);
 
 
   /*
    * Create a parallel random number generator to use
    */
-  // Get the MPI process ID
-  int rank;
-  MPI_ERROR_CHECK(MPI_Comm_rank(MPI_COMM_WORLD, &rank), "Unable to get MPI rank");
-
-  // Create a parallel RNG for the MPI process
   gmcmc_prng64 * rng;
-  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
+  const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
+  int id = rank;
+  if (id > rng_type->max_id) {
+    rng_type = gmcmc_prng64_dcmt1279;
+    id -= rng_type->max_id;
+  }
+  if (id > rng_type->max_id) {
+    rng_type = gmcmc_prng64_dcmt2203;
+    id -= rng_type->max_id;
+  }
+  if (id > rng_type->max_id) {
+    rng_type = gmcmc_prng64_dcmt2281;
+    id -= rng_type->max_id;
+  }
+  if ((error = gmcmc_prng64_create(&rng, rng_type, id)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
@@ -270,10 +303,32 @@ int main(int argc, char * argv[]) {
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3241);
 
+  // Start timer
+  struct timeval start, stop;
+  if (rank == 0)  {
+    if (gettimeofday(&start, NULL) != 0) {
+      fputs("gettimeofday failed\n", stderr);
+      return -5;
+    }
+  }
+
   /*
    * Call main population MCMC routine using MPI
    */
   error = gmcmc_popmcmc_mpi(&mcmc_options, model, dataset, rng);
+
+  if (rank == 0) {
+    // Stop timer
+    if (gettimeofday(&stop, NULL) != 0) {
+      fputs("gettimeofday failed\n", stderr);
+      return -6;
+    }
+
+    double time = ((double)(stop.tv_sec - start.tv_sec) +
+                   (double)(stop.tv_usec - start.tv_usec) * 1.e-6);
+
+    fprintf(stdout, "Simulation took %.3f seconds\n", time);
+  }
 
   // Clean up (dataset, model, rng)
   free(temperatures);
@@ -316,6 +371,84 @@ static int fitzhughnagumo(double t, const double * y, double * ydot, const doubl
 
   // d/dt(R) = -(V-a+b*R)/c
   ydot[1] = -(v - a + b * r) / c;
+
+  return 0;
+}
+
+/**
+ * Function to evaluate the sensitivities right-hand side of the Fitz Hugh
+ * Nagumo model.
+ *
+ * @param [in]  t      is the current value of the independent variable
+ * @param [in]  y      is the current value of the state vector, y(t)
+ * @param [in]  ydot   is the current value of the right-hand side of the state
+ *                      equations
+ * @param [in]  yS     contains the current values of the sensitivity vectors
+ * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
+ *                       sensitivity right-hand side vectors
+ * @param [in]  params  function parameters
+ *
+ * @return = 0 on success,
+ *         > 0 if the current values in y are invalid,
+ *         < 0 if one of the parameter values is incorrect.
+ */
+static int fitzhughnagumo_sens(double t, const double * y, const double * ydot,
+                               const double ** yS, double ** ySdot, const double * params) {
+  (void)t;      // Unused
+  (void)ydot;
+
+  // Model parameters
+  double a = params[0];
+  double b = params[1];
+  double c = params[2];
+
+  // Model states
+  double v = y[0];
+  double r = y[1];
+  double v_a = yS[0][0];
+  double r_a = yS[0][1];
+  double v_b = yS[1][0];
+  double r_b = yS[1][1];
+  double v_c = yS[2][0];
+  double r_c = yS[2][1];
+#ifdef INFER_ICS
+  double v_v0 = yS[3][0];
+  double r_v0 = yS[3][1];
+  double v_r0 = yS[4][0];
+  double r_r0 = yS[4][1];
+#endif
+
+  // d/dt(V_a) = (-c*(V^2 - 1))*V_a + (c)*R_a
+  ySdot[0][0] = (-c * (v*v - 1.0)) * v_a + c * r_a;
+
+  // d/dt(R_a) = (-1/c)*V_a + (-b/c)*R_a + 1/c
+  ySdot[0][1] = (-1.0 / c) * v_a + (-b / c) * r_a + 1.0 / c;
+
+  // d/dt(V_b) = (-c*(V^2 - 1))*V_b + (c)*R_b
+  ySdot[1][0] = (-c * (v*v - 1.0)) * v_b + c * r_b;
+
+  // d/dt(R_b) = (-1/c)*V_b + (-b/c)*R_b - R/c
+  ySdot[1][1] = (-1.0 / c) * v_b + (-b / c) * r_b - r / c;
+
+  // d/dt(V_c) = (-c*(V^2 - 1))*V_c + (c)*R_c + V - V^3/3 + R
+  ySdot[2][0] = (-c * (v*v - 1.0)) * v_c + c * r_c + v - (v*v*v) / 3.0 + r;
+
+  // d/dt(R_c) = (-1/c)*V_c + (-b/c)*R_c + (V - a + R*b)/c^2
+  ySdot[2][1] = (-1.0 / c) * v_c + (-b / c) * r_c + (v - a + r * b) / (c*c);
+
+#ifdef INFER_ICS
+  // d/dt(V_V0) = (-c*(V^2 - 1))*V_V0 + (c)*R_V0
+  ySdot[3][0] = (-c * (v*v - 1.0)) * v_v0 + c * r_v0;
+
+  // d/dt(R_V0) = (-1/c)*V_V0 + (-b/c)*R_V0
+  ySdot[3][1] = (-1.0 / c) * v_v0 + (-b / c) * r_v0;
+
+  // d/dt(V_R0) = (-c*(V^2 - 1))*V_R0 + (c)*R_R0
+  ySdot[4][0] = (-c * (v*v - 1.0)) * v_r0 + c * r_r0;
+
+  // d/dt(R_R0) = (-1/c)*V_R0 + (-b/c)*R_R0
+  ySdot[4][1] = (-1.0 / c) * v_r0 + (-b / c) * r_r0;
+#endif
 
   return 0;
 }

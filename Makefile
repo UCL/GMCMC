@@ -1,30 +1,35 @@
 include make.inc
+PREFIX ?= /usr
 CPPFLAGS = -I. -I.. $(MPI_CPPFLAGS)
 LDFLAGS = -L. $(MPI_LDFLAGS)
 LDLIBS = -lgmcmc -lgmcmc_matlab $(MPI_LDLIBS)
-#LDFLAGS = -L. $(SUNDIALS_LDFLAGS) $(MPI_LDFLAGS) $(MATLAB_LDFLAGS)
-#LDLIBS = -lgmcmc -lgmcmc_matlab $(SUNDIALS_LDLIBS) $(MPI_LDLIBS) $(MATLAB_LDLIBS)
 
 VPATH = . examples gmcmc
 
-.PHONY: all examples test clean
+.PHONY: all examples test clean install
+
+LIBS = libgmcmc.so libgmcmc_matlab.so
 
 ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
 
 ODE_examples = FitzHugh_Benchmark_MH FitzHugh_Benchmark_Simp_mMALA \
                Locke_Benchmark_MH Locke_Benchmark_Simp_mMALA
 
-all: libgmcmc.so libgmcmc_matlab.so
+all: $(LIBS) examples test
 
 examples: $(ION_examples) $(ODE_examples)
 
-test: libgmcmc.so libgmcmc_matlab.so
+test: $(LIBS)
 	cd test && $(MAKE)
 
 clean:
 	cd src && $(MAKE) clean
 	cd test && $(MAKE) clean
 	rm -f examples/common.o $(addprefix examples/,$(addsuffix .o,$(ION_examples) $(ODE_examples))) $(ION_examples) $(ODE_examples)
+
+install: $(LIBS) $(ION_examples) $(ODE_examples)
+	$(foreach lib,$(LIBS),)
+	$(foreach bin,$(ION_examples) $(ODE_examples),)
 
 libgmcmc.so:
 	cd src && $(MAKE) ../libgmcmc.so
@@ -37,7 +42,7 @@ $(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_errno.h gmcmc_mode
 $(addprefix examples/,$(addsuffix .o,$(ODE_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ode_model.h gmcmc_popmcmc.h gmcmc_matlab.h common.h
 
 define make_example
-$(1): examples/$(1).o examples/common.o libgmcmc.so libgmcmc_matlab.so
+$(1): examples/$(1).o examples/common.o $(LIBS)
 endef
 $(foreach exe,$(ION_examples) $(ODE_examples),$(eval $(call make_example,$(exe))))
 

@@ -74,7 +74,7 @@ int main(int argc, char * argv[]) {
   mcmc_options.num_temperatures = 10;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   = 2000;
+  mcmc_options.num_burn_in_samples   = 1000;
   mcmc_options.num_posterior_samples = 5000;
 
   // Set iteration interval for adapting stepsizes
@@ -242,19 +242,19 @@ int main(int argc, char * argv[]) {
   gmcmc_prng64 * rng;
   const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
   int id = rank;
-  if (id >= rng_type->max_id) {
+  if (id > rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt1279;
     id -= rng_type->max_id;
   }
-  if (id >= rng_type->max_id) {
+  if (id > rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt2203;
     id -= rng_type->max_id;
   }
-  if (id >= rng_type->max_id) {
+  if (id > rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt2281;
     id -= rng_type->max_id;
   }
-  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt521, rank)) != 0) {
+  if ((error = gmcmc_prng64_create(&rng, rng_type, id)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);

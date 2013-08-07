@@ -1,7 +1,7 @@
 include ../make.inc
 CPPFLAGS = -I..
-LDFLAGS = -L.. $(SUNDIALS_LDFLAGS) $(MATLAB_LDFLAGS)
-LDLIBS = -lgmcmc -lgmcmc_matlab -lcunit $(SUNDIALS_LDLIBS) $(MATLAB_LDLIBS)
+LDFLAGS = -L..
+LDLIBS = -lgmcmc -lgmcmc_matlab -lcunit
 
 VPATH = . ../gmcmc
 
