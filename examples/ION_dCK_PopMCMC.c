@@ -111,8 +111,13 @@ int main(int argc, char * argv[]) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -2;
   }
-  for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
-    temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
+  // Avoid divide by zero in temperature scale
+  if (mcmc_options.num_temperatures == 1)
+    temperatures[0] = 1.0;
+  else {
+    for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
+      temperatures[i] = pow(i * (1.0 / (mcmc_options.num_temperatures - 1.0)), 5.0);
+  }
   mcmc_options.temperatures = temperatures;
 
   // Print out MCMC options on node 0
