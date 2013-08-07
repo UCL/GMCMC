@@ -1,7 +1,9 @@
 include make.inc
 CPPFLAGS = -I. -I.. $(MPI_CPPFLAGS)
-LDFLAGS = -L. $(SUNDIALS_LDFLAGS) $(MPI_LDFLAGS) $(MATLAB_LDFLAGS)
-LDLIBS = -lgmcmc -lgmcmc_matlab $(SUNDIALS_LDLIBS) $(MPI_LDLIBS) $(MATLAB_LDLIBS)
+LDFLAGS = -L. $(MPI_LDFLAGS)
+LDLIBS = -lgmcmc -lgmcmc_matlab $(MPI_LDLIBS)
+#LDFLAGS = -L. $(SUNDIALS_LDFLAGS) $(MPI_LDFLAGS) $(MATLAB_LDFLAGS)
+#LDLIBS = -lgmcmc -lgmcmc_matlab $(SUNDIALS_LDLIBS) $(MPI_LDLIBS) $(MATLAB_LDLIBS)
 
 VPATH = . examples gmcmc
 

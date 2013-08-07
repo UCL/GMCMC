@@ -1,7 +1,7 @@
 include ../../make.inc
 CPPFLAGS = -I../.. $(MATLAB_CPPFLAGS)
 CFLAGS += -fPIC
-LDFLAGS = -L../.. $(MATLAB_LDFLAGS) -Wl,--export-dynamic -Wl,-soname=libgmcmc_matlab.so
+LDFLAGS = -L../.. $(MATLAB_LDFLAGS) -Wl,--export-dynamic -Wl,-soname=libgmcmc_matlab.so -Wl,--no-undefined
 LDLIBS =  -lgmcmc $(MATLAB_LDLIBS)
 OBJS = ion_dataset.o ode_dataset.o popmcmc_write.o
 

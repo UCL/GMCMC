@@ -2,7 +2,7 @@ include ../make.inc
 CPPFLAGS = -I.. $(MPI_CPPFLAGS) $(SUNDIALS_CPPFLAGS) $(LAPACK_CPPFLAGS) $(OMP_CPPFLAGS)
 CFLAGS += -fPIC -fopenmp -pthread
 LDFLAGS = $(MPI_LDFLAGS) $(SUNDIALS_LDFLAGS) $(LAPACK_LDFLAGS) $(OMP_LDFLAGS) \
-          -Wl,--export-dynamic -Wl,-soname=libgmcmc.so
+          -Wl,--export-dynamic -Wl,-soname=libgmcmc.so -Wl,--no-undefined
 LDLIBS = $(MPI_LDLIBS) $(SUNDIALS_LDLIBS) $(LAPACK_LDLIBS) $(OMP_LDLIBS)
 OBJS = distribution/gamma.o distribution/lognormal.o distribution/normal.o distribution/uniform.o \
        rng/mt19937.o rng/mt19937-64.o rng/dcmt521.o rng/dcmt607.o rng/dcmt1279.o rng/dcmt2203.o rng/dcmt2281.o rng/dcmt3217.o rng/dcmt4253.o rng/dcmt4423.o rng/dcmt9689.o \

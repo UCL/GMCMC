@@ -14,7 +14,7 @@ CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=opteron -O2 -pipe
 # Reference
 LAPACK_CPPFLAGS = -I${HOME}/include
 LAPACK_LDFLAGS = -L${HOME}/lib64
-LAPACK_LDLIBS = -lreflapack -lrefblas -lrefcblas
+LAPACK_LDLIBS = -lreflapack -lrefblas -lrefcblas -lm
 
 # MKL
 # LAPACK_CPPFLAGS = -I/opt/intel/composerxe-2013_update4.5.192/mkl/include -DMKL_ILP64
@@ -52,6 +52,8 @@ SUNDIALS_LDLIBS = -lsundials_cvodes -lsundials_nvecserial
 
 
 # MATLAB
-MATLAB_CPPFLAGS = -I/share/apps/matlabR2013a/extern/include
-MATLAB_LDFLAGS = -L/share/apps/matlabR2013a/bin/glnxa64 -Wl,-rpath-link,/share/apps/matlabR2013a/bin/glnxa64
-MATLAB_LDLIBS = -lmx -lmex -lmat /share/apps/matlabR2013a/sys/os/glnxa64/libstdc++.so.6
+MATLAB_ROOT = /share/apps/matlabR2013a
+MATLAB_CPPFLAGS = -I$(MATLAB_ROOT)/extern/include
+MATLAB_LDFLAGS = -L$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath-link,$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath,$(MATLAB_ROOT)/sys/os/glnxa64
+MATLAB_LDLIBS = -lmx -lmex -lmat -lm -lstdc++
+#MATLAB_LDLIBS = -lmx -lmex -lmat /share/apps/matlabR2013a/sys/os/glnxa64/libstdc++.so.6
