@@ -56,4 +56,3 @@ MATLAB_ROOT = /share/apps/matlabR2013a
 MATLAB_CPPFLAGS = -I$(MATLAB_ROOT)/extern/include
 MATLAB_LDFLAGS = -L$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath-link,$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath,$(MATLAB_ROOT)/sys/os/glnxa64
 MATLAB_LDLIBS = -lmx -lmex -lmat -lm -lstdc++
-#MATLAB_LDLIBS = -lmx -lmex -lmat /share/apps/matlabR2013a/sys/os/glnxa64/libstdc++.so.6
