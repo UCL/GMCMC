@@ -246,29 +246,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     if ((error = gmcmc_prior(model, chain->params, num_params, chain->log_prior)) != 0)
       GMCMC_ERROR("Error evaluating prior", error);
 
-    // Start timer
-    struct timeval start, stop;
-    if (gettimeofday(&start, NULL) != 0) {
-      fputs("gettimeofday failed\n", stderr);
-      return -5;
-    }
-
     // Evaluate the model at new parameters to get LL, gradient, metric etc.
     if ((error = gmcmc_likelihood(data, model, chain->params,
                                   &chain->log_likelihood, &chain->chainspecific,
                                   &chain->size)) != 0)
       GMCMC_ERROR("Error evaluating likelihood", error);
-
-    // Stop timer
-    if (gettimeofday(&stop, NULL) != 0) {
-      fputs("gettimeofday failed\n", stderr);
-      return -6;
-    }
-
-    double time = ((double)(stop.tv_sec - start.tv_sec) +
-                   (double)(stop.tv_usec - start.tv_usec) * 1.e-6);
-
-    fprintf(stdout, "Likelihood took %.6f seconds\n", time);
 
     // accept proposal (always)
     chain->accepted_mutation++;
