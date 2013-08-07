@@ -18,7 +18,7 @@
 
 #include <gmcmc/gmcmc_matlab.h>
 
-#include "acceptance.h"
+#include "common.h"
 
 // Whether to use log space for parameter values - helps with very small/large values
 #define LOG10SPACE
@@ -87,7 +87,7 @@ int main(int argc, char * argv[]) {
   mcmc_options.write = gmcmc_matlab_popmcmc_write;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options)) != 0) {
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
@@ -118,16 +118,7 @@ int main(int argc, char * argv[]) {
   // Print out MCMC options on node 0
   if (rank == 0) {
     fprintf(stdout, "Number of cores: %d\n", size);
-    fprintf(stdout, "Number of temperatures: %u\n", mcmc_options.num_temperatures);
-    fputs("Temperature scale:", stdout);
-    for (unsigned int i = 0; i < mcmc_options.num_temperatures; i++)
-      fprintf(stdout, "%15.6f", mcmc_options.temperatures[i]);
-    fputs("\n", stdout);
-    fprintf(stdout, "Number of burn-in samples: %zu\n", mcmc_options.num_burn_in_samples);
-    fprintf(stdout, "Number of posterior samples: %zu\n", mcmc_options.num_posterior_samples);
-    fprintf(stdout, "Step size adapt rate: %u\n", mcmc_options.adapt_rate);
-    fprintf(stdout, "Upper acceptance rate: %1.4f\n", mcmc_options.upper_acceptance_rate);
-    fprintf(stdout, "Lower acceptance rate: %1.4f\n", mcmc_options.lower_acceptance_rate);
+    print_options(stdout, &mcmc_options);
   }
 
 
@@ -246,8 +237,6 @@ int main(int argc, char * argv[]) {
   /*
    * Create a parallel random number generator to use
    */
-
-  // Create a parallel RNG for the MPI process
   gmcmc_prng64 * rng;
   if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
     // Clean up
