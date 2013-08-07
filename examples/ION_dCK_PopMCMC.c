@@ -238,7 +238,21 @@ int main(int argc, char * argv[]) {
    * Create a parallel random number generator to use
    */
   gmcmc_prng64 * rng;
-  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
+  const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
+  int id = rank;
+  if (id >= rng_type->max_id) {
+    rng_type = gmcmc_prng64_dcmt1279;
+    id -= rng_type->max_id;
+  }
+  if (id >= rng_type->max_id) {
+    rng_type = gmcmc_prng64_dcmt2203;
+    id -= rng_type->max_id;
+  }
+  if (id >= rng_type->max_id) {
+    rng_type = gmcmc_prng64_dcmt2281;
+    id -= rng_type->max_id;
+  }
+  if ((error = gmcmc_prng64_create(&rng, rng_type, id)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);

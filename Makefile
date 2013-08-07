@@ -34,7 +34,7 @@ examples/common.o: common.h
 $(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ion_model.h gmcmc_popmcmc.h gmcmc_matlab.h common.h
 $(addprefix examples/,$(addsuffix .o,$(ODE_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ode_model.h gmcmc_popmcmc.h gmcmc_matlab.h common.h
 
-define make_example =
+define make_example
 $(1): examples/$(1).o examples/common.o libgmcmc.so libgmcmc_matlab.so
 endef
 $(foreach exe,$(ION_examples) $(ODE_examples),$(eval $(call make_example,$(exe))))
