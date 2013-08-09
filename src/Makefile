@@ -28,17 +28,17 @@ distribution/gamma.o: distribution/randn.c gmcmc_distribution.h gmcmc_rng.h gmcm
 distribution/lognormal.o: distribution/randn.c gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 distribution/normal.o: distribution/randn.c gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 distribution/uniform.o: gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
-rng/mt19937.o: rng/dcmt.c gmcmc_rng.h
+rng/mt19937.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
 rng/mt19937-64.o: gmcmc_rng.h
-rng/dcmt512.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt607.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt1279.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt2203.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt2281.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt3217.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt4253.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt4423.o: rng/dcmt.c gmcmc_rng.h
-rng/dcmt9689.o: rng/dcmt.c gmcmc_rng.h
+rng/dcmt512.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt607.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt1279.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt2203.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt2281.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt3217.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt4253.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt4423.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
+rng/dcmt9689.o: rng/dcmt.c rng/dcmt.h gmcmc_rng.h
 errno.o: gmcmc_errno.h
 dataset.o: gmcmc_dataset.h
 distribution.o: gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h

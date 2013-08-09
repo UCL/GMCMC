@@ -126,11 +126,14 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     simdata[j * lds] = ics[j];
 
   // Solve the system of equations using the function specified in the ODE model
-  int error;
-  if ((error = cvodes_solve(ode_model->rhs, NULL,
-                            num_timepoints, num_species, num_params,
-                            timepoints, params, &ode_model->options,
-                            simdata, NULL, lds)) != 0) {
+  int error = cvodes_solve(ode_model->rhs, NULL, num_timepoints, num_species, num_params,
+                            timepoints, params, &ode_model->options, simdata, NULL, lds);
+  if (error == GMCMC_ELINAL) {
+    free(simdata);
+    *likelihood = -INFINITY;
+    return 0;
+  }
+  else if (error != 0) {
     free(simdata);
     GMCMC_ERROR("Failed to solve system of ODEs", error);
   }
@@ -368,11 +371,15 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
   }
 
   // Solve the system of equations using the function specified in the ODE model
-  int error;
-  if ((error = cvodes_solve(ode_model->rhs, ode_model->rhs_sens,
-                            num_timepoints, num_species, num_params,
-                            timepoints, params, &ode_model->options,
-                            simdata, sensitivities, lds)) != 0) {
+  int error = cvodes_solve(ode_model->rhs, NULL, num_timepoints, num_species, num_params,
+                            timepoints, params, &ode_model->options, simdata, NULL, lds);
+  if (error == GMCMC_ELINAL) {
+    free(simdata);
+    free(sensitivities);
+    *likelihood = -INFINITY;
+    return 0;
+  }
+  else if (error != 0) {
     free(simdata);
     free(sensitivities);
     GMCMC_ERROR("Failed to solve system of ODEs", error);

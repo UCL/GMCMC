@@ -106,7 +106,19 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
     GMCMC_ERROR("Failed to set integration tolerances", GMCMC_ELINAL);
   }
 
+  // Set optional inputs
   cvodes_userdata userdata = { rhs, rhs_sens, params, false, NULL, NULL };
+  if ((error = CVodeSetUserData(cvode_mem, &userdata)) != 0) {
+    CVodeFree(&cvode_mem);
+    GMCMC_ERROR("Failed to set userdata", GMCMC_ELINAL);
+  }
+
+  // Attach linear solver module
+  if ((error = CVLapackDense(cvode_mem, num_species)) != 0) {
+    CVodeFree(&cvode_mem);
+    GMCMC_ERROR("Failed to attach linear solver", GMCMC_ELINAL);
+  }
+
   N_Vector * yS = NULL;
   if (sensitivities != NULL) {
     // Set sensitivity initial conditions
@@ -115,6 +127,33 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       for (size_t i = 0; i < num_species; i++)
         NV_Ith_S(yS[j], i) = sensitivities[(j * num_species + i) * lds];
     }
+
+    // Activate sensitivity calculations
+    if (rhs_sens == NULL) {
+      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != 0) {
+        CVodeFree(&cvode_mem);
+        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+      }
+    }
+    else {
+      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != 0) {
+        CVodeFree(&cvode_mem);
+        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+      }
+    }
+
+    // Set sensitivity tolerances
+    if ((error = CVodeSensEEtolerances(cvode_mem)) != 0) {
+      CVodeFree(&cvode_mem);
+      GMCMC_ERROR("Failed to set sensitivity tolerances", GMCMC_ELINAL);
+    }
+
+    // Set sensitivity analysis optional inputs
+    if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, NULL)) != 0) {
+      CVodeFree(&cvode_mem);
+      GMCMC_ERROR("Failed to set sensitivity parameters", GMCMC_ELINAL);
+    }
+
     if ((userdata.yS = malloc(num_params * sizeof(double *))) == NULL ||
         (userdata.ySdot = malloc(num_params * sizeof(double *))) == NULL) {
       free(userdata.yS);
@@ -122,59 +161,6 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       CVodeFree(&cvode_mem);
       GMCMC_ERROR("Failed to allocate memory for sensitivity vectors", GMCMC_ELINAL);
     }
-
-    // Activate sensitivity calculations
-    if (rhs_sens == NULL) {
-      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != 0) {
-        free(userdata.yS);
-        free(userdata.ySdot);
-        CVodeFree(&cvode_mem);
-        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
-      }
-    }
-    else {
-      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != 0) {
-        free(userdata.yS);
-        free(userdata.ySdot);
-        CVodeFree(&cvode_mem);
-        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
-      }
-    }
-
-    // Set sensitivity tolerances
-    realtype reltolS[num_params];
-    for (size_t i = 0; i < num_params; i++)
-      reltolS[i] = options->reltol;
-    if ((error = CVodeSensSStolerances(cvode_mem, options->abstol, reltolS)) != 0) {
-      free(userdata.yS);
-      free(userdata.ySdot);
-      CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to set sensitivity tolerances", GMCMC_ELINAL);
-    }
-
-    // Set sensitivity analysis optional inputs
-    if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, NULL)) != 0) {
-      free(userdata.yS);
-      free(userdata.ySdot);
-      CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to set sensitivity parameters", GMCMC_ELINAL);
-    }
-  }
-
-  // Set optional inputs
-  if ((error = CVodeSetUserData(cvode_mem, &userdata)) != 0) {
-    free(userdata.yS);
-    free(userdata.ySdot);
-    CVodeFree(&cvode_mem);
-    GMCMC_ERROR("Failed to set userdata", GMCMC_ELINAL);
-  }
-
-  // Attach linear solver module
-  if ((error = CVLapackDense(cvode_mem, num_species)) != 0) {
-    free(userdata.yS);
-    free(userdata.ySdot);
-    CVodeFree(&cvode_mem);
-    GMCMC_ERROR("Failed to attach linear solver", GMCMC_ELINAL);
   }
 
   // Advance solution in time

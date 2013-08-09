@@ -171,6 +171,12 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
     GMCMC_ERROR("Error evaluating likelihood", error);
   }
 
+  if (isinf(sum(num_params, (*chain)->log_prior)) == -1 || isinf((*chain)->log_likelihood) == -1) {
+    free((*chain)->params);
+    free(*chain);
+    GMCMC_ERROR("Parameter starting values have zero likelihood", GMCMC_EINVAL);
+  }
+
   return 0;
 }
 
@@ -370,11 +376,15 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       GMCMC_ERROR("Error evaluating multivariate normal log pdf", error);
     }
 
-    // Accept or reject according to ratio
-    double ratio = log_likelihood * chain->temperature +
-                   sum_log_prior_params + p_old_given_new -
-                   chain->log_likelihood * chain->temperature -
-                   sum(num_params, chain->log_prior) - p_new_given_old;
+    double ratio;
+    if (isinf(log_likelihood) == -1)
+      ratio = -INFINITY;
+    else
+      // Accept or reject according to ratio
+      ratio = log_likelihood * chain->temperature +
+              sum_log_prior_params + p_old_given_new -
+              chain->log_likelihood * chain->temperature -
+              sum(num_params, chain->log_prior) - p_new_given_old;
 
     if (isgreater(ratio, 0.0) || log(1.0 - gmcmc_prng64_get_double(rng)) < min(0.0, ratio)) {   // = log(1.0) !!
       // Swap pointers rather than copy

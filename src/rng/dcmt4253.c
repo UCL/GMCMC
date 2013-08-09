@@ -1,5 +1,6 @@
 #include <gmcmc/gmcmc_rng.h>
 #include <stdint.h>
+#include "dcmt.h"
 
 #define MT_MM  66
 #define MT_NN 133
@@ -10,10 +11,6 @@
 #define MT_SHIFT1 18
 #define MT_SHIFTB  7
 #define MT_SHIFTC 15
-
-typedef struct {
-  uint32_t aaa, maskB, maskC;
-} mt_params;
 
 static mt_params params[] = {
   { UINT32_C(0xd3a40000), UINT32_C(0xef54ef80), UINT32_C(0xddd58000) },
