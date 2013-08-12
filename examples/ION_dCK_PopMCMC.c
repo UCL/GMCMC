@@ -249,7 +249,7 @@ int main(int argc, char * argv[]) {
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
-    gmcmc_ode_model_destroy(ode_model);
+    gmcmc_ion_model_destroy(ion_model);
     fputs("Unable to create parallel RNG\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -5;
