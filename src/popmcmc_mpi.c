@@ -97,6 +97,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
         double exchanges[num_chains];
         double stepsizes[num_chains];
 
+        double lower_stepsize, upper_stepsize;
+        gmcmc_model_get_stepsize_bounds(model, &lower_stepsize, &upper_stepsize);
+
         // For each population
         for (size_t j = 0; j < num_chains; j++) {
           // Adjust proposal width for parameter value inference
@@ -106,9 +109,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
           // Don't update chain 0 unless it is the only chain
           if (j > 0 || options->num_temperatures == 1) {
             if (mutations[j] < options->lower_acceptance_rate)
-              chains[j]->stepsize *= 0.8;
+              chains[j]->stepsize = fmax(chains[j]->stepsize * 0.8, lower_stepsize);
             else if (mutations[j] > options->upper_acceptance_rate)
-              chains[j]->stepsize *= 1.2;
+              chains[j]->stepsize = fmin(chains[j]->stepsize * 1.2, upper_stepsize);
           }
           stepsizes[j] = chains[j]->stepsize;
 
@@ -130,7 +133,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
         for (size_t j = 0; j < num_chains; j++) {
           if ((error = options->write(options, model, i, j,
                                       chains[j]->params, chains[j]->log_prior,
-                                      chains[j]->log_likelihood)) != 0) {
+                                      chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
@@ -242,7 +245,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
         for (size_t j = 0; j < num_chains; j++) {
           if ((error = options->write(options, model, i + options->num_burn_in_samples, j,
                                       chains[j]->params, chains[j]->log_prior,
-                                      chains[j]->log_likelihood)) != 0) {
+                                      chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);

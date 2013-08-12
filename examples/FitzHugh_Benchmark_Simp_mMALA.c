@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <getopt.h>
+#include <time.h>
 
 #include <sys/time.h>
 
@@ -96,7 +97,7 @@ int main(int argc, char * argv[]) {
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
-  mcmc_options.num_temperatures = 50;
+  mcmc_options.num_temperatures = 10;
 
   // Set number of burn-in and posterior samples
   mcmc_options.num_burn_in_samples   =  5000;
@@ -271,7 +272,7 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, ode_model);
 
-//   gmcmc_ode_model_set_rhs_sens(ode_model, fitzhughnagumo_sens);
+  gmcmc_ode_model_set_rhs_sens(ode_model, fitzhughnagumo_sens);
 
   gmcmc_ode_model_set_tolerances(ode_model, 1.0e-08, 1.0e-08);
 
@@ -280,21 +281,7 @@ int main(int argc, char * argv[]) {
    * Create a parallel random number generator to use
    */
   gmcmc_prng64 * rng;
-  const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
-  int id = rank;
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt1279;
-    id -= rng_type->max_id;
-  }
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt2203;
-    id -= rng_type->max_id;
-  }
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt2281;
-    id -= rng_type->max_id;
-  }
-  if ((error = gmcmc_prng64_create(&rng, rng_type, id)) != 0) {
+  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
@@ -306,7 +293,9 @@ int main(int argc, char * argv[]) {
   }
 
   // Seed the RNG
-  gmcmc_prng64_seed(rng, 3241);
+  time_t seed = time(NULL);
+  gmcmc_prng64_seed(rng, seed);
+  fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 
   // Start timer
   struct timeval start, stop;

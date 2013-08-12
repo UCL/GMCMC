@@ -61,8 +61,10 @@ int gmcmc_distribution_memcpy(gmcmc_distribution * dest, const gmcmc_distributio
  * @param [in] dist  the probability distribution to destroy
  */
 void gmcmc_distribution_destroy(gmcmc_distribution * dist) {
-  free(dist->params);
-  free(dist);
+  if (dist != NULL) {
+    free(dist->params);
+    free(dist);
+  }
 }
 
 /**

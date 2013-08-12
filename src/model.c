@@ -14,8 +14,8 @@ struct gmcmc_model {
   gmcmc_likelihood_function likelihood; /**< Likelihood function */
   size_t n;                             /**< Number of parameters in model */
   double stepsize;                      /**< Parameter stepsize (default 0.05) */
+  double lower_stepsize, upper_stepsize;/**< Lower and upper bounds for adapting stepsize */
   void * modelspecific;                 /**< Model specific parameters and data (may be NULL) */
-  bool logspace;                        /**< Whether the parameter values are in log space */
 };
 
 /**
@@ -45,7 +45,7 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
     if ((error = gmcmc_distribution_create_copy(&(*model)->priors[i], priors[i])) != 0) {
       free((*model)->params);
       for (size_t j = 0; j < i; j++)
-        gmcmc_distribution_destroy((*model)->priors[i]);
+        gmcmc_distribution_destroy((*model)->priors[j]);
       free(*model);
       GMCMC_ERROR("Unable to copy priors into model", error);
     }
@@ -56,8 +56,9 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
   (*model)->likelihood = likelihood;
   (*model)->n = n;
   (*model)->stepsize = 0.05;
+  (*model)->lower_stepsize = 0.0;
+  (*model)->upper_stepsize = 1.0;
   (*model)->modelspecific = NULL;
-  (*model)->logspace = false;
 
   return 0;
 }
@@ -200,6 +201,35 @@ int gmcmc_model_set_stepsize(gmcmc_model * model, double stepsize) {
  */
 double gmcmc_model_get_stepsize(const gmcmc_model * model) {
   return model->stepsize;
+}
+
+/**
+ * Sets the upper and lower limits for adapting stepsizes.
+ *
+ * @param [in] model  the model
+ * @param [in] lower  the lower bound for the stepsizes
+ * @param [in] upper  the upper bound for the stepsizes
+ *
+ * @return 0 on success, GMCMC_EINVAL if lower is greater than upper.
+ */
+int gmcmc_model_set_stepsize_bounds(gmcmc_model * model, double lower, double upper) {
+  if (isgreater(lower, upper))
+    GMCMC_ERROR("Lower stepsize bound is greater than upper stepsize bound", GMCMC_EINVAL);
+  model->lower_stepsize = lower;
+  model->upper_stepsize = upper;
+  return 0;
+}
+
+/**
+ * Gets the upper and lower limits for adapting stepsizes.
+ *
+ * @param [in]  model  the model
+ * @param [out] lower  the lower bound for the stepsizes
+ * @param [out] upper  the upper bound for the stepsizes
+ */
+void gmcmc_model_get_stepsize_bounds(const gmcmc_model * model, double * lower, double * upper) {
+  *lower = model->lower_stepsize;
+  *upper = model->upper_stepsize;
 }
 
 /**

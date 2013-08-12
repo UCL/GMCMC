@@ -47,23 +47,25 @@ static mxArray * create_matlab_array(size_t num_samples,
 
   for (unsigned int j = 0; j < num_temperatures; j++) {
     // Create a 1x1 struct matrix
-    const char * fields[] = { "Paras", "LL", "LogPrior" };
-    mxArray * structs = mxCreateStructMatrix(1, 1, 3, fields);
+    const char * fields[] = { "Paras", "LL", "LogPrior", "StepSize" };
+    mxArray * structs = mxCreateStructMatrix(1, 1, 4, fields);
     if (structs == NULL) {
       mxDestroyArray(cells);
       GMCMC_ERROR_VAL("Failed to create Matlab struct matrix", GMCMC_ENOMEM, NULL);
     }
 
     // Create arrays for the parameters, log likelihood and log prior
-    mxArray * params = NULL, * log_prior = NULL, * log_likelihood = NULL;
+    mxArray * params = NULL, * log_prior = NULL, * log_likelihood = NULL, * stepsize = NULL;
     if ((params = mxCreateDoubleMatrix(num_samples, num_params, 0)) == NULL ||
         (log_prior = mxCreateDoubleMatrix(num_samples, num_params, 0)) == NULL ||
-        (log_likelihood = mxCreateDoubleMatrix(num_samples, 1, 0)) == NULL) {
+        (log_likelihood = mxCreateDoubleMatrix(num_samples, 1, 0)) == NULL ||
+        (stepsize = mxCreateDoubleMatrix(num_samples, 1, 0)) == NULL) {
       mxDestroyArray(params);
       mxDestroyArray(log_prior);
       mxDestroyArray(log_likelihood);
+      mxDestroyArray(stepsize);
       mxDestroyArray(cells);
-      GMCMC_ERROR_VAL("Failed to create parameter, log_prior and log_likelihood arrays", GMCMC_ENOMEM, NULL);
+      GMCMC_ERROR_VAL("Failed to create parameter, log_prior, log_likelihood and stepsize arrays", GMCMC_ENOMEM, NULL);
     }
 
     // Set the arrays to be part of the struct matrix
@@ -72,6 +74,7 @@ static mxArray * create_matlab_array(size_t num_samples,
     mxSetField(structs, index, "Paras", params);
     mxSetField(structs, index, "LL", log_likelihood);
     mxSetField(structs, index, "LogPrior", log_prior);
+    mxSetField(structs, index, "StepSize", stepsize);
 
     // Set the struct matrix to be part of the cell array
     subs[1] = j;
@@ -127,6 +130,7 @@ static int write_matlab_field(mxArray * cells, const char * name, size_t index, 
  * @param [in] params          the current parameter values
  * @param [in] log_prior       the log prior of the sample
  * @param [in] log_likelihood  the log likelihood of the sample
+ * @param [in] stepsize        the current stepsize
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM  if there was not enough memory to create the Matlab
@@ -136,7 +140,7 @@ static int write_matlab_field(mxArray * cells, const char * name, size_t index, 
  */
 int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
                                size_t i, size_t j,
-                               const double * params, const double * log_prior, double log_likelihood) {
+                               const double * params, const double * log_prior, double log_likelihood, double stepsize) {
   static mxArray * burn_in = NULL, * posterior = NULL;
 
   const size_t num_params = gmcmc_model_get_num_params(model);
@@ -152,7 +156,8 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
     int error;
     if ((error = write_matlab_field(burn_in, "Paras", j, i, params)) != 0 ||
         (error = write_matlab_field(burn_in, "LogPrior", j, i, log_prior)) != 0 ||
-        (error = write_matlab_field(burn_in, "LL", j, i, &log_likelihood)) != 0)
+        (error = write_matlab_field(burn_in, "LL", j, i, &log_likelihood)) != 0 ||
+        (error = write_matlab_field(burn_in, "StepSize", j, i, &stepsize)) != 0)
       GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
 
     // If the arrays are full write them to a file
@@ -204,7 +209,9 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
         (error = write_matlab_field(posterior, "LogPrior", j,
                                     i % gmcmc_matlab_posterior_save_size, log_prior)) != 0 ||
         (error = write_matlab_field(posterior, "LL", j,
-                                    i % gmcmc_matlab_posterior_save_size, &log_likelihood)) != 0)
+                                    i % gmcmc_matlab_posterior_save_size, &log_likelihood)) ||
+        (error = write_matlab_field(posterior, "StepSize", j,
+                                    i % gmcmc_matlab_posterior_save_size, &stepsize)) != 0)
       GMCMC_ERROR("Failed to write Matlab fields", GMCMC_EIO);
 
     // If the arrays are full or this is the last sample write them to a file

@@ -80,12 +80,13 @@ typedef struct gmcmc_popmcmc_options {
   * @param [in] params          the current parameter values
   * @param [in] log_prior       the log prior of the sample
   * @param [in] log_likelihood  the log likelihood of the sample
+  * @param [in] stepsize        the current stepsize
   *
   * @return zero on success, non-zero on failure.
   */
   int (*write)(const struct gmcmc_popmcmc_options *, const gmcmc_model *,
                size_t, size_t, const double *, const double *,
-               double);
+               double, double);
 
 } gmcmc_popmcmc_options;
 

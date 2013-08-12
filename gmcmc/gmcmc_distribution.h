@@ -66,26 +66,6 @@ int gmcmc_distribution_memcpy(gmcmc_distribution *, const gmcmc_distribution *);
 void gmcmc_distribution_destroy(gmcmc_distribution *);
 
 /**
- * Writes the parameters of a probability distribution to a file.
- *
- * @param [in]     dist  the probability distribution
- * @param [in,out] file  the file
- *
- * @return 0 on success, GMCMC_EIO on error.
- */
-int gmcmc_distribution_fwrite(const gmcmc_distribution *, FILE *);
-
-/**
- * Reads the parameters of a probability distribution from a file.
- *
- * @param [out]     dist  the probability distribution
- * @param [in,out]  file  the file
- *
- * @return 0 on success, GMCMC_EIO on error.
- */
-int gmcmc_distribution_fread(gmcmc_distribution *, FILE *);
-
-/**
  * Generates a sample from the distribution.
  *
  * @param [in] dist  the probability distribution
@@ -147,9 +127,10 @@ static inline double gmcmc_distribution_pdf_2nd_order(const gmcmc_distribution *
  * @param [in]  b     the (exclusive) upper bound of the distribution
  *
  * @return 0 on success,
- *         GMCMC_EINVAL if a is greater than or equal to b,
+ *         GMCMC_EINVAL if a is greater than or equal to b or either is +/-
+ *                        infinity or NaN,
  *         GMCMC_ENOMEM if there is not enough memory to allocate the
- *                      distribution or parameter vector.
+ *                        distribution or parameter vector.
  */
 int gmcmc_distribution_create_uniform(gmcmc_distribution **, double, double);
 

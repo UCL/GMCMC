@@ -12,7 +12,6 @@
 
 #include <gmcmc/gmcmc_distribution.h>
 #include <gmcmc/gmcmc_dataset.h>
-#include <stdbool.h>
 
 /**
  * A model.
@@ -162,6 +161,26 @@ int gmcmc_model_set_stepsize(gmcmc_model *, double);
  * @return the parameter stepsize.
  */
 double gmcmc_model_get_stepsize(const gmcmc_model *);
+
+/**
+ * Sets the upper and lower limits for adapting stepsizes.
+ *
+ * @param [in] model  the model
+ * @param [in] lower  the lower bound for the stepsizes
+ * @param [in] upper  the upper bound for the stepsizes
+ *
+ * @return 0 on success, GMCMC_EINVAL if lower is greater than upper.
+ */
+int gmcmc_model_set_stepsize_bounds(gmcmc_model *, double, double);
+
+/**
+ * Gets the upper and lower limits for adapting stepsizes.
+ *
+ * @param [in]  model  the model
+ * @param [out] lower  the lower bound for the stepsizes
+ * @param [out] upper  the upper bound for the stepsizes
+ */
+void gmcmc_model_get_stepsize_bounds(const gmcmc_model *, double *, double *);
 
 
 /**

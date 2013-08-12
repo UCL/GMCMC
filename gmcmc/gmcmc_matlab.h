@@ -81,6 +81,7 @@ extern const char * gmcmc_matlab_outputID;
  * @param [in] params          the current parameter values
  * @param [in] log_prior       the log prior of the sample
  * @param [in] log_likelihood  the log likelihood of the sample
+ * @param [in] stepsize        the current stepsize
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM  if there was not enough memory to create the Matlab
@@ -90,7 +91,7 @@ extern const char * gmcmc_matlab_outputID;
  */
 int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options *, const gmcmc_model *,
                                size_t, size_t,
-                               const double *, const double *, double);
+                               const double *, const double *, double, double);
 
 
 #endif  /* GMCMC_MATLAB_H */

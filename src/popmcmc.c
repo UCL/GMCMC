@@ -7,6 +7,7 @@
 #include <cblas.h>
 #include <mpi.h>
 #include "mvn.c"
+#include "permute.c"
 
 #include <sys/time.h>
 
@@ -159,6 +160,7 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
   if ((error = gmcmc_prior(model, (*chain)->params, num_params,
                            (*chain)->log_prior)) != 0) {
     free((*chain)->params);
+    free((*chain)->log_prior);
     free(*chain);
     GMCMC_ERROR("Error evaluating prior", error);
   }
@@ -167,14 +169,49 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
                                 &(*chain)->log_likelihood,
                                 &(*chain)->chainspecific, &(*chain)->size)) != 0) {
     free((*chain)->params);
+    free((*chain)->log_prior);
     free(*chain);
     GMCMC_ERROR("Error evaluating likelihood", error);
   }
 
-  if (isinf(sum(num_params, (*chain)->log_prior)) == -1 || isinf((*chain)->log_likelihood) == -1) {
+  // If the log likelihood or sum of the log prior are negative infinity then
+  // attempt to sample initial values from the prior 5 times before quitting
+  for (int i = 0; (isinf((*chain)->log_likelihood) == -1 || isinf(sum(num_params, (*chain)->log_prior)) == -1) && i < 5; i++) {
+    // Free the invalid geometry
+    free((*chain)->chainspecific);
+
+    // Sample new values directly from the prior
+    for (size_t k = 0; k < num_params; k++) {
+      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, k);
+      (*chain)->params[k] = gmcmc_distribution_sample(prior, rng);
+    }
+
+    // Evaluate model at initial parameters to get log prior and likelihood
+    // p(M,\theta,...)
+    int error;
+    if ((error = gmcmc_prior(model, (*chain)->params, num_params,
+                            (*chain)->log_prior)) != 0) {
+      free((*chain)->params);
+      free((*chain)->log_prior);
+      free(*chain);
+      GMCMC_ERROR("Error evaluating prior", error);
+    }
+    // p(D|M,\theta,...)
+    if ((error = gmcmc_likelihood(data, model, (*chain)->params,
+                                  &(*chain)->log_likelihood,
+                                  &(*chain)->chainspecific, &(*chain)->size)) != 0) {
+      free((*chain)->params);
+      free((*chain)->log_prior);
+      free(*chain);
+      GMCMC_ERROR("Error evaluating likelihood", error);
+    }
+  }
+
+  if (isinf((*chain)->log_likelihood) == -1 || isinf(sum(num_params, (*chain)->log_prior)) == -1) {
     free((*chain)->params);
+    free((*chain)->log_prior);
     free(*chain);
-    GMCMC_ERROR("Parameter starting values have zero likelihood", GMCMC_EINVAL);
+    GMCMC_ERROR("Starting parameters are invalid after 5 iterations", GMCMC_EINVAL);
   }
 
   return 0;
@@ -208,9 +245,12 @@ static int gmcmc_chain_update(gmcmc_chain *, const gmcmc_model *,
  *
  * @param [in,out] chains  an array of chains to swap
  * @param [in]     n       the number of chains in the array
- * @param [in]     rng     a random number generator for the MH step
+ * @param [in]     rng     random number generator
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if a vector of permuation indices could not be allocated.
  */
-static void gmcmc_chain_exchange(gmcmc_chain **, size_t, const gmcmc_prng64 *);
+static int gmcmc_chain_exchange(gmcmc_chain **, size_t, const gmcmc_prng64 *);
 
 #include "popmcmc_seq.c"
 #include "popmcmc_omp.c"
@@ -322,7 +362,9 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     // proposed samples, proposal mean and covariance for the proposed
     // samples and the likelihood of the proposed parameters.
     double sum_log_prior_params = sum(num_params, log_prior);
-    if (isinf(sum_log_prior_params) == -1) {
+    // If the likelihood of the proposed parameters is zero or the sum of the
+    // log prior is zero reject the proposal now
+    if (isinf(log_likelihood) == -1 || isinf(sum_log_prior_params) == -1) {
       free(params);
       free(log_prior);
       free(mean);
@@ -376,15 +418,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       GMCMC_ERROR("Error evaluating multivariate normal log pdf", error);
     }
 
-    double ratio;
-    if (isinf(log_likelihood) == -1)
-      ratio = -INFINITY;
-    else
-      // Accept or reject according to ratio
-      ratio = log_likelihood * chain->temperature +
-              sum_log_prior_params + p_old_given_new -
-              chain->log_likelihood * chain->temperature -
-              sum(num_params, chain->log_prior) - p_new_given_old;
+    // Accept or reject according to ratio
+    double ratio = log_likelihood * chain->temperature +
+                   sum_log_prior_params + p_old_given_new -
+                   chain->log_likelihood * chain->temperature -
+                   sum(num_params, chain->log_prior) - p_new_given_old;
 
     if (isgreater(ratio, 0.0) || log(1.0 - gmcmc_prng64_get_double(rng)) < min(0.0, ratio)) {   // = log(1.0) !!
       // Swap pointers rather than copy
@@ -420,52 +458,67 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
  * @param [in,out] chains     chains specific to this process
  * @param [in]     num_temps  number of temperatures
  * @param [in]     rng        random number generator
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if a vector of permutation indices could not be allocated.
  */
-static void gmcmc_chain_exchange(gmcmc_chain ** chains, size_t num_chains,
+static int gmcmc_chain_exchange(gmcmc_chain ** chains, size_t num_chains,
                                  const gmcmc_prng64 * rng) {
   // If there are less than 2 chains then we can't swap so return now
   if (num_chains < 2)
-    return;
+    return 0;
 
   // Run the exchange algorithm 3 times
   const size_t num_exchanges = 3;
+  size_t * permutation = malloc((num_chains - 1) * sizeof(size_t));
+  if (permutation == NULL)
+    GMCMC_ERROR("Failed to allocate permutation vector", GMCMC_ENOMEM);
 
   // Serial exchange algorithm
   for (size_t l = 0; l < num_exchanges; l++) {
+    // Generate a random permutation of [0, num_chains - 1]
+    gmcmc_permute(num_chains - 1, permutation, rng);
+
     for (size_t i = 0; i < num_chains - 1; i++) {
-      // Attempt a swap between chain i and i + 1
-      chains[i]->attempted_exchange++;
-      chains[i + 1]->attempted_exchange++;
+      size_t j = permutation[i];
+
+      // Attempt a swap between chain j and j + 1
+      chains[j]->attempted_exchange++;
+      chains[j + 1]->attempted_exchange++;
 
       // Calculate Metropolis-Hastings acceptance ratio (in log)
-      double a = chains[i + 1]->log_likelihood * chains[i]->temperature +
-                 chains[i]->log_likelihood * chains[i + 1]->temperature -
-                 chains[i]->log_likelihood * chains[i]->temperature -
-                 chains[i + 1]->log_likelihood * chains[i + 1]->temperature;
+      double a = chains[j + 1]->log_likelihood * chains[j]->temperature +
+                 chains[j]->log_likelihood * chains[j + 1]->temperature -
+                 chains[j]->log_likelihood * chains[j]->temperature -
+                 chains[j + 1]->log_likelihood * chains[j + 1]->temperature;
 
       if (isgreater(a, 0.0) || log(1.0 - gmcmc_prng64_get_double(rng)) < min(0.0, a)) {
         // Accept swap
-        chains[i]->accepted_exchange++;
-        chains[i + 1]->accepted_exchange++;
+        chains[j]->accepted_exchange++;
+        chains[j + 1]->accepted_exchange++;
 
         // Rather than copy everything just swap the pointers
         // params
-        double * params = chains[i]->params;
-        chains[i]->params = chains[i + 1]->params;
-        chains[i + 1]->params = params;
+        double * params = chains[j]->params;
+        chains[j]->params = chains[j + 1]->params;
+        chains[j + 1]->params = params;
         // log_prior
-        double * log_prior = chains[i]->log_prior;
-        chains[i]->log_prior = chains[i + 1]->log_prior;
-        chains[i + 1]->log_prior = log_prior;
+        double * log_prior = chains[j]->log_prior;
+        chains[j]->log_prior = chains[j + 1]->log_prior;
+        chains[j + 1]->log_prior = log_prior;
         // log_likelihood
-        double log_likelihood = chains[i]->log_likelihood;
-        chains[i]->log_likelihood = chains[i + 1]->log_likelihood;
-        chains[i + 1]->log_likelihood = log_likelihood;
+        double log_likelihood = chains[j]->log_likelihood;
+        chains[j]->log_likelihood = chains[j + 1]->log_likelihood;
+        chains[j + 1]->log_likelihood = log_likelihood;
         // chain-specific stuff (geometry, etc.)
-        void * chainspecific = chains[i]->chainspecific;
-        chains[i]->chainspecific = chains[i + 1]->chainspecific;
-        chains[i + 1]->chainspecific = chainspecific;
+        void * chainspecific = chains[j]->chainspecific;
+        chains[j]->chainspecific = chains[j + 1]->chainspecific;
+        chains[j + 1]->chainspecific = chainspecific;
       }
     }
   }
+
+  free(permutation);
+
+  return 0;
 }

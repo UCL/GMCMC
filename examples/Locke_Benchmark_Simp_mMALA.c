@@ -77,11 +77,11 @@ int main(int argc, char * argv[]) {
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
-  mcmc_options.num_temperatures = 100;
+  mcmc_options.num_temperatures = 20;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   =   5000;
-  mcmc_options.num_posterior_samples = 100000;
+  mcmc_options.num_burn_in_samples   =  5000;
+  mcmc_options.num_posterior_samples = 20000;
 
   // Set iteration interval for adapting stepsizes
   mcmc_options.adapt_rate            =  50;
@@ -103,7 +103,7 @@ int main(int argc, char * argv[]) {
 
 
   // How often to save posterior samples.
-  gmcmc_matlab_posterior_save_size = 250000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
+  gmcmc_matlab_posterior_save_size = 2000000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
 
   // Save burn-in
   gmcmc_matlab_save_burn_in = true;
@@ -295,8 +295,9 @@ int main(int argc, char * argv[]) {
     return -5;
   }
 
-  // Set initial step size
+  // Set initial step size and upper and lower bounds
   gmcmc_model_set_stepsize(model, 0.05);
+  gmcmc_model_set_stepsize_bounds(model, 1.0e-06, 1.0e+05);
 
   /*
    * ODE model settings
@@ -326,21 +327,7 @@ int main(int argc, char * argv[]) {
    * Create a parallel random number generator to use
    */
   gmcmc_prng64 * rng;
-  const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
-  int id = rank;
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt1279;
-    id -= rng_type->max_id;
-  }
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt2203;
-    id -= rng_type->max_id;
-  }
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt2281;
-    id -= rng_type->max_id;
-  }
-  if ((error = gmcmc_prng64_create(&rng, rng_type, id)) != 0) {
+  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
@@ -354,6 +341,7 @@ int main(int argc, char * argv[]) {
   // Seed the RNG
   time_t seed = time(NULL);
   gmcmc_prng64_seed(rng, seed);
+  fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 
   // Start timer
   struct timeval start, stop;

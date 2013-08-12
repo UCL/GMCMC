@@ -46,12 +46,13 @@ static const gmcmc_distribution_type type = { "Uniform", sample, pdf,
  * @param [in]  b     the (exclusive) upper bound of the distribution
  *
  * @return 0 on success,
- *         GMCMC_EINVAL if a is greater than or equal to b,
+ *         GMCMC_EINVAL if a is greater than or equal to b or either is +/-
+ *                        infinity or NaN,
  *         GMCMC_ENOMEM if there is not enough memory to allocate the
- *                      distribution or parameter vector.
+ *                        distribution or parameter vector.
  */
 int gmcmc_distribution_create_uniform(gmcmc_distribution ** dist, double a, double b) {
-  if (isgreaterequal(a, b))
+  if (isgreaterequal(a, b) || !isfinite(a) || !isfinite(b))
     return GMCMC_EINVAL;
 
   if ((*dist = malloc(sizeof(gmcmc_distribution))) == NULL)

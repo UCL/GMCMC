@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <getopt.h>
+#include <time.h>
 
 #include <sys/time.h>
 
@@ -243,33 +244,21 @@ int main(int argc, char * argv[]) {
    * Create a parallel random number generator to use
    */
   gmcmc_prng64 * rng;
-  const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
-  int id = rank;
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt1279;
-    id -= rng_type->max_id;
-  }
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt2203;
-    id -= rng_type->max_id;
-  }
-  if (id >= rng_type->max_id) {
-    rng_type = gmcmc_prng64_dcmt2281;
-    id -= rng_type->max_id;
-  }
-  if ((error = gmcmc_prng64_create(&rng, rng_type, id)) != 0) {
+  if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
-    gmcmc_ion_model_destroy(ion_model);
+    gmcmc_ode_model_destroy(ode_model);
     fputs("Unable to create parallel RNG\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -5;
   }
 
   // Seed the RNG
-  gmcmc_prng64_seed(rng, 3241);
+  time_t seed = time(NULL);
+  gmcmc_prng64_seed(rng, seed);
+  fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 
   // Start timer
   struct timeval start, stop;
