@@ -71,11 +71,11 @@ int main(int argc, char * argv[]) {
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
-  mcmc_options.num_temperatures = 10;
+  mcmc_options.num_temperatures = 100;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   = 1000;
-  mcmc_options.num_posterior_samples = 5000;
+  mcmc_options.num_burn_in_samples   =   5000;
+  mcmc_options.num_posterior_samples = 100000;
 
   // Set iteration interval for adapting stepsizes
   mcmc_options.adapt_rate            =  50;
@@ -247,15 +247,15 @@ int main(int argc, char * argv[]) {
   gmcmc_prng64 * rng;
   const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
   int id = rank;
-  if (id > rng_type->max_id) {
+  if (id >= rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt1279;
     id -= rng_type->max_id;
   }
-  if (id > rng_type->max_id) {
+  if (id >= rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt2203;
     id -= rng_type->max_id;
   }
-  if (id > rng_type->max_id) {
+  if (id >= rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt2281;
     id -= rng_type->max_id;
   }

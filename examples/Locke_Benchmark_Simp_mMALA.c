@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <getopt.h>
+#include <time.h>
 
 #include <sys/time.h>
 
@@ -76,11 +77,11 @@ int main(int argc, char * argv[]) {
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
-  mcmc_options.num_temperatures = 20;
+  mcmc_options.num_temperatures = 100;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   =  5000;
-  mcmc_options.num_posterior_samples = 20000;
+  mcmc_options.num_burn_in_samples   =   5000;
+  mcmc_options.num_posterior_samples = 100000;
 
   // Set iteration interval for adapting stepsizes
   mcmc_options.adapt_rate            =  50;
@@ -102,7 +103,7 @@ int main(int argc, char * argv[]) {
 
 
   // How often to save posterior samples.
-  gmcmc_matlab_posterior_save_size = 2500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
+  gmcmc_matlab_posterior_save_size = 250000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
 
   // Save burn-in
   gmcmc_matlab_save_burn_in = true;
@@ -327,15 +328,15 @@ int main(int argc, char * argv[]) {
   gmcmc_prng64 * rng;
   const gmcmc_prng64_type * rng_type = gmcmc_prng64_dcmt607;
   int id = rank;
-  if (id > rng_type->max_id) {
+  if (id >= rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt1279;
     id -= rng_type->max_id;
   }
-  if (id > rng_type->max_id) {
+  if (id >= rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt2203;
     id -= rng_type->max_id;
   }
-  if (id > rng_type->max_id) {
+  if (id >= rng_type->max_id) {
     rng_type = gmcmc_prng64_dcmt2281;
     id -= rng_type->max_id;
   }
@@ -351,7 +352,8 @@ int main(int argc, char * argv[]) {
   }
 
   // Seed the RNG
-  gmcmc_prng64_seed(rng, 3241);
+  time_t seed = time(NULL);
+  gmcmc_prng64_seed(rng, seed);
 
   // Start timer
   struct timeval start, stop;
