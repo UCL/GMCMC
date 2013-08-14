@@ -307,7 +307,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
                                   &size)) != 0) {
       free(params);
       free(log_prior);
-      if (error > 0)    // fatal error
+      if (error < 0)    // fatal error
         GMCMC_ERROR("Error evaluating likelihood", error);
       return 0;         // non-fatal error (reject sample)
     }
