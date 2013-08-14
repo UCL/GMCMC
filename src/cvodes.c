@@ -1,11 +1,17 @@
-#include "cvodes.h"
 #include <cvodes/cvodes.h>
-#include <cvodes/cvodes_lapack.h>
+#include <cvodes/cvodes_dense.h>
 #include <nvector/nvector_serial.h>
 
 #include <gmcmc/gmcmc_errno.h>
 
 #include <stdlib.h>
+
+/**
+ * CVODES integrator options.
+ */
+typedef struct {
+  double abstol, reltol;        /**< Absolute and relative tolerances */
+} cvodes_options;
 
 typedef struct {
   gmcmc_ode_rhs rhs;
@@ -73,11 +79,10 @@ static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
  *                                calculated.
  * @param [in]  lds             leading dimension of simdata and sensitivities
  *
- * @return 0 on success,
- *         GMCMC_ENOMEM if there was not enough memory to create the solver,
- *         GMCMC_ELINAL if the solver failed to integrate the system of ODEs.
+ * @return CV_SUCCESS on success,
+ *         CV_MEM_FAIL  if there was not enough memory to create the solver,
  */
-int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
+static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
                         size_t num_timepoints, size_t num_species, size_t num_params,
                         const double * timepoints, const double * params,
                         const cvodes_options * options,
@@ -92,31 +97,32 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
   // Create CVODES object
   void * cvode_mem;
   if ((cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON)) == NULL)
-    GMCMC_ERROR("Failed to create CVODES solver", GMCMC_ENOMEM);
+    // Returns NULL if there is not enough memory to allocate the solver
+    return CV_MEM_FAIL;
 
   // Initialise CVODES solver
-  if ((error = CVodeInit(cvode_mem, cvodes_rhs, timepoints[0], y)) != 0) {
+  if ((error = CVodeInit(cvode_mem, cvodes_rhs, timepoints[0], y)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    GMCMC_ERROR("Failed to initialise CVODES solver", GMCMC_ELINAL);
+    return error;
   }
 
   // Set integration tolerances
-  if ((error = CVodeSStolerances(cvode_mem, options->abstol, options->reltol)) != 0) {
+  if ((error = CVodeSStolerances(cvode_mem, options->abstol, options->reltol)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    GMCMC_ERROR("Failed to set integration tolerances", GMCMC_ELINAL);
+    return error;
   }
 
   // Set optional inputs
   cvodes_userdata userdata = { rhs, rhs_sens, params, false, NULL, NULL };
-  if ((error = CVodeSetUserData(cvode_mem, &userdata)) != 0) {
+  if ((error = CVodeSetUserData(cvode_mem, &userdata)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    GMCMC_ERROR("Failed to set userdata", GMCMC_ELINAL);
+    return error;
   }
 
   // Attach linear solver module
-  if ((error = CVLapackDense(cvode_mem, num_species)) != 0) {
+  if ((error = CVDense(cvode_mem, num_species)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    GMCMC_ERROR("Failed to attach linear solver", GMCMC_ELINAL);
+    return error;
   }
 
   N_Vector * yS = NULL;
@@ -130,28 +136,30 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
 
     // Activate sensitivity calculations
     if (rhs_sens == NULL) {
-      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != 0) {
+      // Use default finite differences
+      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != CV_SUCCESS) {
         CVodeFree(&cvode_mem);
-        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+        return error;
       }
     }
     else {
-      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != 0) {
+      // Use supplied sensitivities function
+      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != CV_SUCCESS) {
         CVodeFree(&cvode_mem);
-        GMCMC_ERROR("Failed to activate sensitivity calculations", GMCMC_ELINAL);
+        return error;
       }
     }
 
     // Set sensitivity tolerances
-    if ((error = CVodeSensEEtolerances(cvode_mem)) != 0) {
+    if ((error = CVodeSensEEtolerances(cvode_mem)) != CV_SUCCESS) {
       CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to set sensitivity tolerances", GMCMC_ELINAL);
+      return error;
     }
 
     // Set sensitivity analysis optional inputs
-    if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, NULL)) != 0) {
+    if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, NULL)) != CV_SUCCESS) {
       CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to set sensitivity parameters", GMCMC_ELINAL);
+      return error;
     }
 
     if ((userdata.yS = malloc(num_params * sizeof(double *))) == NULL ||
@@ -159,18 +167,18 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       free(userdata.yS);
       free(userdata.ySdot);
       CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to allocate memory for sensitivity vectors", GMCMC_ELINAL);
+      return error;
     }
   }
 
   // Advance solution in time
   realtype tret;
   for (size_t i = 1; i < num_timepoints; i++) {
-    if ((error = CVode(cvode_mem, timepoints[i], y, &tret, CV_NORMAL)) != 0) {
+    if ((error = CVode(cvode_mem, timepoints[i], y, &tret, CV_NORMAL)) != CV_SUCCESS) {
       free(userdata.yS);
       free(userdata.ySdot);
       CVodeFree(&cvode_mem);
-      GMCMC_ERROR("Failed to advance solution", GMCMC_ELINAL);
+      return error;
     }
 
     for (size_t j = 0; j < num_species; j++)
@@ -178,11 +186,11 @@ int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
 
     // Extract the sensitivity solution
     if (yS != NULL) {
-      if ((error = CVodeGetSens(cvode_mem, &tret, yS)) != 0) {
+      if ((error = CVodeGetSens(cvode_mem, &tret, yS)) != CV_SUCCESS) {
         free(userdata.yS);
         free(userdata.ySdot);
         CVodeFree(&cvode_mem);
-        GMCMC_ERROR("Failed to extract sensitivities", GMCMC_ELINAL);
+        return error;
       }
 
       for (size_t j = 0; j < num_params; j++) {

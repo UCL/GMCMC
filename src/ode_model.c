@@ -3,12 +3,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <cblas.h>
 #include <math.h>
+#include <cblas.h>
+#include <lapacke.h>
 
-#include "clapack.h"
 #include "mvn.c"
-#include "cvodes.h"
+#include "cvodes.c"
 
 /**
  * Computes the sum of x.
@@ -126,15 +126,11 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     simdata[j * lds] = ics[j];
 
   // Solve the system of equations using the function specified in the ODE model
-  int error = cvodes_solve(ode_model->rhs, NULL, num_timepoints, num_species, num_params,
-                            timepoints, params, &ode_model->options, simdata, NULL, lds);
-  if (error == GMCMC_ELINAL) {
+  int error;
+  if ((error = cvodes_solve(ode_model->rhs, NULL, num_timepoints, num_species, num_params,
+                       timepoints, params, &ode_model->options, simdata, NULL, lds)) != 0) {
     free(simdata);
     *likelihood = -INFINITY;
-    return 0;
-  }
-  else if (error != 0) {
-    free(simdata);
     GMCMC_ERROR("Failed to solve system of ODEs", error);
   }
 
@@ -158,7 +154,7 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     if ((error = gmcmc_mvn_logpdf0(num_timepoints, &simdata[j * lds], noisecov[j], &ll[j])) != 0) {
       free(ll);
       free(simdata);
-      GMCMC_ERROR("Failed to calculate log normal PDF", GMCMC_ENOMEM);
+      GMCMC_ERROR("Failed to calculate log normal PDF", error);
     }
   }
 
@@ -208,7 +204,7 @@ static int ode_proposal_simp_mmala(size_t n, const double * params,
 
 
   // Calculate cholesky
-  long info = clapack_dpotrf(CblasLower, n, G, ldg);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, G, ldg);
   if (info != 0) {
     free(gradient);
     free(G);
@@ -245,9 +241,9 @@ const gmcmc_proposal_function gmcmc_ode_proposal_simp_mmala = &ode_proposal_simp
  * ODE model proposal function using Simplified M-MALA.
  */
 static int ode_proposal_simp_mmala_trunc(size_t n, const double * params,
-                                   double likelihood, double temperature,
-                                   double stepsize, const void * serdata,
-                                   double * mean, double * covariance, size_t ldc) {
+                                         double likelihood, double temperature,
+                                         double stepsize, const void * serdata,
+                                         double * mean, double * covariance, size_t ldc) {
   (void)likelihood;     // Unused
 
   // Unpack the serialised data
@@ -283,7 +279,7 @@ static int ode_proposal_simp_mmala_trunc(size_t n, const double * params,
 
 
   // Calculate cholesky
-  long info = clapack_dpotrf(CblasLower, n, G, ldg);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, G, ldg);
   if (info != 0) {
     free(gradient);
     free(G);
@@ -323,6 +319,8 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
                                      const double * params,
                                      double * likelihood, void ** serdata, size_t * size) {
   const size_t num_params = gmcmc_model_get_num_params(model);
+
+  *likelihood = -INFINITY;
 
   // Get a pointer to the ODE model-specific data
   const gmcmc_ode_model * ode_model = (gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
@@ -371,17 +369,11 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
   }
 
   // Solve the system of equations using the function specified in the ODE model
-  int error = cvodes_solve(ode_model->rhs, NULL, num_timepoints, num_species, num_params,
-                            timepoints, params, &ode_model->options, simdata, NULL, lds);
-  if (error == GMCMC_ELINAL) {
-    free(simdata);
+  int error;
+  if ((error = cvodes_solve(ode_model->rhs, ode_model->rhs_sens, num_timepoints, num_species, num_params,
+                            timepoints, params, &ode_model->options, simdata, sensitivities, lds)) != 0) {
     free(sensitivities);
-    *likelihood = -INFINITY;
-    return 0;
-  }
-  else if (error != 0) {
     free(simdata);
-    free(sensitivities);
     GMCMC_ERROR("Failed to solve system of ODEs", error);
   }
 
@@ -407,7 +399,7 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
       free(ll);
       free(simdata);
       free(sensitivities);
-      GMCMC_ERROR("Failed to calculate log normal PDF", GMCMC_ENOMEM);
+      GMCMC_ERROR("Failed to calculate log normal PDF", error);
     }
   }
 
@@ -439,9 +431,6 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
     for (size_t i = 0; i < ode_model->observed; i++)
       gradient_ll[j] -= cblas_ddot(num_timepoints, &simdata[i * lds], 1, &sens_j[i * lds], 1) / noisecov[i];
 
-    // TODO: Add log transformation if necessary
-
-
     // Calculate gradient of the log prior
     const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
     gradient_log_prior[j] = gmcmc_distribution_pdf_1st_order(prior, params[j]);
@@ -454,8 +443,6 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
       const double * sens_i = &sensitivities[i * num_species * lds];    // Sensitivities of parameter i
       for (size_t k = 0; k < ode_model->observed; k++)
         FI[j * ldfi + i] += cblas_ddot(num_timepoints, &sens_i[k * lds], 1, &sens_j[k * lds], 1) / noisecov[k];
-
-      // TODO: Add log transformation if necessary
 
       FI[i * ldfi + j] = FI[j * ldfi + i];
     }

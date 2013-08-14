@@ -8,6 +8,7 @@
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <math.h>
+#include <fenv.h>
 #include "randn.c"
 
 typedef struct {
@@ -21,19 +22,18 @@ static double sample(const void * params, const gmcmc_prng64 * r) {
 
 static double pdf(const void * params, double x) {
   normal * n = (normal *)params;
-  return 1.0 / (n->stddev * M_SQRT2PI) *
+  return (isnan(x)) ? NAN : 1.0 / (n->stddev * M_SQRT2PI) *
   exp(-((x - n->mean) * (x - n->mean)) / (2.0 * n->stddev * n->stddev));
 }
 
 static double pdf_1st_order(const void * params, double x) {
   normal * n = (normal *)params;
-  return -(x - n->mean) / (n->stddev * n->stddev);
+  return (!isfinite(x)) ? x : -(x - n->mean) / (n->stddev * n->stddev);
 }
 
 static double pdf_2nd_order(const void * params, double x) {
-  (void)x;
   normal * n = (normal *)params;
-  return -1.0 / (n->stddev * n->stddev);
+  return (!isfinite(x)) ? x : -1.0 / (n->stddev * n->stddev);
 }
 
 static const gmcmc_distribution_type type = { "Normal", sample, pdf,
@@ -52,7 +52,7 @@ static const gmcmc_distribution_type type = { "Normal", sample, pdf,
  *                      distribution or parameter vector.
  */
 int gmcmc_distribution_create_normal(gmcmc_distribution ** dist, double mean, double stddev) {
-  if (islessequal(stddev, 0.0))
+  if (!isfinite(mean) || !isfinite(stddev) || stddev <= 0.0)
     return GMCMC_EINVAL;
 
   if ((*dist = malloc(sizeof(gmcmc_distribution))) == NULL)

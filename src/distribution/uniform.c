@@ -22,17 +22,17 @@ static double sample(const void * params, const gmcmc_prng64 * r) {
 
 static double pdf(const void * params, double x) {
   uniform * u = (uniform *)params;
-  return (x <= u->lower || x >= u->upper) ? 0.0 : 1.0 / (u->upper - u->lower);
+  return (isnan(x)) ? NAN : ((x <= u->lower || x >= u->upper) ? 0.0 :  1.0 / (u->upper - u->lower));
 }
 
 static double pdf_1st_order(const void * params, double x) {
   uniform * u = (uniform *)params;
-  return (x <= u->lower || x >= u->upper) ? -INFINITY : 0.0;
+  return (isnan(x)) ? NAN : ((x <= u->lower || x >= u->upper) ? -INFINITY : 0.0);
 }
 
 static double pdf_2nd_order(const void * params, double x) {
   uniform * u = (uniform *)params;
-  return (x <= u->lower || x >= u->upper) ? -INFINITY : 0.0;
+  return (isnan(x)) ? NAN : ((x <= u->lower || x >= u->upper) ? -INFINITY : 0.0);
 }
 
 static const gmcmc_distribution_type type = { "Uniform", sample, pdf,
@@ -52,7 +52,7 @@ static const gmcmc_distribution_type type = { "Uniform", sample, pdf,
  *                        distribution or parameter vector.
  */
 int gmcmc_distribution_create_uniform(gmcmc_distribution ** dist, double a, double b) {
-  if (isgreaterequal(a, b) || !isfinite(a) || !isfinite(b))
+  if (!isfinite(a) || !isfinite(b) || a >= b)
     return GMCMC_EINVAL;
 
   if ((*dist = malloc(sizeof(gmcmc_distribution))) == NULL)

@@ -1,6 +1,6 @@
 #include <math.h>
+#include <lapacke.h>
 #include "distribution/randn.c"
-#include "clapack.h"
 
 /**
  * Constant for log(2 * pi) (used in the log multivariate normal PDF).
@@ -39,10 +39,10 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
     GMCMC_ERROR("Failed to allocate cholesky", GMCMC_ENOMEM);
   for (size_t j = 0; j < n; j++)
     memcpy(&cholC[j * ldcc], &C[j * ldc], n * sizeof(double));
-  long info = clapack_dpotrf(CblasLower, n, cholC, ldcc);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, cholC, ldcc);
   if (info != 0) {
     free(cholC);
-    GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_ELINAL);
+    GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
   }
 
   // x = ~N(0,1)
@@ -114,20 +114,20 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
     GMCMC_ERROR("Failed to allocate inverse", GMCMC_ENOMEM);
   for (size_t j = 0; j < n; j++)
     memcpy(&inv[j * ldi], &C[j * ldc], n * sizeof(double));
-  long info = clapack_dpotrf(CblasLower, n, inv, ldi);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
   if (info != 0) {
     free(inv);
-    GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_ELINAL);
+    GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
   }
 
   // Calculate the log determinant of the covariance matrix before overwriting it with its inverse
   double ldet = log_det(n, inv, ldi);
 
   // Calculate the inverse from the Cholesky
-  info = clapack_dpotri(CblasLower, n, inv, ldi);
+  info = LAPACKE_dpotri(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
   if (info != 0) {
     free(inv);
-    GMCMC_ERROR("Proposal covariance matrix is singular", GMCMC_ELINAL);
+    GMCMC_ERROR("Proposal covariance matrix is singular", GMCMC_EINVAL);
   }
 
   double * x_mu = NULL, * x_muTinv = NULL;;

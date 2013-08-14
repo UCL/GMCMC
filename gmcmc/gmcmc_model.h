@@ -32,7 +32,9 @@ typedef struct gmcmc_model gmcmc_model;
  * @param [out] covariance   covariance matrix
  * @param [in]  ldc          leading dimension of the covariance matrix
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         less than zero on non-fatal error (parameter values are invalid)
+ *         greater than zero on fatal error (anything else).
  */
 typedef int (*gmcmc_proposal_function)(size_t, const double *, double, double, double, const void *, double *, double *, size_t);
 
@@ -47,7 +49,9 @@ typedef int (*gmcmc_proposal_function)(size_t, const double *, double, double, d
  * @param [out] serdata     serialised data to be passed to the proposal function
  * @param [out] size        size of serialised data object, in bytes
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         less than zero on non-fatal error (parameter values are invalid)
+ *         greater than zero on fatal error (anything else).
  */
 typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
 

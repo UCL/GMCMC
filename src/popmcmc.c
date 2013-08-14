@@ -175,8 +175,9 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
   }
 
   // If the log likelihood or sum of the log prior are negative infinity then
-  // attempt to sample initial values from the prior 5 times before quitting
-  for (int i = 0; (isinf((*chain)->log_likelihood) == -1 || isinf(sum(num_params, (*chain)->log_prior)) == -1) && i < 5; i++) {
+  // attempt to resample initial values from the prior 5 times before quitting
+  for (int i = 0; (isinf((*chain)->log_likelihood) == -1 ||
+                   isinf(sum(num_params, (*chain)->log_prior)) == -1) && i < 5; i++) {
     // Free the invalid geometry
     free((*chain)->chainspecific);
 

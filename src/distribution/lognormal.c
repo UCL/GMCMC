@@ -56,7 +56,7 @@ static const gmcmc_distribution_type type = { "Lognormal", sample, pdf,
  *                      distribution or parameter vector.
  */
 int gmcmc_distribution_create_lognormal(gmcmc_distribution ** dist, double logscale, double shape) {
-  if (islessequal(shape, 0.0))
+  if (!isfinite(logscale) || !isfinite(shape) || shape <= 0.0)
     return GMCMC_EINVAL;
 
   if ((*dist = malloc(sizeof(gmcmc_distribution))) == NULL)

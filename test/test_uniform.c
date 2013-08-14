@@ -22,11 +22,9 @@ static int cleanup() {
   return 0;
 }
 
-static void test_create_equal() {
-  // Creating a uniform distribution with upper == lower should return
-  // GMCMC_EINVAL
-
+static void test_create() {
   gmcmc_distribution * uniform = NULL;
+
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
@@ -35,64 +33,23 @@ static void test_create_equal() {
 
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, -1.0, -1.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
-}
 
-static void test_create_NaN() {
-  // Creating a uniform distribution with either parameter NaN should return
-  // GMCMC_EINVAL without throwing an exception
-
-  gmcmc_distribution * uniform = NULL;
-
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, NAN, 0.0), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
   gmcmc_distribution_destroy(uniform);
 
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, NAN), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
   gmcmc_distribution_destroy(uniform);
 
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, NAN, NAN), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
   gmcmc_distribution_destroy(uniform);
-}
 
-static void test_create_inf() {
-  // Creating a uniform distribution with either parameter +/- infinity should
-  // return GMCMC_EINVAL without throwing an exception
-
-  gmcmc_distribution * uniform = NULL;
-
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, -INFINITY, 0.0), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
   gmcmc_distribution_destroy(uniform);
 
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
-  CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, -INFINITY), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
-  gmcmc_distribution_destroy(uniform);
-
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
-  CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, INFINITY, 0.0), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
-  gmcmc_distribution_destroy(uniform);
-
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, INFINITY), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
   gmcmc_distribution_destroy(uniform);
 
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, -INFINITY, INFINITY), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
-  gmcmc_distribution_destroy(uniform);
-
-  CU_ASSERT_FATAL(feclearexcept(FE_ALL_EXCEPT) == 0);
-  CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, INFINITY, -INFINITY), GMCMC_EINVAL);
-  CU_ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
   gmcmc_distribution_destroy(uniform);
 }
 
@@ -112,6 +69,11 @@ static void test_uniform01() {
   // Test limits of 2nd order PDF
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, 0.0)) == -1);
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, 1.0)) == -1);
+
+  // Test calling PDFs with NaN
+  CU_ASSERT(isnan(gmcmc_distribution_pdf(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_pdf_1st_order(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_pdf_2nd_order(uniform, NAN)));
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -156,6 +118,11 @@ static void test_uniform11() {
   // Test limits of 2nd order PDF
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -1.0)) == -1);
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  1.0)) == -1);
+
+  // Test calling PDFs with NaN
+  CU_ASSERT(isnan(gmcmc_distribution_pdf(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_pdf_1st_order(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_pdf_2nd_order(uniform, NAN)));
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -204,15 +171,7 @@ int main() {
   if (CU_get_error() != CUE_SUCCESS)
     CUNIT_ERROR("Failed to add suite to registry");
 
-  CU_ADD_TEST(uniform, test_create_equal);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(uniform, test_create_inf);
-  if (CU_get_error() != CUE_SUCCESS)
-    CUNIT_ERROR("Failed to add test to suite");
-
-  CU_ADD_TEST(uniform, test_create_NaN);
+  CU_ADD_TEST(uniform, test_create);
   if (CU_get_error() != CUE_SUCCESS)
     CUNIT_ERROR("Failed to add test to suite");
 
