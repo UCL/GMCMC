@@ -97,32 +97,33 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
   // Create CVODES object
   void * cvode_mem;
   if ((cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON)) == NULL)
-    // Returns NULL if there is not enough memory to allocate the solver
-    return CV_MEM_FAIL;
+    GMCMC_ERROR("Failed to allocate ODE solver", GMCMC_ENOMEM);
 
   // Initialise CVODES solver
   if ((error = CVodeInit(cvode_mem, cvodes_rhs, timepoints[0], y)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    return error;
+    GMCMC_ERROR("Failed to initialise ODE solver", (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
   }
 
   // Set integration tolerances
   if ((error = CVodeSStolerances(cvode_mem, options->abstol, options->reltol)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    return error;
+    GMCMC_ERROR("Failed to set ODE solver integration tolerances",
+                (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
   }
 
   // Set optional inputs
   cvodes_userdata userdata = { rhs, rhs_sens, params, false, NULL, NULL };
   if ((error = CVodeSetUserData(cvode_mem, &userdata)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    return error;
+    GMCMC_ERROR("Failed to set ODE solver user data", GMCMC_EINVAL);
   }
 
   // Attach linear solver module
   if ((error = CVDense(cvode_mem, num_species)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
-    return error;
+    GMCMC_ERROR("Failed to attach ODE solver module",
+                (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
   }
 
   N_Vector * yS = NULL;
@@ -139,27 +140,31 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       // Use default finite differences
       if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != CV_SUCCESS) {
         CVodeFree(&cvode_mem);
-        return error;
+        GMCMC_ERROR("Failed to activate ODE solver sensitivity calculations",
+                    (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
       }
     }
     else {
       // Use supplied sensitivities function
       if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != CV_SUCCESS) {
         CVodeFree(&cvode_mem);
-        return error;
+        GMCMC_ERROR("Failed to activate ODE solver sensitivity calculations",
+                    (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
       }
     }
 
     // Set sensitivity tolerances
     if ((error = CVodeSensEEtolerances(cvode_mem)) != CV_SUCCESS) {
       CVodeFree(&cvode_mem);
-      return error;
+      GMCMC_ERROR("Failed to set ODE solver sensitivity tolerances",
+                  (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
     }
 
     // Set sensitivity analysis optional inputs
     if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, NULL)) != CV_SUCCESS) {
       CVodeFree(&cvode_mem);
-      return error;
+      GMCMC_ERROR("Failed to set ODE solver sensitivity parameters",
+                  (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
     }
 
     if ((userdata.yS = malloc(num_params * sizeof(double *))) == NULL ||
@@ -167,7 +172,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       free(userdata.yS);
       free(userdata.ySdot);
       CVodeFree(&cvode_mem);
-      return error;
+      GMCMC_ERROR("Failed to allocate ODE solver sensitivity vectors", GMCMC_ENOMEM);
     }
   }
 
@@ -178,7 +183,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       free(userdata.yS);
       free(userdata.ySdot);
       CVodeFree(&cvode_mem);
-      return error;
+      GMCMC_ERROR("Failed to advance ODE solution", GMCMC_ELINAL);
     }
 
     for (size_t j = 0; j < num_species; j++)
@@ -190,7 +195,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
         free(userdata.yS);
         free(userdata.ySdot);
         CVodeFree(&cvode_mem);
-        return error;
+        GMCMC_ERROR("Failed to extract ODE sensitivity solution", GMCMC_ELINAL);
       }
 
       for (size_t j = 0; j < num_params; j++) {
