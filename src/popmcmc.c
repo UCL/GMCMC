@@ -274,6 +274,17 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
   const size_t num_params = gmcmc_model_get_num_params(model);
 
+  // Proposed samples
+  double * params = NULL, * log_prior = NULL, log_likelihood;
+  void * chainspecific = NULL;
+  size_t size = 0;
+  if ((params = malloc(num_params * sizeof(double))) == NULL ||
+      (log_prior = malloc(num_params * sizeof(double))) == NULL) {
+    free(params);
+    free(log_prior);
+    GMCMC_ERROR("Failed to allocate proposal and log prior", GMCMC_ENOMEM);
+  }
+
   // Increment counter
   chain->attempted_mutation++;
 
@@ -286,34 +297,34 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     // Sample new values directly from the prior
     for (size_t k = 0; k < num_params; k++) {
       const gmcmc_distribution * prior = gmcmc_model_get_prior(model, k);
-      chain->params[k] = gmcmc_distribution_sample(prior, rng);
+      params[k] = gmcmc_distribution_sample(prior, rng);
     }
 
     // Calculate the log prior
-    if ((error = gmcmc_prior(model, chain->params, num_params, chain->log_prior)) != 0)
+    if ((error = gmcmc_prior(model, params, num_params, log_prior)) != 0)
       GMCMC_ERROR("Error evaluating prior", error);
 
     // Evaluate the model at new parameters to get LL, gradient, metric etc.
     if ((error = gmcmc_likelihood(data, model, chain->params,
-                                  &chain->log_likelihood, &chain->chainspecific,
-                                  &chain->size)) != 0)
-      GMCMC_ERROR("Error evaluating likelihood", error);
+                                  &log_likelihood, &chain->chainspecific,
+                                  &chain->size)) != 0) {
+      free(params);
+      free(log_prior);
+      if (error > 0)    // fatal error
+        GMCMC_ERROR("Error evaluating likelihood", error);
+      return 0;         // non-fatal error (reject sample)
+    }
 
-    // accept proposal (always)
+    // accept proposal
+    chain->params = params;
+    free(chain->params);
+    chain->log_prior = log_prior;
+    free(chain->log_prior);
+    chain->log_likelihood = log_likelihood;
+
     chain->accepted_mutation++;
   }
   else {
-    // Proposed samples
-    double * params = NULL, * log_prior = NULL, log_likelihood;
-    void * chainspecific = NULL;
-    size_t size = 0;
-    if ((params = malloc(num_params * sizeof(double))) == NULL ||
-        (log_prior = malloc(num_params * sizeof(double))) == NULL) {
-      free(params);
-      free(log_prior);
-      GMCMC_ERROR("Failed to allocate proposal and log prior", GMCMC_ENOMEM);
-    }
-
     // Allocate temporaries for proposal mean and covariance
     double * mean = NULL, * covariance = NULL;
     size_t ldc = (num_params + 1u) & ~1u;
