@@ -311,7 +311,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
         (log_prior = malloc(num_params * sizeof(double))) == NULL) {
       free(params);
       free(log_prior);
-      GMCMC_ERROR("Failed to allocate proposal", GMCMC_ENOMEM);
+      GMCMC_ERROR("Failed to allocate proposal and log prior", GMCMC_ENOMEM);
     }
 
     // Allocate temporaries for proposal mean and covariance
@@ -363,9 +363,8 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     // proposed samples, proposal mean and covariance for the proposed
     // samples and the likelihood of the proposed parameters.
     double sum_log_prior_params = sum(num_params, log_prior);
-    // If the likelihood of the proposed parameters is zero or the sum of the
-    // log prior is zero reject the proposal now
-    if (isinf(log_likelihood) == -1 || isinf(sum_log_prior_params) == -1) {
+    // If the sum of the log prior is zero reject the proposal now
+    if (isinf(sum_log_prior_params) == -1) {
       free(params);
       free(log_prior);
       free(mean);
@@ -394,19 +393,23 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      GMCMC_ERROR("Error evaluating likelihood", error);
+      if (error < 0)    // Fatal error
+        GMCMC_ERROR("Error evaluating likelihood", error);
+      return 0;         // Non-fatal error (invalid parameters so reject)
     }
 
     // Calculate the mean and covariance based on the proposed parameter values,
     // likelihood and geometry
-    if ((error = gmcmc_proposal(model, params, log_likelihood,chain->temperature,
+    if ((error = gmcmc_proposal(model, params, log_likelihood, chain->temperature,
                                 chain->stepsize, chainspecific, mean,
                                 covariance, ldc)) != 0) {
       free(params);
       free(log_prior);
       free(mean);
       free(covariance);
-      GMCMC_ERROR("Error calculating mean and covariance", error);
+      if (error < 0)    // Fatal error
+        GMCMC_ERROR("Error calculating mean and covariance", error);
+      return 0;         // Non-fatal error (invalid parameters so reject)
     }
 
 

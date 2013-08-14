@@ -66,6 +66,26 @@ int gmcmc_distribution_memcpy(gmcmc_distribution *, const gmcmc_distribution *);
 void gmcmc_distribution_destroy(gmcmc_distribution *);
 
 /**
+ * Writes the parameters of a probability distribution to a file.
+ *
+ * @param [in]     dist  the probability distribution
+ * @param [in,out] file  the file
+ *
+ * @return 0 on success, GMCMC_EIO on error.
+ */
+int gmcmc_distribution_fwrite(const gmcmc_distribution *, FILE *);
+
+/**
+ * Reads the parameters of a probability distribution from a file.
+ *
+ * @param [out]     dist  the probability distribution
+ * @param [in,out]  file  the file
+ *
+ * @return 0 on success, GMCMC_EIO on error.
+ */
+int gmcmc_distribution_fread(gmcmc_distribution *, FILE *);
+
+/**
  * Generates a sample from the distribution.
  *
  * @param [in] dist  the probability distribution

@@ -28,18 +28,21 @@ struct gmcmc_model {
  * @param [in]  likelihood  a function to calculate the likelihood
  *
  * @return 0 on success,
- *         GMCMC_ENOMEM if there was not enough memory to allocate another model.
+ *         GMCMC_ENOMEM if there is not enough memory to create a new model.
  */
 int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** priors,
                        gmcmc_proposal_function proposal, gmcmc_likelihood_function likelihood) {
+  // Allocate memory for the model
   if ((*model = malloc(sizeof(gmcmc_model))) == NULL)
     GMCMC_ERROR("Unable to allocate model", GMCMC_ENOMEM);
 
+  // Allocate memory for the priors
   if (((*model)->priors = malloc(n * sizeof(gmcmc_distribution *))) == NULL) {
     free(*model);
     GMCMC_ERROR("Unable to allocate priors", GMCMC_ENOMEM);
   }
 
+  // Create copies of all the priors passed in
   int error;
   for (size_t i = 0; i < n; i++) {
     if ((error = gmcmc_distribution_create_copy(&(*model)->priors[i], priors[i])) != 0) {
@@ -51,6 +54,7 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
     }
   }
 
+  // Copy the rest of the parameters and set default values
   (*model)->params = NULL;
   (*model)->proposal = proposal;
   (*model)->likelihood = likelihood;
@@ -94,8 +98,8 @@ size_t gmcmc_model_get_num_params(const gmcmc_model * model) {
  * @param [in]    params  the parameter values (may be NULL)
  *
  * @return 0 on success,
- *         GMCMC_ENOMEM if there is not enough memory to copy the parameters
- *                        into the model.
+ *         GMCMC_ENOMEM if there is not enough memory to copy the initial
+ *                        parameter values into the model.
  */
 int gmcmc_model_set_params(gmcmc_model * model, const double * params) {
   free(model->params);
@@ -126,7 +130,7 @@ const double * gmcmc_model_get_params(const gmcmc_model * model) {
  * @param [in] model  the model
  * @param [in] i      the parameter index
  *
- * @return the prior for the parameter or NULL if the i is out of range.
+ * @return the prior for the ith parameter or NULL if the i is out of range.
  */
 const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size_t i) {
   if (i > model->n)
@@ -148,7 +152,9 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size
  * @param [out] covariance   covariance matrix
  * @param [in]  ldc          leading dimension of the covariance matrix
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 int gmcmc_proposal(const gmcmc_model * model, const double * params,
                    double likelihood, double temperature, double stepsize, const void * serdata,
@@ -159,8 +165,6 @@ int gmcmc_proposal(const gmcmc_model * model, const double * params,
 
 /**
  * Calculates the likelihood of the data given the model and parameters.
- * Calculates p(D|M,params) (i.e. likelihood of seeing the data D given the
- * model M and parameters params)
  *
  * @param [in]  data        the data
  * @param [in]  model       the model to evaluate
@@ -169,7 +173,9 @@ int gmcmc_proposal(const gmcmc_model * model, const double * params,
  * @param [out] serdata     serialised data to be passed to the proposal function
  * @param [out] size        size of serialised data object, in bytes
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params,
                      double * log_likelihood, void ** serdata, size_t * size) {

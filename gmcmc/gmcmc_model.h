@@ -33,8 +33,8 @@ typedef struct gmcmc_model gmcmc_model;
  * @param [in]  ldc          leading dimension of the covariance matrix
  *
  * @return 0 on success,
- *         less than zero on non-fatal error (parameter values are invalid)
- *         greater than zero on fatal error (anything else).
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 typedef int (*gmcmc_proposal_function)(size_t, const double *, double, double, double, const void *, double *, double *, size_t);
 
@@ -50,8 +50,8 @@ typedef int (*gmcmc_proposal_function)(size_t, const double *, double, double, d
  * @param [out] size        size of serialised data object, in bytes
  *
  * @return 0 on success,
- *         less than zero on non-fatal error (parameter values are invalid)
- *         greater than zero on fatal error (anything else).
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
 
@@ -64,7 +64,8 @@ typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_mode
  * @param [in]  proposal    a function to calculate the proposal mean and variance
  * @param [in]  likelihood  a function to calculate the likelihood
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to create a new model.
  */
 int gmcmc_model_create(gmcmc_model **, size_t, gmcmc_distribution **,
                        gmcmc_proposal_function, gmcmc_likelihood_function);
@@ -91,7 +92,9 @@ size_t gmcmc_model_get_num_params(const gmcmc_model *);
  * @param [in,out] model   the model
  * @param [in]    params  the parameter values (may be NULL)
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to copy the initial
+ *                        parameter values into the model.
  */
 int gmcmc_model_set_params(gmcmc_model *, const double *);
 
@@ -110,7 +113,7 @@ const double * gmcmc_model_get_params(const gmcmc_model *);
  * @param [in] model  the model
  * @param [in] i      the parameter index
  *
- * @return the prior for the parameter or NULL if the i is out of range.
+ * @return the prior for the ith parameter or NULL if the i is out of range.
  */
 const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model *, size_t);
 
@@ -128,7 +131,9 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model *, size_t);
  * @param [out] covariance   covariance matrix
  * @param [in]  ldc          leading dimension of the covariance matrix
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 int gmcmc_proposal(const gmcmc_model *, const double *, double, double, double, const void *, double *, double *, size_t);
 
@@ -142,7 +147,9 @@ int gmcmc_proposal(const gmcmc_model *, const double *, double, double, double, 
  * @param [out] serdata     serialised data to be passed to the proposal function
  * @param [out] size        size of serialised data object, in bytes
  *
- * @return 0 on success, non-zero on error.
+ * @return 0 on success,
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 int gmcmc_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
 
@@ -186,12 +193,11 @@ int gmcmc_model_set_stepsize_bounds(gmcmc_model *, double, double);
  */
 void gmcmc_model_get_stepsize_bounds(const gmcmc_model *, double *, double *);
 
-
 /**
  * Stores a pointer to any model-specific data and functions in the model.
  *
  * @param [in,out] model          the model
- * @param [in]    modelspecific  model-specific data and functions (may be NULL)
+ * @param [in]     modelspecific  model-specific data and functions (may be NULL)
  */
 void gmcmc_model_set_modelspecific(gmcmc_model *, void *);
 

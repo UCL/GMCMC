@@ -16,21 +16,21 @@
 /**
  * Geometric MCMC error codes.
  */
-/** Fatal errors (>0) */
+/** Fatal errors (<0) */
 /** Out of memory. */
-#define GMCMC_ENOMEM 1
+#define GMCMC_ENOMEM -1
 /** Invalid argument passed to function. */
-#define GMCMC_EINVAL 2
+#define GMCMC_EINVAL -2
 /** Input/Output error. */
-#define GMCMC_EIO 3
+#define GMCMC_EIO -3
 /** IPC error. */
-#define GMCMC_EIPC 4
+#define GMCMC_EIPC -4
 /** Invalid value returned from mathematical function */
-#define GMCMC_ERANGE 5
-/** Non-fatal errors */
+#define GMCMC_ERANGE -5
+/** Non-fatal errors (>0)*/
 /** BLAS/LAPACK error (non positive-definite matrix, singular matrix, etc.
  *  caused by invalid parameter values) */
-#define GMCMC_ELINAL -1
+#define GMCMC_ELINAL 1
 
 /**
  * Maps Geometric MCMC error codes to textual descriptions.
