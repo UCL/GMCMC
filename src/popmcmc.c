@@ -291,9 +291,6 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
   // Check if sampling from prior
   if (chain->temperature == 0.0) {
 
-    // Don't need any geometry here
-    free(chain->chainspecific);
-
     // Sample new values directly from the prior
     for (size_t k = 0; k < num_params; k++) {
       const gmcmc_distribution * prior = gmcmc_model_get_prior(model, k);
@@ -305,9 +302,9 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       GMCMC_ERROR("Error evaluating prior", error);
 
     // Evaluate the model at new parameters to get LL, gradient, metric etc.
-    if ((error = gmcmc_likelihood(data, model, chain->params,
-                                  &log_likelihood, &chain->chainspecific,
-                                  &chain->size)) != 0) {
+    if ((error = gmcmc_likelihood(data, model, params,
+                                  &log_likelihood, &chainspecific,
+                                  &size)) != 0) {
       free(params);
       free(log_prior);
       if (error > 0)    // fatal error
@@ -316,11 +313,15 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     }
 
     // accept proposal
-    chain->params = params;
     free(chain->params);
-    chain->log_prior = log_prior;
     free(chain->log_prior);
+    free(chain->chainspecific);
+
+    chain->params = params;
+    chain->log_prior = log_prior;
     chain->log_likelihood = log_likelihood;
+    chain->chainspecific = chainspecific;
+    chain->size = size;
 
     chain->accepted_mutation++;
   }
