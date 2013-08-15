@@ -25,30 +25,39 @@ static int cleanup() {
 static void test_create() {
   gmcmc_distribution * normal = NULL;
 
+  // zero stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, 0.0, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // NaN mean, zero stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, NAN, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // NaN stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, 0.0, NAN), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // NaN mean, NaN stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, NAN, NAN), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // Infinite mean
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, INFINITY, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // Infinite stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, 0.0, INFINITY), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // Infinite stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, 0.0, -INFINITY), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // Infinite mean and stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, INFINITY, INFINITY), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 
+  // Inifinite mean and stddev
   CU_ASSERT_EQUAL(gmcmc_distribution_create_normal(&normal, INFINITY, -INFINITY), GMCMC_EINVAL);
   gmcmc_distribution_destroy(normal);
 }

@@ -147,8 +147,8 @@ static inline double gmcmc_distribution_pdf_2nd_order(const gmcmc_distribution *
  * @param [in]  b     the (exclusive) upper bound of the distribution
  *
  * @return 0 on success,
- *         GMCMC_EINVAL if a is greater than or equal to b or either is +/-
- *                        infinity or NaN,
+ *         GMCMC_EINVAL if a or b are not finite or a is greater than or equal
+ *                         to b
  *         GMCMC_ENOMEM if there is not enough memory to allocate the
  *                        distribution or parameter vector.
  */

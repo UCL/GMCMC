@@ -22,17 +22,23 @@ static double sample(const void * params, const gmcmc_prng64 * r) {
 
 static double pdf(const void * params, double x) {
   uniform * u = (uniform *)params;
-  return (isnan(x)) ? NAN : ((x <= u->lower || x >= u->upper) ? 0.0 :  1.0 / (u->upper - u->lower));
+  if (isnan(x))
+    return NAN;
+  return (islessequal(x, u->lower) || isgreaterequal(x, u->upper)) ? 0.0 : 1.0 / (u->upper - u->lower);
 }
 
 static double pdf_1st_order(const void * params, double x) {
   uniform * u = (uniform *)params;
-  return (isnan(x)) ? NAN : ((x <= u->lower || x >= u->upper) ? -INFINITY : 0.0);
+  if (isnan(x))
+    return NAN;
+  return (islessequal(x, u->lower) || isgreaterequal(x, u->upper)) ? -INFINITY : 0.0;
 }
 
 static double pdf_2nd_order(const void * params, double x) {
   uniform * u = (uniform *)params;
-  return (isnan(x)) ? NAN : ((x <= u->lower || x >= u->upper) ? -INFINITY : 0.0);
+  if (isnan(x))
+    return NAN;
+  return (islessequal(x, u->lower) || isgreaterequal(x, u->upper)) ? -INFINITY : 0.0;
 }
 
 static const gmcmc_distribution_type type = { "Uniform", sample, pdf,
@@ -46,14 +52,18 @@ static const gmcmc_distribution_type type = { "Uniform", sample, pdf,
  * @param [in]  b     the (exclusive) upper bound of the distribution
  *
  * @return 0 on success,
- *         GMCMC_EINVAL if a is greater than or equal to b or either is +/-
- *                        infinity or NaN,
+ *         GMCMC_EINVAL if a or b are not finite or a is greater than or equal
+ *                         to b
  *         GMCMC_ENOMEM if there is not enough memory to allocate the
  *                        distribution or parameter vector.
  */
 int gmcmc_distribution_create_uniform(gmcmc_distribution ** dist, double a, double b) {
-  if (!isfinite(a) || !isfinite(b) || a >= b)
-    return GMCMC_EINVAL;
+  if (!isfinite(a))
+    GMCMC_ERROR("'a' must be finite", GMCMC_EINVAL);
+  else if (!isfinite(b))
+    GMCMC_ERROR("'b' must be finite", GMCMC_EINVAL);
+  else if (a >= b)
+    GMCMC_ERROR("'a' must be less than 'b'", GMCMC_EINVAL);
 
   if ((*dist = malloc(sizeof(gmcmc_distribution))) == NULL)
     return GMCMC_ENOMEM;

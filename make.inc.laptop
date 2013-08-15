@@ -3,7 +3,7 @@
 # Compiler
 # GCC
 CC = gcc
-# CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -ggdb -pipe
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -ggdb -pipe
 CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
 
 # ICC

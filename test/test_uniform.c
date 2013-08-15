@@ -25,32 +25,43 @@ static int cleanup() {
 static void test_create() {
   gmcmc_distribution * uniform = NULL;
 
+  // Temporarily disable the error handler
+  gmcmc_error_handler_t error_handler = gmcmc_error_handler;
+  gmcmc_error_handler = NULL;
+
+  // upper == lower
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
-  CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 1.0, 1.0), GMCMC_EINVAL);
+  // lower > upper
+  CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 1.0, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
-  CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, -1.0, -1.0), GMCMC_EINVAL);
-  gmcmc_distribution_destroy(uniform);
-
+  // NaN lower
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, NAN, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
+  // NaN upper
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, NAN), GMCMC_EINVAL);
-  gmcmc_distribution_destroy(uniform);
 
+  // NaN lower and upper
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, NAN, NAN), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
+  // -Inf lower
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, -INFINITY, 0.0), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
+  // Inf upper
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, 0.0, INFINITY), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
 
+  // -Inf lower, Inf upper
   CU_ASSERT_EQUAL(gmcmc_distribution_create_uniform(&uniform, -INFINITY, INFINITY), GMCMC_EINVAL);
   gmcmc_distribution_destroy(uniform);
+
+  // Restore the error handler
+  gmcmc_error_handler = error_handler;
 }
 
 static void test_uniform01() {
@@ -61,14 +72,20 @@ static void test_uniform01() {
   // Test limits of PDF
   CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, 0.0), 0.0, 1.0e-15);
   CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, 1.0), 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, -INFINITY), 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform,  INFINITY), 0.0, 1.0e-15);
 
   // Test limits of 1st order PDF
   CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, 0.0)) == -1);
   CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, 1.0)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, -INFINITY)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform,  INFINITY)) == -1);
 
   // Test limits of 2nd order PDF
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, 0.0)) == -1);
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, 1.0)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -INFINITY)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  INFINITY)) == -1);
 
   // Test calling PDFs with NaN
   CU_ASSERT(isnan(gmcmc_distribution_pdf(uniform, NAN)));
@@ -110,14 +127,20 @@ static void test_uniform11() {
   // Test limits of PDF
   CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, -1.0), 0.0, 1.0e-15);
   CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform,  1.0), 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, -INFINITY), 0.0, 1.0e-15);
+  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform,  INFINITY), 0.0, 1.0e-15);
 
   // Test limits of 1st order PDF
   CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, -1.0)) == -1);
   CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform,  1.0)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, -INFINITY)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform,  INFINITY)) == -1);
 
   // Test limits of 2nd order PDF
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -1.0)) == -1);
   CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  1.0)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -INFINITY)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  INFINITY)) == -1);
 
   // Test calling PDFs with NaN
   CU_ASSERT(isnan(gmcmc_distribution_pdf(uniform, NAN)));
@@ -197,5 +220,5 @@ int main() {
 
   CU_cleanup_registry();
 
-  return 0;
+  return error;
 }

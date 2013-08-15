@@ -292,28 +292,28 @@ int main(int argc, char * argv[]) {
   free(priors);
 
   // Set up starting values for all temperatures
-#ifdef INFER_ICS
-  // Parameters and initial conditions
-  double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
-                       5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
-                       0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
-                       5.3527,  0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
-#else
-  // Just parameters
-  double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
-                       5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
-                       0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
-                       5.3527 };
-#endif
-  if ((error = gmcmc_model_set_params(model, params)) != 0) {
-    // Clean up
-    free(temperatures);
-    gmcmc_dataset_destroy(dataset);
-    gmcmc_model_destroy(model);
-    fputs("Unable to set initial parameter values\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -5;
-  }
+// #ifdef INFER_ICS
+//   // Parameters and initial conditions
+//   double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
+//                        5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
+//                        0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
+//                        5.3527,  0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
+// #else
+//   // Just parameters
+//   double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
+//                        5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
+//                        0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
+//                        5.3527 };
+// #endif
+//   if ((error = gmcmc_model_set_params(model, params)) != 0) {
+//     // Clean up
+//     free(temperatures);
+//     gmcmc_dataset_destroy(dataset);
+//     gmcmc_model_destroy(model);
+//     fputs("Unable to set initial parameter values\n", stderr);
+//     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+//     return -5;
+//   }
 
   // Set initial step size and upper and lower bounds
   gmcmc_model_set_stepsize(model, 0.05);
