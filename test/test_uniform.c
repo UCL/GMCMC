@@ -70,27 +70,21 @@ static void test_uniform01() {
   CU_ASSERT_FATAL(gmcmc_distribution_create_uniform(&uniform, 0.0, 1.0) == 0);
 
   // Test limits of PDF
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, 0.0), 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, 1.0), 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, -INFINITY), 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform,  INFINITY), 0.0, 1.0e-15);
+  CU_ASSERT(isinf(gmcmc_distribution_log_pdf(uniform, 0.0)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_log_pdf(uniform, 1.0)) == -1);
 
   // Test limits of 1st order PDF
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, 0.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, 1.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, -INFINITY)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform,  INFINITY)) == -1);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(uniform, 0.0)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(uniform, 1.0)));
 
   // Test limits of 2nd order PDF
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, 0.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, 1.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -INFINITY)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  INFINITY)) == -1);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(uniform, 0.0)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(uniform, 1.0)));
 
   // Test calling PDFs with NaN
-  CU_ASSERT(isnan(gmcmc_distribution_pdf(uniform, NAN)));
-  CU_ASSERT(isnan(gmcmc_distribution_pdf_1st_order(uniform, NAN)));
-  CU_ASSERT(isnan(gmcmc_distribution_pdf_2nd_order(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(uniform, NAN)));
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -104,7 +98,7 @@ static void test_uniform01() {
     CU_ASSERT(x < 1.0);
 
     // Test PDF
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 1.0, 1.0e-15);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_log_pdf(uniform, x), 0.0, 1.0e-15);
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;
@@ -125,27 +119,21 @@ static void test_uniform11() {
   CU_ASSERT_FATAL(gmcmc_distribution_create_uniform(&uniform, -1.0, 1.0) == 0);
 
   // Test limits of PDF
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, -1.0), 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform,  1.0), 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, -INFINITY), 0.0, 1.0e-15);
-  CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform,  INFINITY), 0.0, 1.0e-15);
+  CU_ASSERT(isinf(gmcmc_distribution_log_pdf(uniform, -1.0)) == -1);
+  CU_ASSERT(isinf(gmcmc_distribution_log_pdf(uniform,  1.0)) == -1);
 
   // Test limits of 1st order PDF
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, -1.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform,  1.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform, -INFINITY)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_1st_order(uniform,  INFINITY)) == -1);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(uniform, -1.0)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(uniform,  1.0)));
 
   // Test limits of 2nd order PDF
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -1.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  1.0)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform, -INFINITY)) == -1);
-  CU_ASSERT(isinf(gmcmc_distribution_pdf_2nd_order(uniform,  INFINITY)) == -1);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(uniform, -1.0)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(uniform,  1.0)));
 
   // Test calling PDFs with NaN
-  CU_ASSERT(isnan(gmcmc_distribution_pdf(uniform, NAN)));
-  CU_ASSERT(isnan(gmcmc_distribution_pdf_1st_order(uniform, NAN)));
-  CU_ASSERT(isnan(gmcmc_distribution_pdf_2nd_order(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(uniform, NAN)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(uniform, NAN)));
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -159,9 +147,9 @@ static void test_uniform11() {
     CU_ASSERT(x <  1.0);
 
     // Test PDF
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf(uniform, x), 0.5, 1.0e-15);
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf_1st_order(uniform, x), 0.0, 1.0e-15);
-    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_pdf_2nd_order(uniform, x), 0.0, 1.0e-15);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_log_pdf(uniform, x), -0.693147180559945, 1.0e-07);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_log_pdf_1st_order(uniform, x), 0.0, 1.0e-15);
+    CU_ASSERT_DOUBLE_EQUAL(gmcmc_distribution_log_pdf_2nd_order(uniform, x), 0.0, 1.0e-15);
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;

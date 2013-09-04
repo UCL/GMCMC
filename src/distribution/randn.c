@@ -12,6 +12,9 @@
 // sqrt(2.0 * M_PI)
 #define M_SQRT2PI 2.50662827463100050241
 
+// 0.5 * log(2.0 * M_PI)
+#define M_HALFLOG2PI 0.918938533204673
+
 /**
  * Generates a standard normal variate using the algorithm from J. L. Leva
  * (1992). `A fast normal random number generator'. ACM Trans. Math. Softw.
@@ -21,7 +24,7 @@
  *
  * @return a standard normal variate.
  */
-static double gmcmc_randn(const gmcmc_prng64 * rng) {
+static inline double gmcmc_randn(const gmcmc_prng64 * rng) {
   double u, v, q;
   do {
     do { u = gmcmc_prng64_get_double(rng); } while (u == 0.0); // u ~ U(0,1)

@@ -15,7 +15,7 @@ ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopM
 ODE_examples = FitzHugh_Benchmark_MH FitzHugh_Benchmark_Simp_mMALA \
                Locke_Benchmark_MH Locke_Benchmark_Simp_mMALA
 
-all: $(LIBS) examples test
+all: $(LIBS)
 
 examples: $(ION_examples) $(ODE_examples)
 

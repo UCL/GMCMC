@@ -433,10 +433,10 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
 
     // Calculate gradient of the log prior
     const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
-    gradient_log_prior[j] = gmcmc_distribution_pdf_1st_order(prior, params[j]);
+    gradient_log_prior[j] = gmcmc_distribution_log_pdf_1st_order(prior, params[j]);
 
     // Calculate the Hessian of the log prior
-    hessian_log_prior[j] = gmcmc_distribution_pdf_2nd_order(prior, params[j]);
+    hessian_log_prior[j] = gmcmc_distribution_log_pdf_2nd_order(prior, params[j]);
 
     // Calculate metric tensor
     for (size_t i = j; i < num_params; i++) {

@@ -84,11 +84,7 @@ static inline int gmcmc_prior(const gmcmc_model * model, const double * params,
   // Calculate the prior of each parameter
   for (size_t i = 0; i < n; i++) {
     const gmcmc_distribution * prior = gmcmc_model_get_prior(model, i);
-    double p = gmcmc_distribution_pdf(prior, params[i]);
-    if (isless(p, 0.0))
-      GMCMC_ERROR("Prior PDF returned less than zero", GMCMC_ERANGE);
-    // Avoid pole error (log(0.0) = -INFINITY)
-    log_prior[i] = (isgreater(p, 0.0)) ? log(p) : -INFINITY;
+    log_prior[i] = gmcmc_distribution_log_pdf(prior, params[i]);
   }
   return 0;
 }
