@@ -112,35 +112,35 @@ static void test_lognormal01() {
   //   fprintf('CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, %.15f), %.15f, 1.0e-07);\n', x, y.d2x);
   // end
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.712008323467287), -1.601148649224616, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.712008323467287), -0.270052927965647, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.712008323467287), 0.584109309687657, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.712008323467287), -0.898165691409667, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.712008323467287), 0.183443256330647, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 6.258152505240481), -4.434390671177970, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 6.258152505240481), 0.133247793801254, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 6.258152505240481), 0.159791567745052, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 6.258152505240481), -0.452830929291358, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 6.258152505240481), 0.046825218992493, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.104470884773661), -1.211286242934042, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.104470884773661), -31.193828482108046, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.104470884773661), 9.572044901950710, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.104470884773661), 12.049738678206625, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.104470884773661), -206.964683289526533, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 2.368302184003618), -2.152783270750088, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 2.368302184003618), -0.058196407773810, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 2.368302184003618), 0.422243414186909, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 2.368302184003618), -0.786290420600007, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 2.368302184003618), 0.153716450912390, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.375428391238457), -1.288509412134830, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.375428391238457), -0.495289150987806, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.375428391238457), 0.727046210744265, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.375428391238457), -0.958803270500723, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.375428391238457), 0.168498092109165, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.270444521917488), -0.466274577046293, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.270444521917488), -8.532945241203073, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.270444521917488), 3.697616031967902, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.270444521917488), 1.137713177267269, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.270444521917488), -17.879190803910650, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.648176643161933), -0.579347531802555, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.648176643161933), -2.211730455624473, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.648176643161933), 1.542789316075636, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.648176643161933), -0.873848176526798, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.648176643161933), -1.032035243179407, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.408639671255502), -1.320258762278770, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.408639671255502), -0.466674016695441, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.408639671255502), 0.709904754498866, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.408639671255502), -0.953135492302291, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.408639671255502), 0.172670657206919, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 35.816079468166791), -10.899797802049777, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 35.816079468166791), 0.071989926815341, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 35.816079468166791), 0.027920420516400, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 35.816079468166791), -0.127830767848140, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 35.816079468166791), 0.002789538911442, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 15.949652304221461), -7.523266294338335, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 15.949652304221461), 0.110938909271179, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 15.949652304221461), 0.062697291509943, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 15.949652304221461), -0.236333492291064, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 15.949652304221461), 0.010886519497053, 1.0e-07);
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -170,12 +170,12 @@ static void test_lognormal005() {
   CU_ASSERT(isinf(gmcmc_distribution_log_pdf(lognormal,  INFINITY)) == -1);
 
   // Test limits of 1st order PDF
-  CU_ASSERT(isinf(gmcmc_distribution_log_pdf_1st_order(lognormal, -INFINITY)) ==  1);
-  CU_ASSERT(isinf(gmcmc_distribution_log_pdf_1st_order(lognormal,  INFINITY)) == -1);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(lognormal, -INFINITY)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(lognormal,  INFINITY)));
 
   // Test limits of 2nd order PDF
-  CU_ASSERT_DOUBLE_EQUAL_ABS(gmcmc_distribution_log_pdf_2nd_order(lognormal, -INFINITY), 0.0, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_ABS(gmcmc_distribution_log_pdf_2nd_order(lognormal,  INFINITY), 0.0, 1.0e-07);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(lognormal, -INFINITY)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(lognormal,  INFINITY)));
 
   // Test calling PDFs with NaN
   CU_ASSERT(isnan(gmcmc_distribution_log_pdf(lognormal, NAN)));
@@ -193,35 +193,35 @@ static void test_lognormal005() {
   //   fprintf('CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, %.15f), %.15f, 1.0e-07);\n', x, y.d2x);
   // end
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.308437359397570), -0.639167898891620, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.308437359397570), 0.057575762837348, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.308437359397570), 3.057081771069023, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.308437359397570), -1.586116648371859, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.308437359397570), -1.124215165618951, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 2.501629969687860), -2.824300983320481, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 2.501629969687860), 1.066412723510441, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 2.501629969687860), 1.598957499097718, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 2.501629969687860), -1.865891473059300, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 2.501629969687860), 0.106704019857457, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.323219561248481), -1.647562492875920, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.323219561248481), -17.071038957835412, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.323219561248481), 12.375488613837085, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.323219561248481), 10.883294650916872, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.323219561248481), -71.959701866166796, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.538928908040790), -1.028549430006082, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.538928908040790), 0.470682327787582, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.538928908040790), 2.599210385288297, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.538928908040790), -1.770287520431730, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.538928908040790), -0.538636229734529, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.172786592368133), -0.435979611645395, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.172786592368133), -0.309066903254860, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.172786592368133), 3.410680191971718, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.172786592368133), -1.396273192730999, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.172786592368133), -1.717624512719876, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.520042807774022), -0.426971544638985, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.520042807774022), -6.952074980299628, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.520042807774022), 7.691674493339304, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.520042807774022), 3.106237733629976, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.520042807774022), -20.763506514374054, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.805094182789773), -0.102996362395452, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.805094182789773), -2.319211943801768, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.805094182789773), 4.968362814570829, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.805094182789773), -0.164969463483646, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.805094182789773), -5.966250227324580, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.186861268748585), -0.455799348449500, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.186861268748585), -0.265196173479121, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.186861268748585), 3.370233830460708, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.186861268748585), -1.419920741751232, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.186861268748585), -1.643252787889747, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 5.984653663176074), -8.417452151626954, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 5.984653663176074), 1.028763605375301, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 5.984653663176074), 0.668376187683547, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 5.984653663176074), -1.362951699217075, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 5.984653663176074), 0.116059433114282, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 3.993701579264713), -5.445400598835951, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 3.993701579264713), 1.136508066435303, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 3.993701579264713), 1.001577088475511, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 3.993701579264713), -1.637296610673058, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 3.993701579264713), 0.159180527032416, 1.0e-07);
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -251,12 +251,12 @@ static void test_lognormal0025() {
   CU_ASSERT(isinf(gmcmc_distribution_log_pdf(lognormal,  INFINITY)) == -1);
 
   // Test limits of 1st order PDF
-  CU_ASSERT(isinf(gmcmc_distribution_log_pdf_1st_order(lognormal, -INFINITY)) ==  1);
-  CU_ASSERT(isinf(gmcmc_distribution_log_pdf_1st_order(lognormal,  INFINITY)) == -1);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(lognormal, -INFINITY)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_1st_order(lognormal,  INFINITY)));
 
   // Test limits of 2nd order PDF
-  CU_ASSERT_DOUBLE_EQUAL_ABS(gmcmc_distribution_log_pdf_2nd_order(lognormal, -INFINITY), 0.0, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_ABS(gmcmc_distribution_log_pdf_2nd_order(lognormal,  INFINITY), 0.0, 1.0e-07);
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(lognormal, -INFINITY)));
+  CU_ASSERT(isnan(gmcmc_distribution_log_pdf_2nd_order(lognormal,  INFINITY)));
 
   // Test calling PDFs with NaN
   CU_ASSERT(isnan(gmcmc_distribution_log_pdf(lognormal, NAN)));
@@ -274,35 +274,35 @@ static void test_lognormal0025() {
   //   fprintf('CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, %.15f), %.15f, 1.0e-07);\n', x, y.d2x);
   // end
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.143869467814213), 0.188396066554850, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.143869467814213), 1.005943939025822, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.143869467814213), 13.987609994149018, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.143869467814213), -2.754395188294449, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.143869467814213), -9.820364230299631, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.581654187769204), -1.672682549111763, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.581654187769204), 4.005641756189522, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.581654187769204), 10.115991298051515, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.581654187769204), -5.270140668445961, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.581654187769204), -3.063786425046703, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.568524019939775), -1.519127027566887, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.568524019939775), -17.651650751849793, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.568524019939775), 28.143050141830283, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.568524019939775), 14.133769484121009, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.568524019939775), -74.362415910641360, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.240535734286115), -0.119858919354107, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.240535734286115), 1.973899835204360, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.240535734286115), 12.897653455510852, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.240535734286115), -3.586106517143216, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.240535734286115), -7.506069096611800, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.082952719359499), 0.336858878879296, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.082952719359499), 0.253991660502598, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.082952719359499), 14.774421555045393, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.082952719359499), -2.100794354883273, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.082952719359499), -11.702844430417802, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.721139936332763), -0.060746438155358, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.721139936332763), -8.640144403742980, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.721139936332763), 22.187094617676184, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.721139936332763), 5.866757576533456, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.721139936332763), -38.902092063951997, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 0.897270406727968), 0.481752812588073, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.897270406727968), -3.047429257356228, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.897270406727968), 17.831859693608319, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 0.897270406727968), 0.818446795655188, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 0.897270406727968), -20.785603034958726, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.089431626467942), 0.323003948745108, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.089431626467942), 0.340083633661156, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.089431626467942), 14.686557293984361, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.089431626467942), -2.175903295409201, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.089431626467942), -11.483652295955538, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 2.446355179277137), -6.829705736135567, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 2.446355179277137), 5.442213735634667, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 2.446355179277137), 6.540342193780615, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 2.446355179277137), -6.259756509857244, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 2.446355179277137), -0.114695399220926, 1.0e-07);
   CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf(lognormal, 1.998424774482320), -4.059894160804786, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.998424774482320), 5.042845869517450, 1.0e-07);
-  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.998424774482320), 8.006305868653326, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_1st_order(lognormal, 1.998424774482320), -6.043634103099116, 1.0e-07);
+  CU_ASSERT_DOUBLE_EQUAL_REL(gmcmc_distribution_log_pdf_2nd_order(lognormal, 1.998424774482320), -0.982109404674804, 1.0e-07);
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);

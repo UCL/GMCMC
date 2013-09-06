@@ -145,13 +145,9 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   // repeated along the diagonal
   const double * noisecov = (const double *)gmcmc_dataset_get_auxdata(dataset);
   for (size_t j = 0; j < ode_model->observed; j++) {
-    // Subtract the real data from the simulated data so that it has zero mean
-    const double * data = gmcmc_dataset_get_data(dataset, j);
-    for (size_t i = 0; i < num_timepoints; i++)
-      simdata[j * lds + i] -= data[i];
-
     // Calculate an element of the log likelihood using the optimised PDF
-    if ((error = gmcmc_mvn_logpdf0(num_timepoints, &simdata[j * lds], noisecov[j], &ll[j])) != 0) {
+    const double * data = gmcmc_dataset_get_data(dataset, j);
+    if ((error = gmcmc_mvn_logpdfs(num_timepoints, &simdata[j * lds], data, noisecov[j], &ll[j])) != 0) {
       free(ll);
       free(simdata);
       GMCMC_ERROR("Failed to calculate log normal PDF", error);
@@ -395,7 +391,7 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
       simdata[j * lds + i] -= data[i];
 
     // Calculate an element of the log likelihood using the optimised PDF
-    if ((error = gmcmc_mvn_logpdf0(num_timepoints, &simdata[j * lds], noisecov[j], &ll[j])) != 0) {
+    if ((error = gmcmc_mvn_logpdfs(num_timepoints, &simdata[j * lds], NULL, noisecov[j], &ll[j])) != 0) {
       free(ll);
       free(simdata);
       free(sensitivities);

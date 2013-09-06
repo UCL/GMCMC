@@ -57,21 +57,21 @@ static double log_pdf(const void * params, double x) {
     return NAN;
   else if (isless(x, 0.0) || isinf(x))
     return -INFINITY;
-  return -lgamma(g->alpha) - g->alpha * log(g->beta) + (g->alpha - 1.0) * x - x / g->beta;
+  return -lgamma(g->alpha) - g->alpha * log(g->beta) + (g->alpha - 1.0) * log(x) - x / g->beta;
 }
 
 static double log_pdf_1st_order(const void * params, double x) {
   const gamma * g = (const gamma *)params;
   if (isnan(x) || isless(x, 0.0) || isinf(x))
     return NAN;
-  return -1.0 / g->beta + g->alpha - 1.0;
+  return (g->alpha - 1.0) / x - 1.0 / g->beta;
 }
 
 static double log_pdf_2nd_order(const void * params, double x) {
-  (void)params;
+  const gamma * g = (const gamma *)params;
   if (isnan(x) || isless(x, 0.0) || isinf(x))
     return NAN;
-  return 0.0;
+  return -(g->alpha - 1.0) / (x * x);
 }
 
 static const gmcmc_distribution_type type = { "Gamma",

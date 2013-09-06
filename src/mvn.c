@@ -85,42 +85,45 @@ static inline double log_det(size_t n, const double * C, size_t ldc) {
 
 /**
  * Calculates the log of the PDF of the multivariate normal distribution at x.
- * The Cholesky decomposition of the covariance matrix is overwritten with the
- * inverse on output
  *
- * @param [in]     n        the dimensionality of the distribution
- * @param [in]     x        the random vector (length n)
- * @param [in]     mean     the mean of the distribution (length n)
- * @param [in] C        the Cholesky decomposition of the covariance matrix (n-by-n)
- * @param [in]     ldc      the leading dimension of the covariance matrix
- * @param [out]    res      the result
+ * @param [in]  n      dimensionality of the distribution
+ * @param [in]  x      random vector (length n)
+ * @param [in]  mu     mean of the distribution (length n, may be NULL for mean
+ *                       of zero)
+ * @param [in]  sigma  covariance matrix (n-by-n)
+ * @param [in]  lds    leading dimension of the covariance matrix
+ * @param [out] res    result
  *
  * @return 0 on success,
- *         GMCMC_ENOMEM if temporary vectors could not be allocated,
+ *         GMCMC_ENOMEM if temporary variables could not be allocated,
  *         GMCMC_ELINAL if the covariance matrix is singular.
  */
 static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
-                                   const double * mean, const double * C, size_t ldc,
+                                   const double * mu, const double * sigma, size_t lds,
                                    double * res) {
   if (n == 0) {
     *res = -INFINITY;
     return 0;
   }
 
-  // Calculate the Cholesky decomposition of the covariance matrix
+  // Create a copy of the covariance matrix so that the inverse can be
+  // calculated in-place without overwriting the original
   double * inv;
   size_t ldi = (n + 1u) & ~1u;
   if ((inv = malloc(ldi * n * sizeof(double))) == NULL)
     GMCMC_ERROR("Failed to allocate inverse", GMCMC_ENOMEM);
   for (size_t j = 0; j < n; j++)
-    memcpy(&inv[j * ldi], &C[j * ldc], n * sizeof(double));
+    memcpy(&inv[j * ldi], &sigma[j * lds], n * sizeof(double));
+
+  // Calculate the Cholesky decomposition of the covariance matrix
   long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
   if (info != 0) {
     free(inv);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
   }
 
-  // Calculate the log determinant of the covariance matrix before overwriting it with its inverse
+  // Calculate the log determinant of the covariance matrix before overwriting
+  // it with the inverse
   double ldet = log_det(n, inv, ldi);
 
   // Calculate the inverse from the Cholesky
@@ -130,26 +133,47 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
     GMCMC_ERROR("Proposal covariance matrix is singular", GMCMC_EINVAL);
   }
 
-  double * x_mu = NULL, * x_muTinv = NULL;;
-  if ((x_mu = malloc(n * sizeof(double))) == NULL || (x_muTinv = malloc(n * sizeof(double))) == NULL) {
-    free(inv);
+  double p;
+  if (mu == NULL) {
+    // Allocate vectors to store x' * inv(Σ)
+    double * xTinv;
+    if ((xTinv = malloc(n * sizeof(double))) == NULL) {
+      free(inv);
+      GMCMC_ERROR("Unable to allocate temporary vector", GMCMC_ENOMEM);
+    }
+
+    // Use CBLAS DSYMV to compute x' * inv(Σ)
+    cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x, 1, 0.0, xTinv, 1);
+    // Use CBLAS DDOT to compute x' * inv(Σ) * x
+    p = cblas_ddot(n, xTinv, 1, x, 1);
+
+    free(xTinv);
+  }
+  else {
+    // Allocate vectors to store (x - mu) and (x - mu)' * inv(Σ)
+    double * x_mu = NULL, * x_muTinv = NULL;
+    if ((x_mu = malloc(n * sizeof(double))) == NULL ||
+        (x_muTinv = malloc(n * sizeof(double))) == NULL) {
+      free(inv);
+      free(x_mu);
+      free(x_muTinv);
+      GMCMC_ERROR("Unable to allocate temporary vectors", GMCMC_ENOMEM);
+    }
+
+    // x_mu = x - mu
+    for (size_t i = 0; i < n; i++)
+      x_mu[i] = x[i] - mu[i];
+
+    // Use CBLAS DSYMV to compute (x - mu)' * inv(Σ)
+    cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x_mu, 1, 0.0, x_muTinv, 1);
+    // Use CBLAS DDOT to compute (x - mu)' * inv(Σ) * (x - mu)
+    p = cblas_ddot(n, x_muTinv, 1, x_mu, 1);
+
     free(x_mu);
     free(x_muTinv);
-    GMCMC_ERROR("Unable to allocate temporary vectors", GMCMC_ENOMEM);
   }
 
-  // x_mu = x - mean
-  for (size_t i = 0; i < n; i++)
-    x_mu[i] = x[i] - mean[i];
-
-  // Use CBLAS DSYMV to compute inv(covariance)*(x - mu)
-  cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x_mu, 1, 0.0, x_muTinv, 1);
-  // Use CBLAS DDOT to compute (x - mu)'*inv(covariance)*x_mu
-  double p = cblas_ddot(n, x_muTinv, 1, x_mu, 1);
-
   free(inv);
-  free(x_mu);
-  free(x_muTinv);
 
   // LogResult = -(k/2)*log(2*pi) - sum(log(diag(chol(Covar)))) -0.5*(( Diff'/Covar )*Diff);
   *res = -(n / 2.0) * M_LOG2PI - 0.5 * ldet - 0.5 * p;
@@ -159,35 +183,109 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
 
 /**
  * Calculates the log PDF of the multivariate normal distribution with
- * Mean = [ 0   Sigma = [ s 0 0
- *          0             0 s 0
- *          0 ]           0 0 s ]
+ * Sigma = [ s1  0  0
+ *            0 s2  0
+ *            0  0 s3 ]
+ * for some vector [ s1 s2 s3 ].
+ *
+ * When Sigma is assumed to be dense evaluating the multivariate normal PDF is
+ * an O(n^3) operation due to the Cholesky decomposition and inverse of the
+ * covariance matrix.  If Sigma is diagonal then this can be reduced to O(n).
+ *
+ * @param [in]  n      dimensionality of the distribution
+ * @param [in]  x      random vector (length n)
+ * @param [in]  mu     mean of the distribution (length n, may be NULL for mean
+ *                       of zero)
+ * @param [in]  sigma  the diagonal of the covariance matrix
+ * @param [out] res    result
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if any element of sigma is less than or equal to zero.
+ */
+static inline int gmcmc_mvn_logpdfv(size_t n, const double * x,
+                                    const double * mu, const double * sigma,
+                                    double * res) {
+  if (n == 0) {
+    *res = -INFINITY;
+    return 0;
+  }
+
+
+  // (x - mu)' * inv(Sigma) * (x - mu) becomes sum(x^2/sigma)
+  // log(det(Sigma)) becomes sum(log(sqrt(sigma))) * 2.0
+  double p = 0.0, log_det = 0.0;
+  if (mu == NULL) {
+    for (size_t i = 0; i < n; i++) {
+      // The values along the diagonal must be greater than zero to be positive
+      // definite.
+      if (islessequal(sigma[i], 0.0))
+        GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
+      p += x[i] * (1.0 / sigma[i]) * x[i];
+      log_det += log(sigma[i]);
+    }
+  }
+  else {
+    for (size_t i = 0; i < n; i++) {
+      // The values along the diagonal must be greater than zero to be positive
+      // definite.
+      if (islessequal(sigma[i], 0.0))
+        GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
+      p += (x[i] - mu[i]) * (1.0 / sigma[i]) * (x[i] - mu[i]);
+      log_det += log(sigma[i]);
+    }
+  }
+
+  *res = -(n / 2.0) * M_LOG2PI - 0.5 * (log_det + p);
+
+  return 0;
+}
+
+/**
+ * Calculates the log PDF of the multivariate normal distribution with
+ * Sigma = [ s 0 0
+ *           0 s 0
+ *           0 0 s ]
  * for some scalar s.
  *
  * When Sigma is assumed to be dense evaluating the multivariate normal PDF is
  * an O(n^3) operation due to the Cholesky decomposition and inverse of the
  * covariance matrix.  If Sigma is diagonal then this can be reduced to O(n).
  *
- * @param [in]  n      the dimensionality of the distribution
- * @param [in]  x      the sample vector
+ * @param [in]  n      dimensionality of the distribution
+ * @param [in]  x      random vector (length n)
+ * @param [in]  mu     mean of the distribution (length n, may be NULL for mean
+ *                       of zero)
  * @param [in]  sigma  the value along the diagonal of the covariance matrix
- * @param [out] res    the probability of x
+ *                       (variance)
+ * @param [out] res    result
  *
- * @return 0 on success, GMCMC_EINVAL if sigma is less than or equal to zero.
+ * @return 0 on success,
+ *         GMCMC_EINVAL if sigma is less than or equal to zero.
  */
-static inline int gmcmc_mvn_logpdf0(size_t n, const double * x, double sigma, double * res) {
-  if (islessequal(sigma, 0.0))
-    return GMCMC_EINVAL;
-
+static inline int gmcmc_mvn_logpdfs(size_t n, const double * x,
+                                    const double * mu, double sigma,
+                                    double * res) {
   if (n == 0) {
     *res = -INFINITY;
     return 0;
   }
 
+  // The values along the diagonal must be greater than zero to be positive
+  // definite.  This check must come after the (n == 0) check for consistent
+  // behaviour with gmcmc_mvn_logpdf.
+  if (islessequal(sigma, 0.0))
+    GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
+
   // (x - mu)' * inv(Sigma) * (x - mu) becomes sum(x^2)/sigma
   double p = 0.0;
-  for (size_t i = 0; i < n; i++)
-    p += x[i] * x[i];
+  if (mu == NULL) {
+    for (size_t i = 0; i < n; i++)
+      p += x[i] * x[i];
+  }
+  else {
+    for (size_t i = 0; i < n; i++)
+      p += (x[i] - mu[i]) * (x[i] - mu[i]);
+  }
 
   // log(det(Sigma)) becomes n * log(sigma)
   *res = -(n / 2.0) * (M_LOG2PI + log(sigma)) - (p / (2.0 * sigma));
