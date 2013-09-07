@@ -13,7 +13,10 @@ LIBS = libgmcmc.so libgmcmc_matlab.so
 ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
 
 ODE_examples = FitzHugh_Benchmark_MH FitzHugh_Benchmark_Simp_mMALA \
-               Locke_Benchmark_MH Locke_Benchmark_Simp_mMALA
+               Locke_Benchmark_MH Locke_Benchmark_Simp_mMALA \
+               Vyshemirsky_2008_Model4_Benchmark_1_MH \
+               Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA \
+               Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA_trunc
 
 all: $(LIBS)
 
