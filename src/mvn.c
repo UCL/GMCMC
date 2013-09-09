@@ -1,4 +1,5 @@
 #include <math.h>
+#include <cblas.h>
 #include <lapacke.h>
 #include "distribution/randn.c"
 
