@@ -19,12 +19,12 @@ typedef struct {
 } normal;
 
 static double sample(const void * params, const gmcmc_prng64 * r) {
-  normal * n = (normal *)params;
+  const normal * n = (const normal *)params;
   return n->mu + n->sigma * gmcmc_randn(r);
 }
 
 static double log_pdf(const void * params, double x) {
-  normal * n = (normal *)params;
+  const normal * n = (const normal *)params;
   if (isnan(x))
     return NAN;
   return (isinf(x)) ? -INFINITY : -M_HALFLOG2PI - log(n->sigma) -
@@ -32,7 +32,7 @@ static double log_pdf(const void * params, double x) {
 }
 
 static double log_pdf_1st_order(const void * params, double x) {
-  normal * n = (normal *)params;
+  const normal * n = (const normal *)params;
   if (isnan(x))
     return NAN;
   if (isinf(x))
@@ -41,7 +41,7 @@ static double log_pdf_1st_order(const void * params, double x) {
 }
 
 static double log_pdf_2nd_order(const void * params, double x) {
-  normal * n = (normal *)params;
+  const normal * n = (const normal *)params;
   if (isnan(x))
     return NAN;
   return -1.0 / (n->sigma * n->sigma);

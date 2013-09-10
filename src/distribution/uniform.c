@@ -18,14 +18,14 @@ typedef struct {
 } uniform;
 
 static double sample(const void * params, const gmcmc_prng64 * r) {
-  uniform * u = (uniform *)params;
+  const uniform * u = (const uniform *)params;
   double x;
   do { x = gmcmc_prng64_get_double(r); } while (x == 0.0);
   return u->lower + x * (u->upper - u->lower);
 }
 
 static double log_pdf(const void * params, double x) {
-  uniform * u = (uniform *)params;
+  const uniform * u = (const uniform *)params;
   if (isnan(x))
     return NAN;
   return (islessequal(x, u->lower) || isgreaterequal(x, u->upper)) ? -INFINITY
@@ -33,7 +33,7 @@ static double log_pdf(const void * params, double x) {
 }
 
 static double log_pdf_1st_order(const void * params, double x) {
-  uniform * u = (uniform *)params;
+  const uniform * u = (const uniform *)params;
   if (isnan(x))
     return NAN;
   return (islessequal(x, u->lower) || isgreaterequal(x, u->upper)) ? NAN
@@ -41,7 +41,7 @@ static double log_pdf_1st_order(const void * params, double x) {
 }
 
 static double log_pdf_2nd_order(const void * params, double x) {
-  uniform * u = (uniform *)params;
+  const uniform * u = (const uniform *)params;
   if (isnan(x))
     return NAN;
   return (islessequal(x, u->lower) || isgreaterequal(x, u->upper)) ? NAN
