@@ -92,7 +92,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   *likelihood = -INFINITY;
 
   // Get the model specific data
-  gmcmc_ion_model * ion_model = (gmcmc_ion_model *)gmcmc_model_get_modelspecific(model);
+  const gmcmc_ion_model * ion_model = (const gmcmc_ion_model *)gmcmc_model_get_modelspecific(model);
   const unsigned int num_states = ion_model->closed + ion_model->open;
 
   // Allocate the Q matrix
@@ -548,8 +548,8 @@ static int idealised_transition_probability(size_t m, size_t n,
 static int comparator(const void * x, const void * y) {
   double a, b;
 
-  a = *(double*)x;
-  b = *(double*)y;
+  a = *(const double *)x;
+  b = *(const double *)y;
 
   return isless(a, b) ? 1 : ((a == b) ? 0 : -1);
 }

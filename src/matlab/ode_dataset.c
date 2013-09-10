@@ -43,7 +43,7 @@ static void destroy(void * data) {
  *           data.
  */
 static const double * timepoints(const void * data) {
-  matlab_dataset * m = (matlab_dataset *)data;
+  const matlab_dataset * m = (const matlab_dataset *)data;
   double * ts = mxGetPr(m->timepoints);
   if (ts == NULL)
     GMCMC_ERROR_VAL("timepoints contains no real data", GMCMC_EIO, NULL);
@@ -60,7 +60,7 @@ static const double * timepoints(const void * data) {
  *           mxArray contains no real data.
  */
 static const double * data(const void * data, size_t i) {
-  matlab_dataset * m = (matlab_dataset *)data;
+  const matlab_dataset * m = (const matlab_dataset *)data;
   if (i >= mxGetN(m->data))
     GMCMC_ERROR_VAL("index is out of range", GMCMC_EINVAL, NULL);
   double * ys = mxGetPr(m->data);
@@ -78,7 +78,7 @@ static const double * data(const void * data, size_t i) {
  *           contains no real data.
  */
 static const void * noisecov(const void * data) {
-  matlab_dataset * m = (matlab_dataset *)data;
+  const matlab_dataset * m = (const matlab_dataset *)data;
   void * a = mxGetData(m->noisecov);
   if (a == NULL)
     GMCMC_ERROR_VAL("noisecov contains no real data", GMCMC_EIO, NULL);
@@ -91,7 +91,7 @@ static const void * noisecov(const void * data) {
  * @return the number of timepoints.
  */
 static size_t m(const void * data) {
-  matlab_dataset * m = (matlab_dataset *)data;
+  const matlab_dataset * m = (const matlab_dataset *)data;
   return mxGetM(m->timepoints);
 }
 
@@ -101,7 +101,7 @@ static size_t m(const void * data) {
  * @return the number of data vectors.
  */
 static size_t n(const void * data) {
-  matlab_dataset * m = (matlab_dataset *)data;
+  const matlab_dataset * m = (const matlab_dataset *)data;
   return mxGetN(m->data);
 }
 

@@ -19,12 +19,12 @@ typedef struct {
 } lognormal;
 
 static double sample(const void * params, const gmcmc_prng64 * r) {
-  lognormal * l = (lognormal *)params;
+  const lognormal * l = (const lognormal *)params;
   return exp(l->mu + l->sigma * gmcmc_randn(r));
 }
 
 static double log_pdf(const void * params, double x) {
-  lognormal * l = (lognormal *)params;
+  const lognormal * l = (const lognormal *)params;
   if (isnan(x))
     return NAN;
   if (islessequal(x, 0.0) || isinf(x))
@@ -34,14 +34,14 @@ static double log_pdf(const void * params, double x) {
 }
 
 static double log_pdf_1st_order(const void * params, double x) {
-  lognormal * l = (lognormal *)params;
+  const lognormal * l = (const lognormal *)params;
   if (isnan(x) || islessequal(x, 0.0) || isinf(x))
     return NAN;
   return -((log(x) - l->mu) / (l->sigma * l->sigma * x)) - (1.0 / x);
 }
 
 static double log_pdf_2nd_order(const void * params, double x) {
-  lognormal * l = (lognormal *)params;
+  const lognormal * l = (const lognormal *)params;
   if (isnan(x) || islessequal(x, 0.0) || isinf(x))
     return NAN;
   return (log(x) + l->sigma * l->sigma - l->mu - 1.0) / (l->sigma * l->sigma * x * x);

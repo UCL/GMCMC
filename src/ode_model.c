@@ -105,7 +105,7 @@ static int ode_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   const size_t num_params = gmcmc_model_get_num_params(model);
 
   // Get a pointer to the ODE model-specific data
-  const gmcmc_ode_model * ode_model = (gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
+  const gmcmc_ode_model * ode_model = (const gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
   const unsigned int num_species = ode_model->observed + ode_model->unobserved;
 
   // Get the timepoints
@@ -319,7 +319,7 @@ static int ode_likelihood_simp_mmala(const gmcmc_dataset * dataset, const gmcmc_
   *likelihood = -INFINITY;
 
   // Get a pointer to the ODE model-specific data
-  const gmcmc_ode_model * ode_model = (gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
+  const gmcmc_ode_model * ode_model = (const gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
   const unsigned int num_species = ode_model->observed + ode_model->unobserved;
 
   // Get the timepoints
