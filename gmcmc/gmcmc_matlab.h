@@ -59,7 +59,7 @@ int gmcmc_dataset_create_matlab_ode(gmcmc_dataset **, const char *);
 /**
  * How often to save posterior samples.
  */
-extern size_t gmcmc_matlab_posterior_save_size;
+extern size_t gmcmc_matlab_save_size;
 
 /**
  * Whether to save burn-in samples or not.
