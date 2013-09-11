@@ -103,7 +103,7 @@ int main(int argc, char * argv[]) {
 
 
   // How often to save posterior samples.
-  gmcmc_matlab_posterior_save_size = 8500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
+  gmcmc_matlab_save_size = 8500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
 
   // Save burn-in
   gmcmc_matlab_save_burn_in = true;
@@ -230,7 +230,7 @@ int main(int argc, char * argv[]) {
   }
 
 #ifndef INFER_ICS
-  double ics[] = { 1.0, 0.0, 1.0,  0.0,  0.0,  1.0, 0.0 };
+  double ics[] = { 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0 };
   gmcmc_ode_model_set_initial_conditions(ode_model, ics);
 #endif
 

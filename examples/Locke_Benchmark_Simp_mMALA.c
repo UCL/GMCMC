@@ -123,7 +123,7 @@ int main(int argc, char * argv[]) {
 
 
   // How often to save posterior samples.
-  gmcmc_matlab_posterior_save_size = 2000000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
+  gmcmc_matlab_save_size = 2000000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
 
   // Save burn-in
   gmcmc_matlab_save_burn_in = true;
