@@ -6,6 +6,7 @@
  */
 #include <gmcmc/gmcmc_errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
  * Maps Geometric MCMC error codes to textual descriptions.
@@ -14,13 +15,12 @@
  * @return a textual description of the error code.
  */
 const char * gmcmc_strerror(int errno) {
-  switch (errno) {
+  switch (abs(errno)) {
     case GMCMC_ENOMEM: return "Out of memory";
     case GMCMC_EINVAL: return "Invalid argument";
     case GMCMC_EIO:    return "Input/Output error";
     case GMCMC_EIPC:   return "IPC error";
     case GMCMC_ELINAL: return "BLAS/LAPACK error";
-    case GMCMC_ERANGE: return "Invalid value returned from mathematical function";
     default:           return "Unknown error";
   }
 }
@@ -36,8 +36,12 @@ const char * gmcmc_strerror(int errno) {
  */
 static void default_error_handler(const char * msg, int errno, const char * func,
     const char * file, int line) {
-  fprintf(stderr, "GMCMC Error \"%s\" in %s (%s:%d):\n\t\"%s\"\n",
-          gmcmc_strerror(errno), func, file, line, msg);
+  if (errno < 0)
+    fprintf(stderr, "GMCMC Warning \"%s\" in %s (%s:%d):\n\t\"%s\"\n",
+            gmcmc_strerror(errno), func, file, line, msg);
+  else
+    fprintf(stderr, "GMCMC Error \"%s\" in %s (%s:%d):\n\t\"%s\"\n",
+            gmcmc_strerror(errno), func, file, line, msg);
 }
 
 /**

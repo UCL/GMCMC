@@ -1,13 +1,9 @@
-#include <gmcmc/gmcmc_matlab.h>
-
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
+#include <gmcmc/gmcmc_ion.h>
 #include <gmcmc/gmcmc_errno.h>
 
+#include <stdlib.h>
+
 #include <mat.h>
-#include <matrix.h>
 
 /**
  * An ion channel dataset loaded from Matlab.
@@ -57,14 +53,12 @@ static const double * timepoints(const void * data) {
  * @return a pointer to a data vector or NULL if i is out of range or the
  *           mxArray contains no real data.
  */
-static const double * data(const void * data, size_t i) {
+static const double * data(const void * data) {
   const matlab_dataset * m = (const matlab_dataset *)data;
-  if (i >= mxGetN(m->data))
-    GMCMC_ERROR_VAL("index is out of range", GMCMC_EINVAL, NULL);
   double * ys = mxGetPr(m->data);
   if (ys == NULL)
     GMCMC_ERROR_VAL("data contains no real data", GMCMC_EIO, NULL);
-  return &ys[i * mxGetM(m->data)];
+  return ys;
 }
 
 /**
@@ -78,20 +72,9 @@ static size_t m(const void * data) {
 }
 
 /**
- * Gets the number of data vectors in the dataset.
- *
- * @return the number of data vectors.
- */
-static size_t n(const void * data) {
-  const matlab_dataset * m = (const matlab_dataset *)data;
-  return mxGetN(m->data);
-}
-
-/**
  * Ion channel Matlab dataset type.
  */
-static const gmcmc_dataset_type type = { destroy, timepoints, data,
-                                             NULL, m, n };
+static const gmcmc_ion_dataset_type type = { destroy, m, timepoints, data };
 
 /**
  * Loads an ion channel dataset from a Matlab file.  The file must contain a
@@ -109,7 +92,7 @@ static const gmcmc_dataset_type type = { destroy, timepoints, data,
  *                        data,
  *         GMCMC_EIO    if there is an input/output error.
  */
-int gmcmc_dataset_create_matlab_ion(gmcmc_dataset ** dataset, const char * filename) {
+int gmcmc_ion_dataset_load_matlab(gmcmc_ion_dataset ** dataset, const char * filename) {
   // Allocate the Matlab dataset structure
   matlab_dataset * m;
   if ((m = malloc(sizeof(matlab_dataset))) == NULL)
@@ -155,7 +138,7 @@ int gmcmc_dataset_create_matlab_ion(gmcmc_dataset ** dataset, const char * filen
   }
 
   // Allocate the dataset structure
-  if ((*dataset = malloc(sizeof(gmcmc_dataset))) == NULL) {
+  if ((*dataset = malloc(sizeof(gmcmc_ion_dataset))) == NULL) {
     mxDestroyArray(m->data);
     mxDestroyArray(m->timepoints);
     matClose(m->file);

@@ -20,6 +20,6 @@ clean:
 ../../libgmcmc.so:
 	cd .. && $(MAKE)
 
-ion_dataset.o: gmcmc_matlab.h gmcmc_dataset.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h gmcmc_errno.h
-ode_dataset.o: gmcmc_matlab.h gmcmc_dataset.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h gmcmc_errno.h
-popmcmc_write.o: gmcmc_matlab.h gmcmc_dataset.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h gmcmc_errno.h
+ion_dataset.o: gmcmc_ion.h gmcmc_likelihood.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
+ode_dataset.o: gmcmc_ode.h gmcmc_likelihood.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
+popmcmc_write.o: gmcmc_popmcmc.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h

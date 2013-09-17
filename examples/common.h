@@ -1,4 +1,3 @@
-#include <gmcmc/gmcmc_model.h>
 #include <gmcmc/gmcmc_popmcmc.h>
 #include <stddef.h>
 #include <stdio.h>

@@ -46,7 +46,7 @@ int gmcmc_distribution_create_copy(gmcmc_distribution ** dest, const gmcmc_distr
  * @param [out] dest  the destination of the copy
  * @param [in]  src   the source of the copy
  *
- * @return 0 on success, GMCMC_EINVAL if the RNGs are of different types.
+ * @return 0 on success, GMCMC_EINVAL if the distributions are of different types.
  */
 int gmcmc_distribution_memcpy(gmcmc_distribution * dest, const gmcmc_distribution * src) {
   if (dest->type != src->type)

@@ -11,7 +11,6 @@
 #define GMCMC_MODEL_H
 
 #include <gmcmc/gmcmc_distribution.h>
-#include <gmcmc/gmcmc_dataset.h>
 
 /**
  * A model.
@@ -19,56 +18,16 @@
 typedef struct gmcmc_model gmcmc_model;
 
 /**
- * Calculates the proposal mean vector and covariance matrix based on the
- * likelihood.
- *
- * @param [in]  n            size of the parameter vector
- * @param [in]  params       parameter vector
- * @param [in]  likelihood   likelihood value
- * @param [in]  temperature  chain temperature
- * @param [in]  stepsize     parameter step size
- * @param [in]  serdata      serialised data output from the likelihood function
- * @param [out] mean         mean vector
- * @param [out] covariance   covariance matrix
- * @param [in]  ldc          leading dimension of the covariance matrix
- *
- * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
- */
-typedef int (*gmcmc_proposal_function)(size_t, const double *, double, double, double, const void *, double *, double *, size_t);
-
-/**
- * Calculates the likelihood of the data given the model and parameters.
- *
- * @param [in]  data        the data
- * @param [in]  model       the model to evaluate
- * @param [in]  params      the current parameter values to evaluate the model
- * @param [in]  n           the number of parameters in the model
- * @param [out] likelihood  the log likelihood
- * @param [out] serdata     serialised data to be passed to the proposal function
- * @param [out] size        size of serialised data object, in bytes
- *
- * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
- */
-typedef int (*gmcmc_likelihood_function)(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
-
-/**
  * Creates a model.
  *
  * @param [out] model       the model to create
  * @param [in]  n           the number of parameters in the model
  * @param [in]  priors      an array of prior distributions for each parameter
- * @param [in]  proposal    a function to calculate the proposal mean and variance
- * @param [in]  likelihood  a function to calculate the likelihood
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to create a new model.
  */
-int gmcmc_model_create(gmcmc_model **, size_t, gmcmc_distribution **,
-                       gmcmc_proposal_function, gmcmc_likelihood_function);
+int gmcmc_model_create(gmcmc_model **, size_t, gmcmc_distribution **);
 
 /**
  * Destroys a model.
@@ -116,42 +75,6 @@ const double * gmcmc_model_get_params(const gmcmc_model *);
  * @return the prior for the ith parameter or NULL if the i is out of range.
  */
 const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model *, size_t);
-
-/**
- * Calculates the proposal mean vector and covariance matrix based on the
- * likelihood.
- *
- * @param [in]  model        the model
- * @param [in]  params       parameter vector
- * @param [in]  likelihood   likelihood value
- * @param [in]  temperature  chain temperature
- * @param [in]  stepsize     parameter step size
- * @param [in]  serdata      serialised data output from the likelihood function
- * @param [out] mean         mean vector
- * @param [out] covariance   covariance matrix
- * @param [in]  ldc          leading dimension of the covariance matrix
- *
- * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
- */
-int gmcmc_proposal(const gmcmc_model *, const double *, double, double, double, const void *, double *, double *, size_t);
-
-/**
- * Calculates the likelihood of the data given the model and parameters.
- *
- * @param [in]  data        the data
- * @param [in]  model       the model to evaluate
- * @param [in]  params      the current parameter values to evaluate the model
- * @param [out] likelihood  the log likelihood
- * @param [out] serdata     serialised data to be passed to the proposal function
- * @param [out] size        size of serialised data object, in bytes
- *
- * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
- */
-int gmcmc_likelihood(const gmcmc_dataset *, const gmcmc_model *, const double *, double *, void **, size_t *);
 
 /**
  * Sets the parameter stepsize.

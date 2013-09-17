@@ -8,7 +8,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala1() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -66,7 +66,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala2() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -124,7 +124,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala3() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -182,7 +182,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala4() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -240,7 +240,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala5() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -298,7 +298,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala6() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -356,7 +356,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala7() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -414,7 +414,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala8() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -472,7 +472,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala9() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -530,7 +530,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala10() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -588,7 +588,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala11() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -677,7 +677,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala11() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -710,7 +710,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala12() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -799,7 +799,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala12() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -832,7 +832,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala13() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -921,7 +921,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala13() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -954,7 +954,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala14() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1043,7 +1043,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala14() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1076,7 +1076,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala15() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1165,7 +1165,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala15() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1198,7 +1198,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala16() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1287,7 +1287,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala16() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1320,7 +1320,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala17() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1409,7 +1409,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala17() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1442,7 +1442,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala18() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1531,7 +1531,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala18() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1564,7 +1564,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala19() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1653,7 +1653,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala19() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1686,7 +1686,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala20() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1775,7 +1775,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala20() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1808,7 +1808,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala21() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1897,7 +1897,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala21() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1930,7 +1930,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala22() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2019,7 +2019,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala22() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2052,7 +2052,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala23() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2141,7 +2141,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala23() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2174,7 +2174,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala24() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2263,7 +2263,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala24() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2296,7 +2296,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala25() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2385,7 +2385,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala25() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2418,7 +2418,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala26() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2507,7 +2507,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala26() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2540,7 +2540,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala27() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2629,7 +2629,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala27() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2662,7 +2662,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala28() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2751,7 +2751,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala28() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2784,7 +2784,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala29() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2873,7 +2873,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala29() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2906,7 +2906,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala30() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2995,7 +2995,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala30() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3028,7 +3028,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala31() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3117,7 +3117,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala31() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3150,7 +3150,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala32() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3239,7 +3239,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala32() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3272,7 +3272,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala33() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3361,7 +3361,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala33() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3394,7 +3394,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala34() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3483,7 +3483,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala34() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3516,7 +3516,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala35() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3605,7 +3605,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala35() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3638,7 +3638,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala36() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3727,7 +3727,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala36() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3760,7 +3760,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala37() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3849,7 +3849,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala37() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3882,7 +3882,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala38() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3971,7 +3971,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala38() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4004,7 +4004,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala39() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4093,7 +4093,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala39() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4126,7 +4126,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala40() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4215,7 +4215,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala40() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4248,7 +4248,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala41() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4337,7 +4337,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala41() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4370,7 +4370,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala42() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4459,7 +4459,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala42() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4492,7 +4492,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala43() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4581,7 +4581,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala43() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4614,7 +4614,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala44() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4703,7 +4703,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala44() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4736,7 +4736,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala45() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4825,7 +4825,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala45() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4858,7 +4858,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala46() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4947,7 +4947,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala46() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4980,7 +4980,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala47() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5069,7 +5069,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala47() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5102,7 +5102,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala48() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5191,7 +5191,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala48() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5224,7 +5224,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala49() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5313,7 +5313,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala49() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5346,7 +5346,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala50() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5435,7 +5435,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala50() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5468,7 +5468,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala51() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5557,7 +5557,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala51() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5590,7 +5590,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala52() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5679,7 +5679,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala52() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5712,7 +5712,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala53() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5801,7 +5801,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala53() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5834,7 +5834,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala54() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5923,7 +5923,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala54() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5956,7 +5956,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala55() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6045,7 +6045,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala55() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6078,7 +6078,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala56() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6167,7 +6167,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala56() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6200,7 +6200,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala57() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6289,7 +6289,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala57() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6322,7 +6322,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala58() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6411,7 +6411,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala58() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6444,7 +6444,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala59() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6533,7 +6533,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala59() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6566,7 +6566,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala60() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6655,7 +6655,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala60() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6688,7 +6688,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala61() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6777,7 +6777,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala61() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6810,7 +6810,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala62() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6899,7 +6899,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala62() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6932,7 +6932,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala63() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7021,7 +7021,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala63() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7054,7 +7054,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala64() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7143,7 +7143,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala64() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7176,7 +7176,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala65() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7265,7 +7265,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala65() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7298,7 +7298,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala66() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7387,7 +7387,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala66() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7420,7 +7420,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala67() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7509,7 +7509,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala67() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7542,7 +7542,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala68() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7631,7 +7631,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala68() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7664,7 +7664,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala69() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7753,7 +7753,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala69() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7786,7 +7786,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala70() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7875,7 +7875,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala70() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7908,7 +7908,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala71() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7997,7 +7997,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala71() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8030,7 +8030,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala72() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8119,7 +8119,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala72() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8152,7 +8152,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala73() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8241,7 +8241,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala73() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8274,7 +8274,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala74() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8363,7 +8363,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala74() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8396,7 +8396,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala75() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8485,7 +8485,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala75() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8518,7 +8518,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala76() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8607,7 +8607,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala76() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8640,7 +8640,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala77() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8729,7 +8729,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala77() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8762,7 +8762,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala78() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8851,7 +8851,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala78() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8884,7 +8884,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala79() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8973,7 +8973,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala79() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9006,7 +9006,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala80() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9095,7 +9095,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala80() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9128,7 +9128,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala81() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9217,7 +9217,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala81() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9250,7 +9250,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala82() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9339,7 +9339,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala82() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9372,7 +9372,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala83() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9461,7 +9461,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala83() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9494,7 +9494,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala84() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9583,7 +9583,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala84() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9616,7 +9616,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala85() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9705,7 +9705,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala85() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9738,7 +9738,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala86() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9827,7 +9827,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala86() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9860,7 +9860,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala87() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9949,7 +9949,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala87() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9982,7 +9982,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala88() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10071,7 +10071,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala88() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10104,7 +10104,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala89() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10193,7 +10193,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala89() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10226,7 +10226,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala90() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10315,7 +10315,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala90() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10348,7 +10348,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala91() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10437,7 +10437,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala91() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10470,7 +10470,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala92() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10559,7 +10559,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala92() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10592,7 +10592,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala93() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10681,7 +10681,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala93() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10714,7 +10714,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala94() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10803,7 +10803,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala94() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10836,7 +10836,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala95() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10925,7 +10925,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala95() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10958,7 +10958,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala96() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11047,7 +11047,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala96() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11080,7 +11080,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala97() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11169,7 +11169,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala97() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11202,7 +11202,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala98() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11291,7 +11291,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala98() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11324,7 +11324,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala99() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11413,7 +11413,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala99() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11446,7 +11446,7 @@ static void test_ode_likelihood_fitzhugh_simp_mmala100() {
   size_t size;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11535,7 +11535,7 @@ static void test_ode_proposal_fitzhugh_simp_mmala100() {
   double mean[3], covariance[ldc * 3];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);

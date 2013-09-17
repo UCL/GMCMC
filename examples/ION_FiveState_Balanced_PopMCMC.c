@@ -9,15 +9,8 @@
 
 #include <mpi.h>
 
-#include <gmcmc/gmcmc_errno.h>
-#include <gmcmc/gmcmc_model.h>
-#include <gmcmc/gmcmc_ion_model.h>
-#include <gmcmc/gmcmc_distribution.h>
-#include <gmcmc/gmcmc_rng.h>
-#include <gmcmc/gmcmc_dataset.h>
+#include <gmcmc/gmcmc_ion.h>
 #include <gmcmc/gmcmc_popmcmc.h>
-
-#include <gmcmc/gmcmc_matlab.h>
 
 #include "common.h"
 
@@ -173,8 +166,8 @@ int main(int argc, char * argv[]) {
 #endif
 
   // Load the dataset
-  gmcmc_dataset * dataset;
-  if ((error = gmcmc_dataset_create_matlab_ion(&dataset, data_file)) != 0) {
+  gmcmc_ion_dataset * dataset;
+  if ((error = gmcmc_ion_dataset_load_matlab(&dataset, data_file)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -187,13 +180,13 @@ int main(int argc, char * argv[]) {
 
   // Create the model
   gmcmc_model * model;
-  if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
+  if ((error = gmcmc_model_create(&model, num_params, priors)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
-    gmcmc_dataset_destroy(dataset);
+    gmcmc_ion_dataset_destroy(dataset);
     fputs("Unable to create model\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -4;
@@ -213,7 +206,7 @@ int main(int argc, char * argv[]) {
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     // Clean up
     free(temperatures);
-    gmcmc_dataset_destroy(dataset);
+    gmcmc_ion_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
     fputs("Unable to set initial parameter values\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
@@ -233,7 +226,7 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
-    gmcmc_dataset_destroy(dataset);
+    gmcmc_ion_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
     fputs("Unable to create Ion Channel specific model\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
@@ -249,7 +242,7 @@ int main(int argc, char * argv[]) {
   if ((error = gmcmc_prng64_create(&rng, gmcmc_prng64_dcmt607, rank)) != 0) {
     // Clean up
     free(temperatures);
-    gmcmc_dataset_destroy(dataset);
+    gmcmc_ion_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
     gmcmc_ion_model_destroy(ion_model);
     fputs("Unable to create parallel RNG\n", stderr);
@@ -274,7 +267,7 @@ int main(int argc, char * argv[]) {
   /*
    * Call main population MCMC routine using MPI
    */
-  error = gmcmc_popmcmc_mpi(&mcmc_options, model, dataset, rng);
+  error = gmcmc_popmcmc_mpi(model, dataset, gmcmc_ion_likelihood_mh, gmcmc_proposal_mh, &mcmc_options, rng);
 
   if (rank == 0) {
     // Stop timer
@@ -291,7 +284,7 @@ int main(int argc, char * argv[]) {
 
   // Clean up (dataset, model, rng)
   free(temperatures);
-  gmcmc_dataset_destroy(dataset);
+  gmcmc_ion_dataset_destroy(dataset);
   gmcmc_model_destroy(model);
   gmcmc_ion_model_destroy(ion_model);
   gmcmc_prng64_destroy(rng);

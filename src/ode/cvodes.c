@@ -79,8 +79,10 @@ static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
  *                                calculated.
  * @param [in]  lds             leading dimension of simdata and sensitivities
  *
- * @return CV_SUCCESS on success,
- *         CV_MEM_FAIL  if there was not enough memory to create the solver,
+ * @return 0 on success,
+ *         GMCMC_ENOMEM  if there was not enough memory to create the solver,
+ *         GMCMC_EINVAL  if there was an invalid argument to the function,
+ *         GMCMC_ELINAL  if the solution could not be found.
  */
 static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
                         size_t num_timepoints, size_t num_species, size_t num_params,

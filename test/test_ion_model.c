@@ -2,9 +2,8 @@
 #include <CUnit/Basic.h>
 
 #include <gmcmc/gmcmc_errno.h>
-#include <gmcmc/gmcmc_ion_model.h>
-
-#include <gmcmc/gmcmc_matlab.h>
+#include <gmcmc/gmcmc_ion.h>
+#include <gmcmc/gmcmc_proposal.h>
 
 #include <stdlib.h>
 
@@ -23,14 +22,14 @@
     ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
     ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
 
-static gmcmc_dataset * data;
+static gmcmc_ion_dataset * data;
 static gmcmc_model * model;
 
 static int cleanup() {
   gmcmc_ion_model * ion_model = (gmcmc_ion_model *)gmcmc_model_get_modelspecific(model);
   gmcmc_ion_model_destroy(ion_model);
   gmcmc_model_destroy(model);
-  gmcmc_dataset_destroy(data);
+  gmcmc_ion_dataset_destroy(data);
   return 0;
 }
 
@@ -84,7 +83,7 @@ static int init_castillo_katz() {
   }
 
   // Load the data
-  if ((error = gmcmc_dataset_create_matlab_ion(&data, "../data/ION_dCK_0,5s.mat")) != 0) {
+  if ((error = gmcmc_ion_dataset_load_matlab(&data, "../data/ION_dCK_0,5s.mat")) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -93,12 +92,12 @@ static int init_castillo_katz() {
   }
 
   // Create the model
-  if ((error = gmcmc_model_create(&model, num_params, priors, gmcmc_ion_proposal_mh, gmcmc_ion_likelihood_mh)) != 0) {
+  if ((error = gmcmc_model_create(&model, num_params, priors)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
-    gmcmc_dataset_destroy(data);
+    gmcmc_ion_dataset_destroy(data);
     GMCMC_ERROR("Unable to create model", error);
   }
 
@@ -111,7 +110,7 @@ static int init_castillo_katz() {
   double params[] = { 2.0, 2.0, 3.0, 3.0 };
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     // Clean up
-    gmcmc_dataset_destroy(data);
+    gmcmc_ion_dataset_destroy(data);
     gmcmc_model_destroy(model);
     GMCMC_ERROR("Unable to set initial parameter values", error);
   }
@@ -125,7 +124,7 @@ static int init_castillo_katz() {
   gmcmc_ion_model * ion_model;
   if ((error = gmcmc_ion_model_create(&ion_model, 2, 1, castillo_katz)) != 0) {
     // Clean up
-    gmcmc_dataset_destroy(data);
+    gmcmc_ion_dataset_destroy(data);
     gmcmc_model_destroy(model);
     GMCMC_ERROR("Unable to create Ion Channel specific model", error);
   }

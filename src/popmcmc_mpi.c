@@ -11,9 +11,10 @@ static int gmcmc_chain_mpi_recv(gmcmc_chain **, int, int, MPI_Comm);
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
-                      const gmcmc_model * model, const gmcmc_dataset * data,
-                      const gmcmc_prng64 * rng) {
+int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
+                      gmcmc_likelihood_function likelihood,
+                      gmcmc_proposal_function proposal,
+                      const gmcmc_popmcmc_options * options, const gmcmc_prng64 * rng) {
   int error;
 
   // Get the total number of processes and the rank of this one
@@ -36,7 +37,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
 
   // Initialise only the chains needed on each node
   for (size_t j = rank; j < num_chains; j += size) {
-    if ((error = gmcmc_chain_create(&chains[j], model, data, options->temperatures[j], rng)) != 0) {
+    if ((error = gmcmc_chain_create(&chains[j], model, data, options->temperatures[j], likelihood, rng)) != 0) {
       // Destroy any chains already created
       for (size_t k = rank; k < j; k += size)
         gmcmc_chain_destroy(chains[k]);
@@ -49,7 +50,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
   for (size_t i = 0; i < options->num_burn_in_samples; i++) {
     // Update each chain in the population in parallel
     for (size_t j = rank; j < num_chains; j += size) {
-      if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
+      if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
         for (size_t k = 0; k < num_chains; k++)
           gmcmc_chain_destroy(chains[k]);
         free(chains);
@@ -178,7 +179,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options * options,
   for (size_t i = 0; i < options->num_posterior_samples; i++) {
     // Update each chain in the population in parallel
     for (size_t j = rank; j < num_chains; j += size) {
-      if ((error = gmcmc_chain_update(chains[j], model, data, rng)) != 0) {
+      if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
         for (size_t k = 0; k < num_chains; k++)
           gmcmc_chain_destroy(chains[k]);
         free(chains);

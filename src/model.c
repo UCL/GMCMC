@@ -10,8 +10,6 @@
 struct gmcmc_model {
   double * params;                      /**< Initial parameter values (may be NULL) */
   gmcmc_distribution ** priors;         /**< A prior distribution for each parameter */
-  gmcmc_proposal_function proposal;     /**< Proposal function */
-  gmcmc_likelihood_function likelihood; /**< Likelihood function */
   size_t n;                             /**< Number of parameters in model */
   double stepsize;                      /**< Parameter stepsize (default 0.05) */
   double lower_stepsize, upper_stepsize;/**< Lower and upper bounds for adapting stepsize */
@@ -24,14 +22,11 @@ struct gmcmc_model {
  * @param [out] model       the model to create
  * @param [in]  n           the number of parameters in the model
  * @param [in]  priors      an array of prior distributions for each parameter
- * @param [in]  proposal    a function to calculate the proposal mean and variance
- * @param [in]  likelihood  a function to calculate the likelihood
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to create a new model.
  */
-int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** priors,
-                       gmcmc_proposal_function proposal, gmcmc_likelihood_function likelihood) {
+int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** priors) {
   // Allocate memory for the model
   if ((*model = malloc(sizeof(gmcmc_model))) == NULL)
     GMCMC_ERROR("Unable to allocate model", GMCMC_ENOMEM);
@@ -56,8 +51,6 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
 
   // Copy the rest of the parameters and set default values
   (*model)->params = NULL;
-  (*model)->proposal = proposal;
-  (*model)->likelihood = likelihood;
   (*model)->n = n;
   (*model)->stepsize = 0.05;
   (*model)->lower_stepsize = 0.0;
@@ -136,50 +129,6 @@ const gmcmc_distribution * gmcmc_model_get_prior(const gmcmc_model * model, size
   if (i > model->n)
     GMCMC_ERROR_VAL("Prior index is out of range", GMCMC_EINVAL, NULL);
   return model->priors[i];
-}
-
-/**
- * Calculates the proposal mean vector and covariance matrix based on the
- * likelihood.
- *
- * @param [in]  model        the model
- * @param [in]  params       parameter vector
- * @param [in]  likelihood   likelihood value
- * @param [in]  temperature  chain temperature
- * @param [in]  stepsize     parameter step size
- * @param [in]  serdata      serialised data output from the likelihood function
- * @param [out] mean         mean vector
- * @param [out] covariance   covariance matrix
- * @param [in]  ldc          leading dimension of the covariance matrix
- *
- * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
- */
-int gmcmc_proposal(const gmcmc_model * model, const double * params,
-                   double likelihood, double temperature, double stepsize, const void * serdata,
-                   double * mean, double * covariance, size_t ldc) {
-  return model->proposal(gmcmc_model_get_num_params(model), params, likelihood,
-                         temperature, stepsize, serdata, mean, covariance, ldc);
-}
-
-/**
- * Calculates the likelihood of the data given the model and parameters.
- *
- * @param [in]  data        the data
- * @param [in]  model       the model to evaluate
- * @param [in]  params      the current parameter values to evaluate the model
- * @param [out] likelihood  the log likelihood
- * @param [out] serdata     serialised data to be passed to the proposal function
- * @param [out] size        size of serialised data object, in bytes
- *
- * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
- */
-int gmcmc_likelihood(const gmcmc_dataset * data, const gmcmc_model * model, const double * params,
-                     double * log_likelihood, void ** serdata, size_t * size) {
-  return model->likelihood(data, model, params, log_likelihood, serdata, size);
 }
 
 /**

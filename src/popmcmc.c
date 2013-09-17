@@ -72,21 +72,17 @@ static inline double min(double a, double b) {
  *
  * @param [in]  model      the model
  * @param [in]  params     the current parameter values for the model
- * @param [in]  n          the number of parameter values
  * @param [out] log_prior  the log prior vector to populate (length n)
- *
- * @return GMCMC_SUCCESS on success,
- *         GMCMC_ERANGE if any of the prior PDFs returns a probability less than
- *                      zero.
  */
-static inline int gmcmc_prior(const gmcmc_model * model, const double * params,
-                       size_t n, double * log_prior) {
-  // Calculate the prior of each parameter
+static inline void gmcmc_prior(const gmcmc_model * model, const double * params,
+                               double * log_prior) {
+  // Get the number of parameters from the model
+  const size_t n = gmcmc_model_get_num_params(model);
+  // Calculate the log prior of each parameter
   for (size_t i = 0; i < n; i++) {
     const gmcmc_distribution * prior = gmcmc_model_get_prior(model, i);
     log_prior[i] = gmcmc_distribution_log_pdf(prior, params[i]);
   }
-  return 0;
 }
 
 /**
@@ -102,12 +98,14 @@ static inline int gmcmc_prior(const gmcmc_model * model, const double * params,
  *         GMCMC_ENOMEM if there is not enough memory to create a new chain
  */
 static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * model,
-                                     const gmcmc_dataset * data, double temperature,
+                                     const void * data, double temperature,
+                                     gmcmc_likelihood_function likelihood,
                                      const gmcmc_prng64 * rng) {
+  // Allocate memory for chain structure
   if ((*chain = malloc(sizeof(gmcmc_chain))) == NULL)
     GMCMC_ERROR("Unable to allocate memory for chain", GMCMC_ENOMEM);
 
-  // Allocate memory for chain parameters and log prior
+  // Allocate memory for chain parameter and log prior vectors
   const size_t num_params = gmcmc_model_get_num_params(model);
   if (((*chain)->params = malloc(num_params * sizeof(double))) == NULL) {
     free(*chain);
@@ -150,20 +148,27 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
   (*chain)->attempted_exchange = 0;
   (*chain)->accepted_exchange = 0;
 
-  // Evaluate model at initial parameters to get log prior and likelihood
-  // p(M,\theta,...)
   int error;
-  if ((error = gmcmc_prior(model, (*chain)->params, num_params,
-                           (*chain)->log_prior)) != 0) {
+
+  // Evaluate model at initial parameters to get log prior and likelihood
+
+  // prior = p(M,\theta,...)
+  gmcmc_prior(model, (*chain)->params, (*chain)->log_prior);
+  double sum_log_prior = sum(num_params, (*chain)->log_prior);
+  if (isinf(sum_log_prior)) {
+    // If the log prior cannot be evaluated it means that the initial parameter
+    // values are incorrect (or that there is a malformed prior distribution
+    // generating values outwith its range).
     free((*chain)->params);
     free((*chain)->log_prior);
     free(*chain);
-    GMCMC_ERROR("Error evaluating prior", error);
+    GMCMC_ERROR("Error evaluating log prior for initial parameter values", GMCMC_EINVAL);
   }
-  // p(D|M,\theta,...)
-  if ((error = gmcmc_likelihood(data, model, (*chain)->params,
-                                &(*chain)->log_likelihood,
-                                &(*chain)->chainspecific, &(*chain)->size)) != 0) {
+
+  // likelihood = p(D|M,\theta,...)
+  if ((error = likelihood(data, model, (*chain)->params,
+                          &(*chain)->log_likelihood,
+                          &(*chain)->chainspecific, &(*chain)->size)) != 0) {
     free((*chain)->params);
     free((*chain)->log_prior);
     free(*chain);
@@ -185,18 +190,13 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
 
     // Evaluate model at initial parameters to get log prior and likelihood
     // p(M,\theta,...)
-    int error;
-    if ((error = gmcmc_prior(model, (*chain)->params, num_params,
-                            (*chain)->log_prior)) != 0) {
-      free((*chain)->params);
-      free((*chain)->log_prior);
-      free(*chain);
-      GMCMC_ERROR("Error evaluating prior", error);
-    }
+    gmcmc_prior(model, (*chain)->params, (*chain)->log_prior);
+
     // p(D|M,\theta,...)
-    if ((error = gmcmc_likelihood(data, model, (*chain)->params,
-                                  &(*chain)->log_likelihood,
-                                  &(*chain)->chainspecific, &(*chain)->size)) != 0) {
+    int error;
+    if ((error = likelihood(data, model, (*chain)->params,
+                            &(*chain)->log_likelihood,
+                            &(*chain)->chainspecific, &(*chain)->size)) != 0) {
       free((*chain)->params);
       free((*chain)->log_prior);
       free(*chain);
@@ -225,15 +225,18 @@ static inline void gmcmc_chain_destroy(gmcmc_chain * chain) {
 /**
  * Performs an MCMC update of the parameter values in a Markov chain.
  *
- * @param [in,out] chain  the chain to update
- * @param [in]     model  the model
- * @param [in]     data   the dataset
- * @param [in]     rng    the random number generator
+ * @param [in,out] chain       chain to update
+ * @param [in]     model       the model
+ * @param [in]     data        the dataset
+ * @param [in]     likelihood  likelihood function
+ * @param [in]     proposal    proposal function
+ * @param [in]     rng         random number generator
  *
  * @return 0 on success
  */
-static int gmcmc_chain_update(gmcmc_chain *, const gmcmc_model *,
-                              const gmcmc_dataset *, const gmcmc_prng64 *);
+static int gmcmc_chain_update(gmcmc_chain *, const gmcmc_model *, const void *,
+                              gmcmc_likelihood_function, gmcmc_proposal_function,
+                              const gmcmc_prng64 *);
 
 /**
  * Exchanges parameter values and corresponding log prior and log likelihood
@@ -249,22 +252,23 @@ static int gmcmc_chain_update(gmcmc_chain *, const gmcmc_model *,
  */
 static int gmcmc_chain_exchange(gmcmc_chain **, size_t, const gmcmc_prng64 *);
 
-#include "popmcmc_seq.c"
-#include "popmcmc_omp.c"
 #include "popmcmc_mpi.c"
 
 /**
  * MCMC update of parameter values.
  *
- * @param [in,out] chain  the chain
- * @param [in]     model  the model
- * @param [in]     data   the dataset
- * @param [in]     rng    the random number generator to use
+ * @param [in,out] chain       chain to update
+ * @param [in]     model       the model
+ * @param [in]     data        the dataset
+ * @param [in]     likelihood  likelihood function
+ * @param [in]     proposal    proposal function
+ * @param [in]     rng         random number generator
  *
  * @return 0 on success
  */
 static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
-                              const gmcmc_dataset * data, const gmcmc_prng64 * rng) {
+                              const void * data, gmcmc_likelihood_function likelihood,
+                              gmcmc_proposal_function proposal, const gmcmc_prng64 * rng) {
 
   int error;
 
@@ -294,13 +298,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     }
 
     // Calculate the log prior
-    if ((error = gmcmc_prior(model, params, num_params, log_prior)) != 0)
-      GMCMC_ERROR("Error evaluating prior", error);
+    gmcmc_prior(model, params, log_prior);
 
     // Evaluate the model at new parameters to get LL, gradient, metric etc.
-    if ((error = gmcmc_likelihood(data, model, params,
-                                  &log_likelihood, &chainspecific,
-                                  &size)) != 0) {
+    if ((error = likelihood(data, model, params,
+                            &log_likelihood, &chainspecific, &size)) != 0) {
       free(params);
       free(log_prior);
       if (error < 0)    // fatal error
@@ -336,14 +338,16 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
     // Calculate the proposal mean and covariance based on the current
     // parameter values, likelihood and geometry
-    if ((error = gmcmc_proposal(model, chain->params, chain->log_likelihood,
-                                chain->temperature, chain->stepsize, chain->chainspecific,
-                                mean, covariance, ldc)) != 0) {
+    if ((error = proposal(num_params, chain->params, chain->log_likelihood,
+                          chain->temperature, chain->stepsize, chain->chainspecific,
+                          mean, covariance, ldc)) != 0) {
       free(params);
       free(log_prior);
       free(mean);
       free(covariance);
-      GMCMC_ERROR("Error calculating proposal mean and covariance", error);
+      if (error < 0)    // Fatal error
+        GMCMC_ERROR("Error calculating proposal mean and covariance from current parameters", error);
+      return 0;         // Non-fatal error (invalid parameters so reject)
     }
 
     // Propose new parameters
@@ -352,17 +356,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      GMCMC_ERROR("Error with proposal", error);
+      return 0; // Non-fatal error
     }
 
     // Evaluate prior of new sample
-    if ((error = gmcmc_prior(model, params, num_params, log_prior)) != 0) {
-      free(params);
-      free(log_prior);
-      free(mean);
-      free(covariance);
-      GMCMC_ERROR("Error evaluating prior", error);
-    }
+    gmcmc_prior(model, params, log_prior);
 
     // Calculate the sum of the log prior of the proposed parameters now.  If it
     // is -Inf then the proposed parameters lie outside the prior, the
@@ -395,8 +393,8 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     double p_old_given_new;    // p(x|x')
 
     // Evaluate the model at new parameters to get new likelihood and geometry
-    if ((error = gmcmc_likelihood(data, model, params,
-                                  &log_likelihood, &chainspecific, &size)) != 0) {
+    if ((error = likelihood(data, model, params,
+                            &log_likelihood, &chainspecific, &size)) != 0) {
       free(params);
       free(log_prior);
       free(mean);
@@ -408,15 +406,15 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
     // Calculate the mean and covariance based on the proposed parameter values,
     // likelihood and geometry
-    if ((error = gmcmc_proposal(model, params, log_likelihood, chain->temperature,
-                                chain->stepsize, chainspecific, mean,
-                                covariance, ldc)) != 0) {
+    if ((error = proposal(num_params, params, log_likelihood, chain->temperature,
+                          chain->stepsize, chainspecific, mean,
+                          covariance, ldc)) != 0) {
       free(params);
       free(log_prior);
       free(mean);
       free(covariance);
       if (error < 0)    // Fatal error
-        GMCMC_ERROR("Error calculating mean and covariance", error);
+        GMCMC_ERROR("Error calculating proposal mean and covariance from proposed parameters", error);
       return 0;         // Non-fatal error (invalid parameters so reject)
     }
 
