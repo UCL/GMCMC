@@ -1,6 +1,33 @@
+# Makefile symbolic link
 make.inc
+
+# Results
 results
-*.so
+
+# Object files
 *.o
+
+# Shared objects
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Sun Grid Engine output
 *.o[0-9]*
 *.po[0-9]*
+
+# Executables
+*.exe
+*.out
+*.app
+FitzHugh_Benchmark_MH
+FitzHugh_Benchmark_Simp_mMALA
+ION_dCK_PopMCMC
+ION_FiveState_PopMCMC
+ION_FiveState_Balanced_PopMCMC
+Locke_Benchmark_MH
+Locke_Benchmark_Simp_mMALA
+Vyshemirsky_2008_Model4_Benchmark_1_MH
+Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA
+Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA_trunc
