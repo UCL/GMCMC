@@ -148,8 +148,6 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
   (*chain)->attempted_exchange = 0;
   (*chain)->accepted_exchange = 0;
 
-  int error;
-
   // Evaluate model at initial parameters to get log prior and likelihood
 
   // prior = p(M,\theta,...)
@@ -166,49 +164,39 @@ static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * m
   }
 
   // likelihood = p(D|M,\theta,...)
+  int error;
   if ((error = likelihood(data, model, (*chain)->params,
                           &(*chain)->log_likelihood,
                           &(*chain)->chainspecific, &(*chain)->size)) != 0) {
+    // Attempt to evaluate the likelihood of the initial parameters 5 more times before
+    // giving up
+    int i = 0;
+    do {
+      // Free the invalid geometry
+      free((*chain)->chainspecific);
+
+      // Sample new values directly from the prior
+      for (size_t k = 0; k < num_params; k++) {
+        const gmcmc_distribution * prior = gmcmc_model_get_prior(model, k);
+        (*chain)->params[k] = gmcmc_distribution_sample(prior, rng);
+      }
+
+      // Evaluate model to get log prior and likelihood
+      // p(M,\theta,...)
+      gmcmc_prior(model, (*chain)->params, (*chain)->log_prior);
+
+      // p(D|M,\theta,...)
+      error = likelihood(data, model, (*chain)->params,
+                         &(*chain)->log_likelihood,
+                         &(*chain)->chainspecific, &(*chain)->size);
+    } while (error != 0 && ++i < 5);
+  }
+
+  if (error != 0) {
     free((*chain)->params);
     free((*chain)->log_prior);
     free(*chain);
-    GMCMC_ERROR("Error evaluating likelihood", error);
-  }
-
-  // If the log likelihood or sum of the log prior are negative infinity then
-  // attempt to resample initial values from the prior 5 times before quitting
-  for (int i = 0; (isinf((*chain)->log_likelihood) == -1 ||
-                   isinf(sum(num_params, (*chain)->log_prior)) == -1) && i < 5; i++) {
-    // Free the invalid geometry
-    free((*chain)->chainspecific);
-
-    // Sample new values directly from the prior
-    for (size_t k = 0; k < num_params; k++) {
-      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, k);
-      (*chain)->params[k] = gmcmc_distribution_sample(prior, rng);
-    }
-
-    // Evaluate model at initial parameters to get log prior and likelihood
-    // p(M,\theta,...)
-    gmcmc_prior(model, (*chain)->params, (*chain)->log_prior);
-
-    // p(D|M,\theta,...)
-    int error;
-    if ((error = likelihood(data, model, (*chain)->params,
-                            &(*chain)->log_likelihood,
-                            &(*chain)->chainspecific, &(*chain)->size)) != 0) {
-      free((*chain)->params);
-      free((*chain)->log_prior);
-      free(*chain);
-      GMCMC_ERROR("Error evaluating likelihood", error);
-    }
-  }
-
-  if (isinf((*chain)->log_likelihood) == -1 || isinf(sum(num_params, (*chain)->log_prior)) == -1) {
-    free((*chain)->params);
-    free((*chain)->log_prior);
-    free(*chain);
-    GMCMC_ERROR("Starting parameters are invalid after 5 iterations", GMCMC_EINVAL);
+    GMCMC_ERROR("Error evaluating likelihood for initial parameter values", GMCMC_EINVAL);
   }
 
   return 0;
@@ -305,7 +293,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
                             &log_likelihood, &chainspecific, &size)) != 0) {
       free(params);
       free(log_prior);
-      if (error < 0)    // fatal error
+      if (error > 0)    // fatal error
         GMCMC_ERROR("Error evaluating likelihood", error);
       return 0;         // non-fatal error (reject sample)
     }
@@ -345,9 +333,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      if (error < 0)    // Fatal error
+      if (error > 0)    // Fatal error
         GMCMC_ERROR("Error calculating proposal mean and covariance from current parameters", error);
-      return 0;         // Non-fatal error (invalid parameters so reject)
+      return 0;         // Non-fatal error (can't calculate proposal based on
+                        // current parameters/likelihood so try again later with
+                        // different stepsize)
     }
 
     // Propose new parameters
@@ -356,7 +346,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      return 0; // Non-fatal error
+      // returns GMCMC_ELINAL if covariance is non-positive-definite
+      if (error == GMCMC_ELINAL)
+        return 0; // Non-fatal error
+      // returns GMCMC_ENOMEM if out of memory
+      GMCMC_ERROR("Failed to sample new parameters", error);    // Fatal error
     }
 
     // Evaluate prior of new sample
@@ -364,13 +358,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
     // Calculate the sum of the log prior of the proposed parameters now.  If it
     // is -Inf then the proposed parameters lie outside the prior, the
-    // likelihood will evaluate to zero later on and the sample will be
-    // rejected.  This saves calculating the MVN log PDF for the current and
-    // proposed samples, proposal mean and covariance for the proposed
-    // samples and the likelihood of the proposed parameters.
+    // likelihood would evaluate to zero later on and the sample would be
+    // rejected.
     double sum_log_prior_params = sum(num_params, log_prior);
-    // If the sum of the log prior is zero reject the proposal now
-    if (isinf(sum_log_prior_params) == -1) {
+    // If the sum of the log prior is -Inf reject the proposal now
+    if (isinf(sum_log_prior_params) && signbit(sum_log_prior_params)) {
       free(params);
       free(log_prior);
       free(mean);
@@ -386,6 +378,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
+      // Have already checked that covariance is positive definite so anything else is an error
       GMCMC_ERROR("Error evaluating multivariate normal log pdf", error);
     }
 
@@ -399,7 +392,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      if (error < 0)    // Fatal error
+      if (error > 0)    // Fatal error
         GMCMC_ERROR("Error evaluating likelihood", error);
       return 0;         // Non-fatal error (invalid parameters so reject)
     }
@@ -413,7 +406,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      if (error < 0)    // Fatal error
+      if (error > 0)    // Fatal error
         GMCMC_ERROR("Error calculating proposal mean and covariance from proposed parameters", error);
       return 0;         // Non-fatal error (invalid parameters so reject)
     }
@@ -425,7 +418,11 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      GMCMC_ERROR("Error evaluating multivariate normal log pdf", error);
+      // returns GMCMC_ELINAL if covariance is non-positive-definite
+      if (error == GMCMC_ELINAL)
+        return 0; // Non-fatal error (reject parameters)
+      // returns GMCMC_ENOMEM if out of memory
+      GMCMC_ERROR("Failed to sample new parameters", error);    // Fatal error
     }
 
     // Accept or reject according to ratio
