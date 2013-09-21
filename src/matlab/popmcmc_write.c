@@ -1,12 +1,10 @@
-#include <gmcmc/gmcmc_matlab.h>
+#include <gmcmc/gmcmc_popmcmc.h>
+#include <gmcmc/gmcmc_errno.h>
 
 #include <string.h>
 #include <math.h>
 
-#include <gmcmc/gmcmc_errno.h>
-
 #include <mat.h>
-#include <matrix.h>
 
 static inline size_t min(size_t a, size_t b) { return (a < b) ? a : b; }
 static inline size_t max(size_t a, size_t b) { return (a > b) ? a : b; }

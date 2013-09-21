@@ -1,4 +1,4 @@
-#include <gmcmc/gmcmc_ion_model.h>
+#include <gmcmc/gmcmc_ion.h>
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,6 +6,7 @@
 #include <math.h>
 #include <cblas.h>
 #include <lapacke.h>
+
 
 // Forward declarations of utility functions
 static int calculate_specmat_eigenvectors(size_t, double *, size_t,
@@ -18,55 +19,11 @@ static int idealised_transition_probability(size_t, size_t, double,
 static double log_sum(size_t, double *);
 
 /**
- * Ion Channel model-specific data.
- *
- * In addition to data common to all models, ion channel models have a Q matrix
- * which details the transitions between open and closed states.
- */
-struct gmcmc_ion_model {
-  /**
-   * Number of closed and open states in the model.
-   */
-  unsigned int closed, open;
-
-  /**
-   * Function to update the Q matrix based on the current parameter values.
-   */
-  gmcmc_ion_calculate_Q_matrix calculate_Q_matrix;
-};
-
-/**
- * Ion Channel model proposal function using Metropolis-Hastings.
- */
-static int ion_proposal_mh(size_t n, const double * params, double likelihood,
-                           double temperature, double stepsize, const void * serdata,
-                           double * mean, double * covariance, size_t ldc) {
-  (void)likelihood;
-  (void)serdata;
-  (void)temperature;
-
-  // Proposal_Mean    = Chain.Paras(Chain.CurrentBlock);
-  memcpy(mean, params, n * sizeof(double));
-
-  // Proposal_Covariance = eye(Chain.CurrentBlockSize)*(Chain.StepSize(Chain.CurrentBlockNum)^2);
-  for (size_t j = 0; j < n; j++) {
-    for (size_t i = 0; i < j; i++)
-      covariance[j * ldc + i] = 0.0;
-    covariance[j * ldc + j] = stepsize * stepsize;
-    for (size_t i = j + 1; i < n; i++)
-      covariance[j * ldc + i] = 0.0;
-  }
-
-  return 0;
-}
-const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
-
-/**
  * Ion Channel model likelihood function using Metropolis-Hastings.
  * Calculates p(D|M,params) (i.e. likelihood of seeing the data D given the
  * model M and parameters params)
  *
- * @param [in]  dataset     the data
+ * @param [in]  dataset     the dataset
  * @param [in]  model       the model
  * @param [in]  params      the parameter vector
  * @param [out] likelihood  the likelihood object to create and populate
@@ -79,7 +36,7 @@ const gmcmc_proposal_function gmcmc_ion_proposal_mh = &ion_proposal_mh;
  *         GMCMC_ELINAL if there was an unrecoverable error in an external
  *                        linear algebra routine.
  */
-static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * model,
+static int ion_likelihood_mh(const void * dataset, const gmcmc_model * model,
                              const double * params,
                              double * likelihood, void ** serdata, size_t * size) {
   (void)serdata;
@@ -93,7 +50,12 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
   // Get the model specific data
   const gmcmc_ion_model * ion_model = (const gmcmc_ion_model *)gmcmc_model_get_modelspecific(model);
-  const unsigned int num_states = ion_model->closed + ion_model->open;
+  const gmcmc_ion_dataset * ion_dataset = (const gmcmc_ion_dataset *)dataset;
+
+  // Get the number of open and closed states
+  const unsigned int num_closed = gmcmc_ion_model_get_num_closed_states(ion_model);
+  const unsigned int num_open = gmcmc_ion_model_get_num_open_states(ion_model);
+  const unsigned int num_states = num_closed + num_open;
 
   // Allocate the Q matrix
   double * Q;
@@ -102,7 +64,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     GMCMC_ERROR("Unable to allocate Q matrix", GMCMC_ENOMEM);
 
   // Calculate the Q matrix
-  ion_model->calculate_Q_matrix(params, Q, ldq);
+  gmcmc_ion_model_calculate_Q_matrix(ion_model, params, Q, ldq);
 
 
   /*
@@ -160,19 +122,19 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
   // Split up the Q matrix into its component matrices
   double * Q_FF = Q;
-  double * Q_FA = &Q[ion_model->closed * ldq];
-  double * Q_AF = &Q[ion_model->closed];
-  double * Q_AA = &Q[ion_model->closed * ldq + ion_model->closed];
+  double * Q_FA = &Q[num_closed * ldq];
+  double * Q_AF = &Q[num_closed];
+  double * Q_AA = &Q[num_closed * ldq + num_closed];
   double * eq_statesf = eq_states;
-  double * eq_statesa = &eq_states[ion_model->closed];
+  double * eq_statesa = &eq_states[num_closed];
 
 
   // Calculate spectral matrices and eigenvectors of current Q_FF
 
   double * Vqff = NULL, * SpecMatqff = NULL;
-  size_t ldsqff = (ion_model->closed + 1u) & ~1u;
-  if ((Vqff = malloc(ion_model->closed * sizeof(double))) == NULL ||
-      (SpecMatqff = malloc(ion_model->closed * ion_model->closed * ldsqff * sizeof(double))) == NULL) {
+  size_t ldsqff = (num_closed + 1u) & ~1u;
+  if ((Vqff = malloc(num_closed * sizeof(double))) == NULL ||
+      (SpecMatqff = malloc(num_closed * num_closed * ldsqff * sizeof(double))) == NULL) {
     free(Vqff);
     free(SpecMatqff);
     free(eq_states);
@@ -180,7 +142,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     GMCMC_ERROR("Unable to allocate eigenvalues and spectral matrices of Q_FF", GMCMC_ENOMEM);
   }
 
-  if ((error = calculate_specmat_eigenvectors(ion_model->closed, Q_FF, ldq, Vqff, SpecMatqff, ldsqff)) != 0) {
+  if ((error = calculate_specmat_eigenvectors(num_closed, Q_FF, ldq, Vqff, SpecMatqff, ldsqff)) != 0) {
     free(Vqff);
     free(eq_states);
     free(Q);
@@ -190,9 +152,9 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
   // Calculate spectral matrices and eigenvectors of current Q_AA
 
   double * Vqaa = NULL, * SpecMatqaa = NULL;
-  size_t ldsqaa = (ion_model->open + 1u) & ~1u;
-  if ((Vqaa = malloc(ion_model->open * sizeof(double))) == NULL ||
-      (SpecMatqaa = malloc(ion_model->open * ion_model->open * ldsqaa * sizeof(double))) == NULL) {
+  size_t ldsqaa = (num_open + 1u) & ~1u;
+  if ((Vqaa = malloc(num_open * sizeof(double))) == NULL ||
+      (SpecMatqaa = malloc(num_open * num_open * ldsqaa * sizeof(double))) == NULL) {
     free(Vqaa);
     free(SpecMatqaa);
     free(Vqff);
@@ -202,7 +164,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     GMCMC_ERROR("Unable to allocate eigenvalues of Q_AA", GMCMC_ENOMEM);
   }
 
-  if ((error = calculate_specmat_eigenvectors(ion_model->open, Q_AA, ldq, Vqaa, SpecMatqaa, ldsqaa)) != 0) {
+  if ((error = calculate_specmat_eigenvectors(num_open, Q_AA, ldq, Vqaa, SpecMatqaa, ldsqaa)) != 0) {
     free(Vqaa);
     free(SpecMatqaa);
     free(Vqff);
@@ -212,15 +174,13 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
     GMCMC_ERROR("Failed to calculate spectral matrices and eigenvectors of Q_AA", error);
   }
 
-  const double * timepoints = gmcmc_dataset_get_timepoints(dataset);
-  const double * data = gmcmc_dataset_get_data(dataset, 0);
-
 
   // Calculate initial vectors for current state
   double * ll;
+  const double * data = gmcmc_ion_dataset_data(ion_dataset);
   if (data[0] == 0.0) {     // If starts with a closed state
     // Equilibrium closed states
-    if ((ll = malloc(ion_model->closed * sizeof(double))) == NULL) {
+    if ((ll = malloc(num_closed * sizeof(double))) == NULL) {
       free(Vqaa);
       free(SpecMatqaa);
       free(Vqff);
@@ -230,12 +190,12 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
       GMCMC_ERROR("Unable to allocate log likelihood", GMCMC_ENOMEM);
     }
     // Calculate in log space
-    for (size_t i = 0; i < ion_model->closed; i++)
+    for (size_t i = 0; i < num_closed; i++)
       ll[i] = log(eq_statesf[i]);
   }
   else {
     // Equilibrium open states
-    if ((ll = malloc(ion_model->open * sizeof(double))) == NULL) {
+    if ((ll = malloc(num_open * sizeof(double))) == NULL) {
       free(Vqaa);
       free(SpecMatqaa);
       free(Vqff);
@@ -245,7 +205,7 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
       GMCMC_ERROR("Unable to allocate log likelihood", GMCMC_ENOMEM);
     }
     // Calculate in log space
-    for (size_t i = 0; i < ion_model->open; i++)
+    for (size_t i = 0; i < num_open; i++)
       ll[i] = log(eq_statesa[i]);
   }
 
@@ -254,7 +214,8 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
 
   // Do in a slow loop to begin with
-  size_t num_timepoints = gmcmc_dataset_get_num_timepoints(dataset) - 1;
+  size_t num_timepoints = gmcmc_ion_dataset_num_timepoints(ion_dataset) - 1;
+  const double * timepoints = gmcmc_ion_dataset_timepoints(ion_dataset);
   for (size_t i = 0; i < num_timepoints; i++) {
 
     // Get time interval to next move
@@ -262,10 +223,12 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
     // In closed state, moving to open state
     if (data[i] == 0.0)
-      error = idealised_transition_probability(ion_model->closed, ion_model->open, sojourn, Vqff, Q_FA, ldq, SpecMatqff, ldsqff, ll);
+      error = idealised_transition_probability(num_closed, num_open, sojourn,
+                                               Vqff, Q_FA, ldq, SpecMatqff, ldsqff, ll);
     // In open state, moving to closed state
     else
-      error = idealised_transition_probability(ion_model->open, ion_model->closed, sojourn, Vqaa, Q_AF, ldq, SpecMatqaa, ldsqaa, ll);
+      error = idealised_transition_probability(num_open, num_closed, sojourn,
+                                               Vqaa, Q_AF, ldq, SpecMatqaa, ldsqaa, ll);
 
     if (error != 0) {
       free(Q);
@@ -290,92 +253,15 @@ static int ion_likelihood_mh(const gmcmc_dataset * dataset, const gmcmc_model * 
 
   // Sum the log-likelihood terms
   if (data[num_timepoints] == 0.0)
-    *likelihood = log_sum(ion_model->closed, ll);
+    *likelihood = log_sum(num_closed, ll);
   else
-    *likelihood = log_sum(ion_model->open, ll);
+    *likelihood = log_sum(num_open, ll);
 
   free(ll);
 
   return error;
 }
 const gmcmc_likelihood_function gmcmc_ion_likelihood_mh = &ion_likelihood_mh;
-
-/**
- * Creates an Ion Channel model-specific data object.
- *
- * @param [out] ion_model           the Ion Channel model
- * @param [in]  closed              the number of closed states in the model
- * @param [in]  open                the number of open states in the model
- * @param [in]  calculate_Q_matrix  a function to calculate the Q matrix based
- *                                    on the current parameter values.  The
- *                                    closed states are presumed to be stored in
- *                                    the top-left of the matrix and the open
- *                                    states in the bottom-right
- *
- * @return 0 on success,
- *         GMCMC_EINVAL if calculate_Q_matrix is NULL, or
- *         GMCMC_ENOMEM if there is not enough memory to create the data object.
- */
-int gmcmc_ion_model_create(gmcmc_ion_model ** ion_model,
-                           unsigned int closed, unsigned int open,
-                           void (*calculate_Q_matrix)(const double *, double *, size_t)) {
-  if (calculate_Q_matrix == NULL)
-    GMCMC_ERROR("calculate_Q_matrix is NULL", GMCMC_EINVAL);
-
-  if ((*ion_model = malloc(sizeof(gmcmc_ion_model))) == NULL)
-    GMCMC_ERROR("Unable to allocate Ion Channel model", GMCMC_ENOMEM);
-
-  (*ion_model)->closed = closed;
-  (*ion_model)->open = open;
-  (*ion_model)->calculate_Q_matrix = calculate_Q_matrix;
-
-  return 0;
-}
-
-/**
- * Destroys the Ion Channel model-specific data.
- *
- * @param [in] ion_model  the Ion Channel model-specific data object to destroy
- */
-void gmcmc_ion_model_destroy(gmcmc_ion_model * ion_model) {
-  free(ion_model);
-}
-
-/**
- * Gets the number of closed states in the model.
- *
- * @param [in] ion_model  the ion channel model
- *
- * @return the number of closed states in the model.
- */
-unsigned int gmcmc_ion_model_get_num_closed_states(const gmcmc_ion_model * ion_model) {
-  return ion_model->closed;
-}
-
-/**
- * Gets the number of open states in the model.
- *
- * @param [in] ion_model  the ion channel model
- *
- * @return the number of open states in the model.
- */
-unsigned int gmcmc_ion_model_get_num_open_states(const gmcmc_ion_model * ion_model) {
-  return ion_model->open;
-}
-
-/**
- * Calculates the Q matrix for an ion channel model.
- *
- * @param [in]  ion_model  the ion channel model
- * @param [in]  params     the parameter values to use to calculate the Q matrix
- * @param [out] Q          the Q matrix
- * @param [in]  ldq        leading dimension of the Q matrix
- */
-void gmcmc_ion_model_calculate_Q_matrix(const gmcmc_ion_model * ion_model,
-                                        const double * params, double * Q,
-                                        size_t ldq) {
-  ion_model->calculate_Q_matrix(params, Q, ldq);
-}
 
 /**
  * Calculates the spectral matrices and eigenvectors of closed or open states.
@@ -388,11 +274,15 @@ void gmcmc_ion_model_calculate_Q_matrix(const gmcmc_ion_model * ion_model,
  * @param [out] S    an array of spectral matrices to populate (n * n * lds)
  * @param [in]  lds  the leading dimension of S
  *
- * @return 0 on success,
+ * @return = 0 on success,
+ *         > 0 if a fatal error occurred,
+ *         < 0 if a recoverable error occurred.
+ *         The absolute of the return value will be
  *         GMCMC_ENOMEM if there is not enough memory available to allocate
- *                      temporary matrices,
+ *                        temporary matrices,
+ *         GMCMC_EINVAL if an invalid argument was passed to a LAPACK function,
  *         GMCMC_ELINAL if there was an error calculating the eigenvectors or
- *                      inverse.
+ *                        inverse.
  */
 static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
                                           double * v, double * S, size_t lds) {
@@ -413,7 +303,10 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
   if (info != 0) {
     free(X);
     free(Y);
-    GMCMC_ERROR("Unable to calculate eigenvalues", GMCMC_ELINAL);
+    if (info < 0)
+      GMCMC_ERROR("Invalid argument passed to LAPACK function", GMCMC_EINVAL);
+    else
+      GMCMC_WARNING("Unable to calculate eigenvalues of current Q matrix", GMCMC_ELINAL);
   }
 
   // Y = inv(X);
@@ -431,7 +324,10 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
     free(ipiv);
     free(X);
     free(Y);
-    GMCMC_ERROR("Matrix is singular to working precision", GMCMC_ELINAL);
+    if (info < 0)
+      GMCMC_ERROR("Invalid argument passed to LAPACK function", GMCMC_EINVAL);
+    else
+      GMCMC_WARNING("Matrix is singular to working precision", GMCMC_ELINAL);
   }
   free(ipiv);
 
@@ -467,8 +363,7 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
  * @param [in,out] ll       the log likelihood (length m)
  *
  * @return 0 on success,
- *         GMCMC_ENOMEM if there is not enought memory to allocate temporary matrices,
- *         GMCMC_ELINAL if there was an error in a linear algebra library routine
+ *         GMCMC_ENOMEM if there is not enought memory to allocate temporary matrices.
  */
 static int idealised_transition_probability(size_t m, size_t n,
                                             double sojourn, const double * v,

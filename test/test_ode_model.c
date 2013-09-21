@@ -2,9 +2,8 @@
 #include <CUnit/Basic.h>
 
 #include <gmcmc/gmcmc_errno.h>
-#include <gmcmc/gmcmc_ode_model.h>
-
-#include <gmcmc/gmcmc_matlab.h>
+#include <gmcmc/gmcmc_ode.h>
+#include <gmcmc/gmcmc_proposal.h>
 
 #include <stdlib.h>
 
@@ -23,14 +22,14 @@
     ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
     ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
 
-static gmcmc_dataset * data;
+static gmcmc_ode_dataset * data;
 static gmcmc_model * model;
 
 static int cleanup() {
   gmcmc_ode_model * ode_model = (gmcmc_ode_model *)gmcmc_model_get_modelspecific(model);
   gmcmc_ode_model_destroy(ode_model);
   gmcmc_model_destroy(model);
-  gmcmc_dataset_destroy(data);
+  gmcmc_ode_dataset_destroy(data);
   return 0;
 }
 
@@ -64,13 +63,13 @@ static int init_fitzhugh_mh() {
   int error;
 
   // Load the dataset
-  if ((error = gmcmc_dataset_create_matlab_ode(&data, "../data/FitzHugh_Benchmark_Data.mat")) != 0)
+  if ((error = gmcmc_ode_dataset_load_matlab(&data, "../data/FitzHugh_Benchmark_Data.mat")) != 0)
     GMCMC_ERROR("Failed to create Fitz Hugh Nagumo dataset", error);
 
   // Create the priors for each of the parameters and initial conditions
   gmcmc_distribution ** priors;
   if ((priors = malloc(5 * sizeof(gmcmc_distribution *))) == NULL) {
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     GMCMC_ERROR("Failed to allocate priors", GMCMC_ENOMEM);
   }
 
@@ -80,7 +79,7 @@ static int init_fitzhugh_mh() {
       for (int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[j]);
       free(priors);
-      gmcmc_dataset_destroy(data);
+      gmcmc_ode_dataset_destroy(data);
       GMCMC_ERROR("Failed to create prior", error);
     }
   }
@@ -91,17 +90,17 @@ static int init_fitzhugh_mh() {
       for (int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[j]);
       free(priors);
-      gmcmc_dataset_destroy(data);
+      gmcmc_ode_dataset_destroy(data);
       GMCMC_ERROR("Failed to create prior", error);
     }
   }
 
   // Create the model
-  if ((error = gmcmc_model_create(&model, 5, priors, gmcmc_ode_proposal_mh, gmcmc_ode_likelihood_mh)) != 0) {
+  if ((error = gmcmc_model_create(&model, 5, priors)) != 0) {
     for (int j = 0; j < 5; j++)
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     GMCMC_ERROR("Failed to create Fitz Hugh Nagumo model", error);
   }
 
@@ -114,7 +113,7 @@ static int init_fitzhugh_mh() {
   double params[] = { 0.2, 0.2, 3.0, -1.0, 1.0 };
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     gmcmc_model_destroy(model);
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     GMCMC_ERROR("Failed to set initial parameters", error);
   }
 
@@ -124,7 +123,7 @@ static int init_fitzhugh_mh() {
   // Create ODE model specific stuff
   gmcmc_ode_model * ode_model;
   if ((error = gmcmc_ode_model_create(&ode_model, 2, 0, fitzhugh_rhs)) != 0) {
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     gmcmc_model_destroy(model);
     GMCMC_ERROR("Unable to create ODE specific model", error);
   }
@@ -140,13 +139,13 @@ static int init_fitzhugh_simp_mmala() {
   int error;
 
   // Load the dataset
-  if ((error = gmcmc_dataset_create_matlab_ode(&data, "../data/FitzHugh_Benchmark_Data.mat")) != 0)
+  if ((error = gmcmc_ode_dataset_load_matlab(&data, "../data/FitzHugh_Benchmark_Data.mat")) != 0)
     GMCMC_ERROR("Failed to create Fitz Hugh Nagumo dataset", error);
 
   // Create the priors for each of the parameters
   gmcmc_distribution ** priors;
   if ((priors = malloc(3 * sizeof(gmcmc_distribution *))) == NULL) {
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     GMCMC_ERROR("Failed to allocate priors", GMCMC_ENOMEM);
   }
 
@@ -156,17 +155,17 @@ static int init_fitzhugh_simp_mmala() {
       for (int j = 0; j < i; j++)
         gmcmc_distribution_destroy(priors[j]);
       free(priors);
-      gmcmc_dataset_destroy(data);
+      gmcmc_ode_dataset_destroy(data);
       GMCMC_ERROR("Failed to create prior", error);
     }
   }
 
   // Create the model
-  if ((error = gmcmc_model_create(&model, 3, priors, gmcmc_ode_proposal_simp_mmala, gmcmc_ode_likelihood_simp_mmala)) != 0) {
+  if ((error = gmcmc_model_create(&model, 3, priors)) != 0) {
     for (int j = 0; j < 3; j++)
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     GMCMC_ERROR("Failed to create Fitz Hugh Nagumo model", error);
   }
 
@@ -179,7 +178,7 @@ static int init_fitzhugh_simp_mmala() {
   double params[] = { 0.2, 0.2, 3.0 };
   if ((error = gmcmc_model_set_params(model, params)) != 0) {
     gmcmc_model_destroy(model);
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     GMCMC_ERROR("Failed to set initial parameters", error);
   }
 
@@ -189,7 +188,7 @@ static int init_fitzhugh_simp_mmala() {
   // Create ODE model specific stuff
   gmcmc_ode_model * ode_model;
   if ((error = gmcmc_ode_model_create(&ode_model, 2, 0, fitzhugh_rhs)) != 0) {
-    gmcmc_dataset_destroy(data);
+    gmcmc_ode_dataset_destroy(data);
     gmcmc_model_destroy(model);
     GMCMC_ERROR("Unable to create ODE specific model", error);
   }
@@ -198,8 +197,8 @@ static int init_fitzhugh_simp_mmala() {
 
   // Set initial conditions
   double ics[] = { -1.0, 1.0 };
-  if ((error = gmcmc_ode_model_set_initial_conditions(ode_model, ics)) != 0) {
-    gmcmc_dataset_destroy(data);
+  if ((error = gmcmc_ode_model_set_ics(ode_model, ics)) != 0) {
+    gmcmc_ode_dataset_destroy(data);
     gmcmc_model_destroy(model);
     gmcmc_ode_model_destroy(ode_model);
     GMCMC_ERROR("Unable to create ODE specific model", error);

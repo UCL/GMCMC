@@ -6,7 +6,7 @@ static void test_ode_likelihood_fitzhugh_mh1() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -24,7 +24,7 @@ static void test_ode_likelihood_fitzhugh_mh2() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -42,7 +42,7 @@ static void test_ode_likelihood_fitzhugh_mh3() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -60,7 +60,7 @@ static void test_ode_likelihood_fitzhugh_mh4() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -78,7 +78,7 @@ static void test_ode_likelihood_fitzhugh_mh5() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -96,7 +96,7 @@ static void test_ode_likelihood_fitzhugh_mh6() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -114,7 +114,7 @@ static void test_ode_likelihood_fitzhugh_mh7() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -132,7 +132,7 @@ static void test_ode_likelihood_fitzhugh_mh8() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -150,7 +150,7 @@ static void test_ode_likelihood_fitzhugh_mh9() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -168,7 +168,7 @@ static void test_ode_likelihood_fitzhugh_mh10() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -186,7 +186,7 @@ static void test_ode_likelihood_fitzhugh_mh11() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -208,7 +208,7 @@ static void test_ode_proposal_fitzhugh_mh11() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -257,7 +257,7 @@ static void test_ode_likelihood_fitzhugh_mh12() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -279,7 +279,7 @@ static void test_ode_proposal_fitzhugh_mh12() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -328,7 +328,7 @@ static void test_ode_likelihood_fitzhugh_mh13() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -350,7 +350,7 @@ static void test_ode_proposal_fitzhugh_mh13() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -399,7 +399,7 @@ static void test_ode_likelihood_fitzhugh_mh14() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -421,7 +421,7 @@ static void test_ode_proposal_fitzhugh_mh14() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -470,7 +470,7 @@ static void test_ode_likelihood_fitzhugh_mh15() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -492,7 +492,7 @@ static void test_ode_proposal_fitzhugh_mh15() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -541,7 +541,7 @@ static void test_ode_likelihood_fitzhugh_mh16() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -563,7 +563,7 @@ static void test_ode_proposal_fitzhugh_mh16() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -612,7 +612,7 @@ static void test_ode_likelihood_fitzhugh_mh17() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -634,7 +634,7 @@ static void test_ode_proposal_fitzhugh_mh17() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -683,7 +683,7 @@ static void test_ode_likelihood_fitzhugh_mh18() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -705,7 +705,7 @@ static void test_ode_proposal_fitzhugh_mh18() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -754,7 +754,7 @@ static void test_ode_likelihood_fitzhugh_mh19() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -776,7 +776,7 @@ static void test_ode_proposal_fitzhugh_mh19() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -825,7 +825,7 @@ static void test_ode_likelihood_fitzhugh_mh20() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -847,7 +847,7 @@ static void test_ode_proposal_fitzhugh_mh20() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -896,7 +896,7 @@ static void test_ode_likelihood_fitzhugh_mh21() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -918,7 +918,7 @@ static void test_ode_proposal_fitzhugh_mh21() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -967,7 +967,7 @@ static void test_ode_likelihood_fitzhugh_mh22() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -989,7 +989,7 @@ static void test_ode_proposal_fitzhugh_mh22() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1038,7 +1038,7 @@ static void test_ode_likelihood_fitzhugh_mh23() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1060,7 +1060,7 @@ static void test_ode_proposal_fitzhugh_mh23() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1109,7 +1109,7 @@ static void test_ode_likelihood_fitzhugh_mh24() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1131,7 +1131,7 @@ static void test_ode_proposal_fitzhugh_mh24() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1180,7 +1180,7 @@ static void test_ode_likelihood_fitzhugh_mh25() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1202,7 +1202,7 @@ static void test_ode_proposal_fitzhugh_mh25() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1251,7 +1251,7 @@ static void test_ode_likelihood_fitzhugh_mh26() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1273,7 +1273,7 @@ static void test_ode_proposal_fitzhugh_mh26() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1322,7 +1322,7 @@ static void test_ode_likelihood_fitzhugh_mh27() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1344,7 +1344,7 @@ static void test_ode_proposal_fitzhugh_mh27() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1393,7 +1393,7 @@ static void test_ode_likelihood_fitzhugh_mh28() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1415,7 +1415,7 @@ static void test_ode_proposal_fitzhugh_mh28() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1464,7 +1464,7 @@ static void test_ode_likelihood_fitzhugh_mh29() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1486,7 +1486,7 @@ static void test_ode_proposal_fitzhugh_mh29() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1535,7 +1535,7 @@ static void test_ode_likelihood_fitzhugh_mh30() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1557,7 +1557,7 @@ static void test_ode_proposal_fitzhugh_mh30() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1606,7 +1606,7 @@ static void test_ode_likelihood_fitzhugh_mh31() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1628,7 +1628,7 @@ static void test_ode_proposal_fitzhugh_mh31() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1677,7 +1677,7 @@ static void test_ode_likelihood_fitzhugh_mh32() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1699,7 +1699,7 @@ static void test_ode_proposal_fitzhugh_mh32() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1748,7 +1748,7 @@ static void test_ode_likelihood_fitzhugh_mh33() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1770,7 +1770,7 @@ static void test_ode_proposal_fitzhugh_mh33() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1819,7 +1819,7 @@ static void test_ode_likelihood_fitzhugh_mh34() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1841,7 +1841,7 @@ static void test_ode_proposal_fitzhugh_mh34() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1890,7 +1890,7 @@ static void test_ode_likelihood_fitzhugh_mh35() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1912,7 +1912,7 @@ static void test_ode_proposal_fitzhugh_mh35() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1961,7 +1961,7 @@ static void test_ode_likelihood_fitzhugh_mh36() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1983,7 +1983,7 @@ static void test_ode_proposal_fitzhugh_mh36() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2032,7 +2032,7 @@ static void test_ode_likelihood_fitzhugh_mh37() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2054,7 +2054,7 @@ static void test_ode_proposal_fitzhugh_mh37() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2103,7 +2103,7 @@ static void test_ode_likelihood_fitzhugh_mh38() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2125,7 +2125,7 @@ static void test_ode_proposal_fitzhugh_mh38() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2174,7 +2174,7 @@ static void test_ode_likelihood_fitzhugh_mh39() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2196,7 +2196,7 @@ static void test_ode_proposal_fitzhugh_mh39() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2245,7 +2245,7 @@ static void test_ode_likelihood_fitzhugh_mh40() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2267,7 +2267,7 @@ static void test_ode_proposal_fitzhugh_mh40() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2316,7 +2316,7 @@ static void test_ode_likelihood_fitzhugh_mh41() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2338,7 +2338,7 @@ static void test_ode_proposal_fitzhugh_mh41() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2387,7 +2387,7 @@ static void test_ode_likelihood_fitzhugh_mh42() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2409,7 +2409,7 @@ static void test_ode_proposal_fitzhugh_mh42() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2458,7 +2458,7 @@ static void test_ode_likelihood_fitzhugh_mh43() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2480,7 +2480,7 @@ static void test_ode_proposal_fitzhugh_mh43() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2529,7 +2529,7 @@ static void test_ode_likelihood_fitzhugh_mh44() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2551,7 +2551,7 @@ static void test_ode_proposal_fitzhugh_mh44() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2600,7 +2600,7 @@ static void test_ode_likelihood_fitzhugh_mh45() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2622,7 +2622,7 @@ static void test_ode_proposal_fitzhugh_mh45() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2671,7 +2671,7 @@ static void test_ode_likelihood_fitzhugh_mh46() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2693,7 +2693,7 @@ static void test_ode_proposal_fitzhugh_mh46() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2742,7 +2742,7 @@ static void test_ode_likelihood_fitzhugh_mh47() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2764,7 +2764,7 @@ static void test_ode_proposal_fitzhugh_mh47() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2813,7 +2813,7 @@ static void test_ode_likelihood_fitzhugh_mh48() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2835,7 +2835,7 @@ static void test_ode_proposal_fitzhugh_mh48() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2884,7 +2884,7 @@ static void test_ode_likelihood_fitzhugh_mh49() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2906,7 +2906,7 @@ static void test_ode_proposal_fitzhugh_mh49() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2955,7 +2955,7 @@ static void test_ode_likelihood_fitzhugh_mh50() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2977,7 +2977,7 @@ static void test_ode_proposal_fitzhugh_mh50() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3026,7 +3026,7 @@ static void test_ode_likelihood_fitzhugh_mh51() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3048,7 +3048,7 @@ static void test_ode_proposal_fitzhugh_mh51() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3097,7 +3097,7 @@ static void test_ode_likelihood_fitzhugh_mh52() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3119,7 +3119,7 @@ static void test_ode_proposal_fitzhugh_mh52() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3168,7 +3168,7 @@ static void test_ode_likelihood_fitzhugh_mh53() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3190,7 +3190,7 @@ static void test_ode_proposal_fitzhugh_mh53() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3239,7 +3239,7 @@ static void test_ode_likelihood_fitzhugh_mh54() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3261,7 +3261,7 @@ static void test_ode_proposal_fitzhugh_mh54() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3310,7 +3310,7 @@ static void test_ode_likelihood_fitzhugh_mh55() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3332,7 +3332,7 @@ static void test_ode_proposal_fitzhugh_mh55() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3381,7 +3381,7 @@ static void test_ode_likelihood_fitzhugh_mh56() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3403,7 +3403,7 @@ static void test_ode_proposal_fitzhugh_mh56() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3452,7 +3452,7 @@ static void test_ode_likelihood_fitzhugh_mh57() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3474,7 +3474,7 @@ static void test_ode_proposal_fitzhugh_mh57() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3523,7 +3523,7 @@ static void test_ode_likelihood_fitzhugh_mh58() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3545,7 +3545,7 @@ static void test_ode_proposal_fitzhugh_mh58() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3594,7 +3594,7 @@ static void test_ode_likelihood_fitzhugh_mh59() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3616,7 +3616,7 @@ static void test_ode_proposal_fitzhugh_mh59() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3665,7 +3665,7 @@ static void test_ode_likelihood_fitzhugh_mh60() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3687,7 +3687,7 @@ static void test_ode_proposal_fitzhugh_mh60() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3736,7 +3736,7 @@ static void test_ode_likelihood_fitzhugh_mh61() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3758,7 +3758,7 @@ static void test_ode_proposal_fitzhugh_mh61() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3807,7 +3807,7 @@ static void test_ode_likelihood_fitzhugh_mh62() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3829,7 +3829,7 @@ static void test_ode_proposal_fitzhugh_mh62() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3878,7 +3878,7 @@ static void test_ode_likelihood_fitzhugh_mh63() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3900,7 +3900,7 @@ static void test_ode_proposal_fitzhugh_mh63() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3949,7 +3949,7 @@ static void test_ode_likelihood_fitzhugh_mh64() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3971,7 +3971,7 @@ static void test_ode_proposal_fitzhugh_mh64() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4020,7 +4020,7 @@ static void test_ode_likelihood_fitzhugh_mh65() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4042,7 +4042,7 @@ static void test_ode_proposal_fitzhugh_mh65() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4091,7 +4091,7 @@ static void test_ode_likelihood_fitzhugh_mh66() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4113,7 +4113,7 @@ static void test_ode_proposal_fitzhugh_mh66() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4162,7 +4162,7 @@ static void test_ode_likelihood_fitzhugh_mh67() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4184,7 +4184,7 @@ static void test_ode_proposal_fitzhugh_mh67() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4233,7 +4233,7 @@ static void test_ode_likelihood_fitzhugh_mh68() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4255,7 +4255,7 @@ static void test_ode_proposal_fitzhugh_mh68() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4304,7 +4304,7 @@ static void test_ode_likelihood_fitzhugh_mh69() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4326,7 +4326,7 @@ static void test_ode_proposal_fitzhugh_mh69() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4375,7 +4375,7 @@ static void test_ode_likelihood_fitzhugh_mh70() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4397,7 +4397,7 @@ static void test_ode_proposal_fitzhugh_mh70() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4446,7 +4446,7 @@ static void test_ode_likelihood_fitzhugh_mh71() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4468,7 +4468,7 @@ static void test_ode_proposal_fitzhugh_mh71() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4517,7 +4517,7 @@ static void test_ode_likelihood_fitzhugh_mh72() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4539,7 +4539,7 @@ static void test_ode_proposal_fitzhugh_mh72() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4588,7 +4588,7 @@ static void test_ode_likelihood_fitzhugh_mh73() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4610,7 +4610,7 @@ static void test_ode_proposal_fitzhugh_mh73() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4659,7 +4659,7 @@ static void test_ode_likelihood_fitzhugh_mh74() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4681,7 +4681,7 @@ static void test_ode_proposal_fitzhugh_mh74() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4730,7 +4730,7 @@ static void test_ode_likelihood_fitzhugh_mh75() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4752,7 +4752,7 @@ static void test_ode_proposal_fitzhugh_mh75() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4801,7 +4801,7 @@ static void test_ode_likelihood_fitzhugh_mh76() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4823,7 +4823,7 @@ static void test_ode_proposal_fitzhugh_mh76() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4872,7 +4872,7 @@ static void test_ode_likelihood_fitzhugh_mh77() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4894,7 +4894,7 @@ static void test_ode_proposal_fitzhugh_mh77() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4943,7 +4943,7 @@ static void test_ode_likelihood_fitzhugh_mh78() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4965,7 +4965,7 @@ static void test_ode_proposal_fitzhugh_mh78() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5014,7 +5014,7 @@ static void test_ode_likelihood_fitzhugh_mh79() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5036,7 +5036,7 @@ static void test_ode_proposal_fitzhugh_mh79() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5085,7 +5085,7 @@ static void test_ode_likelihood_fitzhugh_mh80() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5107,7 +5107,7 @@ static void test_ode_proposal_fitzhugh_mh80() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5156,7 +5156,7 @@ static void test_ode_likelihood_fitzhugh_mh81() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5178,7 +5178,7 @@ static void test_ode_proposal_fitzhugh_mh81() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5227,7 +5227,7 @@ static void test_ode_likelihood_fitzhugh_mh82() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5249,7 +5249,7 @@ static void test_ode_proposal_fitzhugh_mh82() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5298,7 +5298,7 @@ static void test_ode_likelihood_fitzhugh_mh83() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5320,7 +5320,7 @@ static void test_ode_proposal_fitzhugh_mh83() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5369,7 +5369,7 @@ static void test_ode_likelihood_fitzhugh_mh84() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5391,7 +5391,7 @@ static void test_ode_proposal_fitzhugh_mh84() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5440,7 +5440,7 @@ static void test_ode_likelihood_fitzhugh_mh85() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5462,7 +5462,7 @@ static void test_ode_proposal_fitzhugh_mh85() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5511,7 +5511,7 @@ static void test_ode_likelihood_fitzhugh_mh86() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5533,7 +5533,7 @@ static void test_ode_proposal_fitzhugh_mh86() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5582,7 +5582,7 @@ static void test_ode_likelihood_fitzhugh_mh87() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5604,7 +5604,7 @@ static void test_ode_proposal_fitzhugh_mh87() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5653,7 +5653,7 @@ static void test_ode_likelihood_fitzhugh_mh88() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5675,7 +5675,7 @@ static void test_ode_proposal_fitzhugh_mh88() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5724,7 +5724,7 @@ static void test_ode_likelihood_fitzhugh_mh89() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5746,7 +5746,7 @@ static void test_ode_proposal_fitzhugh_mh89() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5795,7 +5795,7 @@ static void test_ode_likelihood_fitzhugh_mh90() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5817,7 +5817,7 @@ static void test_ode_proposal_fitzhugh_mh90() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5866,7 +5866,7 @@ static void test_ode_likelihood_fitzhugh_mh91() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5888,7 +5888,7 @@ static void test_ode_proposal_fitzhugh_mh91() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5937,7 +5937,7 @@ static void test_ode_likelihood_fitzhugh_mh92() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5959,7 +5959,7 @@ static void test_ode_proposal_fitzhugh_mh92() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6008,7 +6008,7 @@ static void test_ode_likelihood_fitzhugh_mh93() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6030,7 +6030,7 @@ static void test_ode_proposal_fitzhugh_mh93() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6079,7 +6079,7 @@ static void test_ode_likelihood_fitzhugh_mh94() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6101,7 +6101,7 @@ static void test_ode_proposal_fitzhugh_mh94() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6150,7 +6150,7 @@ static void test_ode_likelihood_fitzhugh_mh95() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6172,7 +6172,7 @@ static void test_ode_proposal_fitzhugh_mh95() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6221,7 +6221,7 @@ static void test_ode_likelihood_fitzhugh_mh96() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6243,7 +6243,7 @@ static void test_ode_proposal_fitzhugh_mh96() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6292,7 +6292,7 @@ static void test_ode_likelihood_fitzhugh_mh97() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6314,7 +6314,7 @@ static void test_ode_proposal_fitzhugh_mh97() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6363,7 +6363,7 @@ static void test_ode_likelihood_fitzhugh_mh98() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6385,7 +6385,7 @@ static void test_ode_proposal_fitzhugh_mh98() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6434,7 +6434,7 @@ static void test_ode_likelihood_fitzhugh_mh99() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6456,7 +6456,7 @@ static void test_ode_proposal_fitzhugh_mh99() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6505,7 +6505,7 @@ static void test_ode_likelihood_fitzhugh_mh100() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ode_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6527,7 +6527,7 @@ static void test_ode_proposal_fitzhugh_mh100() {
   double mean[5], covariance[ldc * 5];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(5, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);

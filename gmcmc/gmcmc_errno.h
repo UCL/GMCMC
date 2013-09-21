@@ -16,21 +16,16 @@
 /**
  * Geometric MCMC error codes.
  */
-/** Fatal errors (<0) */
 /** Out of memory. */
-#define GMCMC_ENOMEM -1
+#define GMCMC_ENOMEM 1
 /** Invalid argument passed to function. */
-#define GMCMC_EINVAL -2
+#define GMCMC_EINVAL 2
 /** Input/Output error. */
-#define GMCMC_EIO -3
+#define GMCMC_EIO 3
 /** IPC error. */
-#define GMCMC_EIPC -4
-/** Invalid value returned from mathematical function */
-#define GMCMC_ERANGE -5
-/** Non-fatal errors (>0)*/
-/** BLAS/LAPACK error (non positive-definite matrix, singular matrix, etc.
- *  caused by invalid parameter values) */
-#define GMCMC_ELINAL 1
+#define GMCMC_EIPC 4
+/** BLAS/LAPACK error (non positive-definite matrix, singular matrix, etc.) */
+#define GMCMC_ELINAL 5
 
 /**
  * Maps Geometric MCMC error codes to textual descriptions.
@@ -66,6 +61,17 @@ extern gmcmc_error_handler_t gmcmc_error_handler;
     if (gmcmc_error_handler != NULL) \
       gmcmc_error_handler(msg, errno, __func__, __FILE__, __LINE__); \
     return errno; \
+  } while (false)
+
+/**
+ * Calls the error handler with the specified message and the negative of the
+ * error code then returns the negative of the error code from the function.
+ */
+#define GMCMC_WARNING(msg, errno) \
+  do { \
+    if (gmcmc_error_handler != NULL) \
+      gmcmc_error_handler(msg, -(errno), __func__, __FILE__, __LINE__); \
+    return -(errno); \
   } while (false)
 
 /**

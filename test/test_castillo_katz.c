@@ -6,7 +6,7 @@ static void test_ode_likelihood_castillo_katz1() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -24,7 +24,7 @@ static void test_ode_likelihood_castillo_katz2() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -42,7 +42,7 @@ static void test_ode_likelihood_castillo_katz3() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -60,7 +60,7 @@ static void test_ode_likelihood_castillo_katz4() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -78,7 +78,7 @@ static void test_ode_likelihood_castillo_katz5() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -96,7 +96,7 @@ static void test_ode_likelihood_castillo_katz6() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -114,7 +114,7 @@ static void test_ode_likelihood_castillo_katz7() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -132,7 +132,7 @@ static void test_ode_likelihood_castillo_katz8() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -150,7 +150,7 @@ static void test_ode_likelihood_castillo_katz9() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -168,7 +168,7 @@ static void test_ode_likelihood_castillo_katz10() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -186,7 +186,7 @@ static void test_ode_likelihood_castillo_katz11() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -208,7 +208,7 @@ static void test_ode_proposal_castillo_katz11() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -247,7 +247,7 @@ static void test_ode_likelihood_castillo_katz12() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -269,7 +269,7 @@ static void test_ode_proposal_castillo_katz12() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -308,7 +308,7 @@ static void test_ode_likelihood_castillo_katz13() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -330,7 +330,7 @@ static void test_ode_proposal_castillo_katz13() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -369,7 +369,7 @@ static void test_ode_likelihood_castillo_katz14() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -391,7 +391,7 @@ static void test_ode_proposal_castillo_katz14() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -430,7 +430,7 @@ static void test_ode_likelihood_castillo_katz15() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -452,7 +452,7 @@ static void test_ode_proposal_castillo_katz15() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -491,7 +491,7 @@ static void test_ode_likelihood_castillo_katz16() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -513,7 +513,7 @@ static void test_ode_proposal_castillo_katz16() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -552,7 +552,7 @@ static void test_ode_likelihood_castillo_katz17() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -574,7 +574,7 @@ static void test_ode_proposal_castillo_katz17() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -613,7 +613,7 @@ static void test_ode_likelihood_castillo_katz18() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -635,7 +635,7 @@ static void test_ode_proposal_castillo_katz18() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -674,7 +674,7 @@ static void test_ode_likelihood_castillo_katz19() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -696,7 +696,7 @@ static void test_ode_proposal_castillo_katz19() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -735,7 +735,7 @@ static void test_ode_likelihood_castillo_katz20() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -757,7 +757,7 @@ static void test_ode_proposal_castillo_katz20() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -796,7 +796,7 @@ static void test_ode_likelihood_castillo_katz21() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -818,7 +818,7 @@ static void test_ode_proposal_castillo_katz21() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -857,7 +857,7 @@ static void test_ode_likelihood_castillo_katz22() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -879,7 +879,7 @@ static void test_ode_proposal_castillo_katz22() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -918,7 +918,7 @@ static void test_ode_likelihood_castillo_katz23() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -940,7 +940,7 @@ static void test_ode_proposal_castillo_katz23() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -979,7 +979,7 @@ static void test_ode_likelihood_castillo_katz24() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1001,7 +1001,7 @@ static void test_ode_proposal_castillo_katz24() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1040,7 +1040,7 @@ static void test_ode_likelihood_castillo_katz25() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1062,7 +1062,7 @@ static void test_ode_proposal_castillo_katz25() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1101,7 +1101,7 @@ static void test_ode_likelihood_castillo_katz26() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1123,7 +1123,7 @@ static void test_ode_proposal_castillo_katz26() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1162,7 +1162,7 @@ static void test_ode_likelihood_castillo_katz27() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1184,7 +1184,7 @@ static void test_ode_proposal_castillo_katz27() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1223,7 +1223,7 @@ static void test_ode_likelihood_castillo_katz28() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1245,7 +1245,7 @@ static void test_ode_proposal_castillo_katz28() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1284,7 +1284,7 @@ static void test_ode_likelihood_castillo_katz29() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1306,7 +1306,7 @@ static void test_ode_proposal_castillo_katz29() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1345,7 +1345,7 @@ static void test_ode_likelihood_castillo_katz30() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1367,7 +1367,7 @@ static void test_ode_proposal_castillo_katz30() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1406,7 +1406,7 @@ static void test_ode_likelihood_castillo_katz31() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1428,7 +1428,7 @@ static void test_ode_proposal_castillo_katz31() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1467,7 +1467,7 @@ static void test_ode_likelihood_castillo_katz32() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1489,7 +1489,7 @@ static void test_ode_proposal_castillo_katz32() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1528,7 +1528,7 @@ static void test_ode_likelihood_castillo_katz33() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1550,7 +1550,7 @@ static void test_ode_proposal_castillo_katz33() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1589,7 +1589,7 @@ static void test_ode_likelihood_castillo_katz34() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1611,7 +1611,7 @@ static void test_ode_proposal_castillo_katz34() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1650,7 +1650,7 @@ static void test_ode_likelihood_castillo_katz35() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1672,7 +1672,7 @@ static void test_ode_proposal_castillo_katz35() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1711,7 +1711,7 @@ static void test_ode_likelihood_castillo_katz36() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1733,7 +1733,7 @@ static void test_ode_proposal_castillo_katz36() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1772,7 +1772,7 @@ static void test_ode_likelihood_castillo_katz37() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1794,7 +1794,7 @@ static void test_ode_proposal_castillo_katz37() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1833,7 +1833,7 @@ static void test_ode_likelihood_castillo_katz38() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1855,7 +1855,7 @@ static void test_ode_proposal_castillo_katz38() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1894,7 +1894,7 @@ static void test_ode_likelihood_castillo_katz39() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1916,7 +1916,7 @@ static void test_ode_proposal_castillo_katz39() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1955,7 +1955,7 @@ static void test_ode_likelihood_castillo_katz40() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1977,7 +1977,7 @@ static void test_ode_proposal_castillo_katz40() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2016,7 +2016,7 @@ static void test_ode_likelihood_castillo_katz41() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2038,7 +2038,7 @@ static void test_ode_proposal_castillo_katz41() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2077,7 +2077,7 @@ static void test_ode_likelihood_castillo_katz42() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2099,7 +2099,7 @@ static void test_ode_proposal_castillo_katz42() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2138,7 +2138,7 @@ static void test_ode_likelihood_castillo_katz43() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2160,7 +2160,7 @@ static void test_ode_proposal_castillo_katz43() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2199,7 +2199,7 @@ static void test_ode_likelihood_castillo_katz44() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2221,7 +2221,7 @@ static void test_ode_proposal_castillo_katz44() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2260,7 +2260,7 @@ static void test_ode_likelihood_castillo_katz45() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2282,7 +2282,7 @@ static void test_ode_proposal_castillo_katz45() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2321,7 +2321,7 @@ static void test_ode_likelihood_castillo_katz46() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2343,7 +2343,7 @@ static void test_ode_proposal_castillo_katz46() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2382,7 +2382,7 @@ static void test_ode_likelihood_castillo_katz47() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2404,7 +2404,7 @@ static void test_ode_proposal_castillo_katz47() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2443,7 +2443,7 @@ static void test_ode_likelihood_castillo_katz48() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2465,7 +2465,7 @@ static void test_ode_proposal_castillo_katz48() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2504,7 +2504,7 @@ static void test_ode_likelihood_castillo_katz49() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2526,7 +2526,7 @@ static void test_ode_proposal_castillo_katz49() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2565,7 +2565,7 @@ static void test_ode_likelihood_castillo_katz50() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2587,7 +2587,7 @@ static void test_ode_proposal_castillo_katz50() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2626,7 +2626,7 @@ static void test_ode_likelihood_castillo_katz51() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2648,7 +2648,7 @@ static void test_ode_proposal_castillo_katz51() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2687,7 +2687,7 @@ static void test_ode_likelihood_castillo_katz52() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2709,7 +2709,7 @@ static void test_ode_proposal_castillo_katz52() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2748,7 +2748,7 @@ static void test_ode_likelihood_castillo_katz53() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2770,7 +2770,7 @@ static void test_ode_proposal_castillo_katz53() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2809,7 +2809,7 @@ static void test_ode_likelihood_castillo_katz54() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2831,7 +2831,7 @@ static void test_ode_proposal_castillo_katz54() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2870,7 +2870,7 @@ static void test_ode_likelihood_castillo_katz55() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2892,7 +2892,7 @@ static void test_ode_proposal_castillo_katz55() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2931,7 +2931,7 @@ static void test_ode_likelihood_castillo_katz56() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2953,7 +2953,7 @@ static void test_ode_proposal_castillo_katz56() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2992,7 +2992,7 @@ static void test_ode_likelihood_castillo_katz57() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3014,7 +3014,7 @@ static void test_ode_proposal_castillo_katz57() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3053,7 +3053,7 @@ static void test_ode_likelihood_castillo_katz58() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3075,7 +3075,7 @@ static void test_ode_proposal_castillo_katz58() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3114,7 +3114,7 @@ static void test_ode_likelihood_castillo_katz59() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3136,7 +3136,7 @@ static void test_ode_proposal_castillo_katz59() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3175,7 +3175,7 @@ static void test_ode_likelihood_castillo_katz60() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3197,7 +3197,7 @@ static void test_ode_proposal_castillo_katz60() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3236,7 +3236,7 @@ static void test_ode_likelihood_castillo_katz61() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3258,7 +3258,7 @@ static void test_ode_proposal_castillo_katz61() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3297,7 +3297,7 @@ static void test_ode_likelihood_castillo_katz62() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3319,7 +3319,7 @@ static void test_ode_proposal_castillo_katz62() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3358,7 +3358,7 @@ static void test_ode_likelihood_castillo_katz63() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3380,7 +3380,7 @@ static void test_ode_proposal_castillo_katz63() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3419,7 +3419,7 @@ static void test_ode_likelihood_castillo_katz64() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3441,7 +3441,7 @@ static void test_ode_proposal_castillo_katz64() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3480,7 +3480,7 @@ static void test_ode_likelihood_castillo_katz65() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3502,7 +3502,7 @@ static void test_ode_proposal_castillo_katz65() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3541,7 +3541,7 @@ static void test_ode_likelihood_castillo_katz66() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3563,7 +3563,7 @@ static void test_ode_proposal_castillo_katz66() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3602,7 +3602,7 @@ static void test_ode_likelihood_castillo_katz67() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3624,7 +3624,7 @@ static void test_ode_proposal_castillo_katz67() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3663,7 +3663,7 @@ static void test_ode_likelihood_castillo_katz68() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3685,7 +3685,7 @@ static void test_ode_proposal_castillo_katz68() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3724,7 +3724,7 @@ static void test_ode_likelihood_castillo_katz69() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3746,7 +3746,7 @@ static void test_ode_proposal_castillo_katz69() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3785,7 +3785,7 @@ static void test_ode_likelihood_castillo_katz70() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3807,7 +3807,7 @@ static void test_ode_proposal_castillo_katz70() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3846,7 +3846,7 @@ static void test_ode_likelihood_castillo_katz71() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3868,7 +3868,7 @@ static void test_ode_proposal_castillo_katz71() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3907,7 +3907,7 @@ static void test_ode_likelihood_castillo_katz72() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3929,7 +3929,7 @@ static void test_ode_proposal_castillo_katz72() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3968,7 +3968,7 @@ static void test_ode_likelihood_castillo_katz73() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3990,7 +3990,7 @@ static void test_ode_proposal_castillo_katz73() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4029,7 +4029,7 @@ static void test_ode_likelihood_castillo_katz74() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4051,7 +4051,7 @@ static void test_ode_proposal_castillo_katz74() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4090,7 +4090,7 @@ static void test_ode_likelihood_castillo_katz75() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4112,7 +4112,7 @@ static void test_ode_proposal_castillo_katz75() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4151,7 +4151,7 @@ static void test_ode_likelihood_castillo_katz76() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4173,7 +4173,7 @@ static void test_ode_proposal_castillo_katz76() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4212,7 +4212,7 @@ static void test_ode_likelihood_castillo_katz77() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4234,7 +4234,7 @@ static void test_ode_proposal_castillo_katz77() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4273,7 +4273,7 @@ static void test_ode_likelihood_castillo_katz78() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4295,7 +4295,7 @@ static void test_ode_proposal_castillo_katz78() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4334,7 +4334,7 @@ static void test_ode_likelihood_castillo_katz79() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4356,7 +4356,7 @@ static void test_ode_proposal_castillo_katz79() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4395,7 +4395,7 @@ static void test_ode_likelihood_castillo_katz80() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4417,7 +4417,7 @@ static void test_ode_proposal_castillo_katz80() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4456,7 +4456,7 @@ static void test_ode_likelihood_castillo_katz81() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4478,7 +4478,7 @@ static void test_ode_proposal_castillo_katz81() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4517,7 +4517,7 @@ static void test_ode_likelihood_castillo_katz82() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4539,7 +4539,7 @@ static void test_ode_proposal_castillo_katz82() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4578,7 +4578,7 @@ static void test_ode_likelihood_castillo_katz83() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4600,7 +4600,7 @@ static void test_ode_proposal_castillo_katz83() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4639,7 +4639,7 @@ static void test_ode_likelihood_castillo_katz84() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4661,7 +4661,7 @@ static void test_ode_proposal_castillo_katz84() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4700,7 +4700,7 @@ static void test_ode_likelihood_castillo_katz85() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4722,7 +4722,7 @@ static void test_ode_proposal_castillo_katz85() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4761,7 +4761,7 @@ static void test_ode_likelihood_castillo_katz86() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4783,7 +4783,7 @@ static void test_ode_proposal_castillo_katz86() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4822,7 +4822,7 @@ static void test_ode_likelihood_castillo_katz87() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4844,7 +4844,7 @@ static void test_ode_proposal_castillo_katz87() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4883,7 +4883,7 @@ static void test_ode_likelihood_castillo_katz88() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4905,7 +4905,7 @@ static void test_ode_proposal_castillo_katz88() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4944,7 +4944,7 @@ static void test_ode_likelihood_castillo_katz89() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4966,7 +4966,7 @@ static void test_ode_proposal_castillo_katz89() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5005,7 +5005,7 @@ static void test_ode_likelihood_castillo_katz90() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5027,7 +5027,7 @@ static void test_ode_proposal_castillo_katz90() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5066,7 +5066,7 @@ static void test_ode_likelihood_castillo_katz91() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5088,7 +5088,7 @@ static void test_ode_proposal_castillo_katz91() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5127,7 +5127,7 @@ static void test_ode_likelihood_castillo_katz92() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5149,7 +5149,7 @@ static void test_ode_proposal_castillo_katz92() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5188,7 +5188,7 @@ static void test_ode_likelihood_castillo_katz93() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5210,7 +5210,7 @@ static void test_ode_proposal_castillo_katz93() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5249,7 +5249,7 @@ static void test_ode_likelihood_castillo_katz94() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5271,7 +5271,7 @@ static void test_ode_proposal_castillo_katz94() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5310,7 +5310,7 @@ static void test_ode_likelihood_castillo_katz95() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5332,7 +5332,7 @@ static void test_ode_proposal_castillo_katz95() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5371,7 +5371,7 @@ static void test_ode_likelihood_castillo_katz96() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5393,7 +5393,7 @@ static void test_ode_proposal_castillo_katz96() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5432,7 +5432,7 @@ static void test_ode_likelihood_castillo_katz97() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5454,7 +5454,7 @@ static void test_ode_proposal_castillo_katz97() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5493,7 +5493,7 @@ static void test_ode_likelihood_castillo_katz98() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5515,7 +5515,7 @@ static void test_ode_proposal_castillo_katz98() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5554,7 +5554,7 @@ static void test_ode_likelihood_castillo_katz99() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5576,7 +5576,7 @@ static void test_ode_proposal_castillo_katz99() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5615,7 +5615,7 @@ static void test_ode_likelihood_castillo_katz100() {
   double likelihood;
 
   // Call test function
-  int error = gmcmc_likelihood(data, model, params, &likelihood, NULL, NULL);
+  int error = gmcmc_ion_likelihood_mh(data, model, params, &likelihood, NULL, NULL);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5637,7 +5637,7 @@ static void test_ode_proposal_castillo_katz100() {
   double mean[4], covariance[ldc * 4];
 
   // Call test function
-  int error = gmcmc_proposal(model, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
+  int error = gmcmc_proposal_mh(4, params, likelihood, temperature, stepsize, NULL, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);

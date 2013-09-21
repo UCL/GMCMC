@@ -42,10 +42,10 @@ libgmcmc.so:
 libgmcmc_matlab.so: libgmcmc.so
 	cd src/matlab && $(MAKE) ../../libgmcmc_matlab.so
 
-examples/common.o: common.h
-$(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ion_model.h gmcmc_popmcmc.h gmcmc_matlab.h common.h
-$(addprefix examples/,$(addsuffix .o,$(ODE_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_ode_model.h gmcmc_popmcmc.h gmcmc_matlab.h common.h
-$(addprefix examples/,$(addsuffix .o,$(EYE_examples))): gmcmc_errno.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_dataset.h gmcmc_stochastic_eye_model.h gmcmc_popmcmc.h gmcmc_matlab.h common.h
+examples/common.o: common.h gmcmc_popmcmc.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h
+$(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_ion.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h common.h
+$(addprefix examples/,$(addsuffix .o,$(ODE_examples))): gmcmc_ode.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h common.h
+$(addprefix examples/,$(addsuffix .o,$(EYE_examples))): gmcmc_eye.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h common.h
 
 define make_example
 $(1): examples/$(1).o examples/common.o $(LIBS)

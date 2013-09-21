@@ -1,13 +1,9 @@
-#include <gmcmc/gmcmc_matlab.h>
-
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
+#include <gmcmc/gmcmc_ode.h>
 #include <gmcmc/gmcmc_errno.h>
 
+#include <stdlib.h>
+
 #include <mat.h>
-#include <matrix.h>
 
 /**
  * An ODE dataset loaded from Matlab.
@@ -77,12 +73,14 @@ static const double * data(const void * data, size_t i) {
  * @return a pointer to the noise covariance vector or NULL if the mxArray
  *           contains no real data.
  */
-static const void * noisecov(const void * data) {
+static double noisecov(const void * data, size_t i) {
   const matlab_dataset * m = (const matlab_dataset *)data;
-  void * a = mxGetData(m->noisecov);
+  if (i >= mxGetM(m->timepoints))
+    GMCMC_ERROR_VAL("index is out of range", GMCMC_EINVAL, -1.0);
+  const double * a = mxGetData(m->noisecov);
   if (a == NULL)
-    GMCMC_ERROR_VAL("noisecov contains no real data", GMCMC_EIO, NULL);
-  return a;
+    GMCMC_ERROR_VAL("noisecov contains no real data", GMCMC_EIO, -1.0);
+  return a[i];
 }
 
 /**
@@ -108,8 +106,8 @@ static size_t n(const void * data) {
 /**
  * ODE Matlab dataset type.
  */
-static const gmcmc_dataset_type type = { destroy, timepoints, data,
-                                             noisecov, m, n };
+static const gmcmc_ode_dataset_type type = { destroy, m, n, timepoints, data,
+                                             noisecov };
 
 /**
  * Loads an ODE dataset from a Matlab file.  The file must contain a
@@ -129,7 +127,7 @@ static const gmcmc_dataset_type type = { destroy, timepoints, data,
  *         GMCMC_EINVAL if the Matlab file does not contain valid ODE data,
  *         GMCMC_EIO    if there is an input/output error.
  */
-int gmcmc_dataset_create_matlab_ode(gmcmc_dataset ** dataset, const char * filename) {
+int gmcmc_ode_dataset_load_matlab(gmcmc_ode_dataset ** dataset, const char * filename) {
   // Allocate the Matlab dataset structure
   matlab_dataset * m;
   if ((m = malloc(sizeof(matlab_dataset))) == NULL)
@@ -185,7 +183,7 @@ int gmcmc_dataset_create_matlab_ode(gmcmc_dataset ** dataset, const char * filen
   }
 
   // Allocate the dataset structure
-  if ((*dataset = malloc(sizeof(gmcmc_dataset))) == NULL) {
+  if ((*dataset = malloc(sizeof(gmcmc_ode_dataset))) == NULL) {
     mxDestroyArray(m->noisecov);
     mxDestroyArray(m->data);
     mxDestroyArray(m->timepoints);

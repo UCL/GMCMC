@@ -10,8 +10,11 @@
 #ifndef GMCMC_POPMCMC_H
 #define GMCMC_POPMCMC_H
 
+#include <stdbool.h>
+
 #include <gmcmc/gmcmc_model.h>
-#include <gmcmc/gmcmc_dataset.h>
+#include <gmcmc/gmcmc_proposal.h>
+#include <gmcmc/gmcmc_likelihood.h>
 
 /**
  * MCMC simulation options.
@@ -91,43 +94,56 @@ typedef struct gmcmc_popmcmc_options {
 } gmcmc_popmcmc_options;
 
 /**
- * Performs a population MCMC simulation sequentially using a single CPU thread.
- *
- * @param [in] options  MCMC options struct
- * @param [in] model    the model to use in the simulation
- * @param [in] data     the data to use in the simulation
- * @param [in] rng      a RNG to use
- *
- * @return 0 on success, non-zero on error.
- */
-int gmcmc_popmcmc(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                  const gmcmc_dataset *, const gmcmc_prng64 *);
-
-/**
- * Performs a population MCMC simulation in parallel using OpenMP.
- *
- * @param [in] options  MCMC options struct
- * @param [in] model    the model to use in the simulation
- * @param [in] data     the data to use in the simulation
- * @param [in] rngs     parallel RNGs to use (one per temperature)
- *
- * @return 0 on success, non-zero on error.
- */
-int gmcmc_popmcmc_omp(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                      const gmcmc_dataset *, const gmcmc_prng64 **);
-
-/**
  * Performs a population MCMC simulation in parallel using MPI.  All callback
  * functions are executed on the node with rank 0.
  *
- * @param [in] options  MCMC options struct
- * @param [in] model    the model to use in the simulation
- * @param [in] data     the data to use in the simulation
- * @param [in] rng      a parallel RNG to use
+ * @param [in] model       the model
+ * @param [in] dataset     the dataset for the model
+ * @param [in] likelihood  likelihood function
+ * @param [in] proposal    proposal function
+ * @param [in] options     MCMC options struct
+ * @param [in] rng         parallel RNG to use
  *
  * @return 0 on success, non-zero on error.
  */
-int gmcmc_popmcmc_mpi(const gmcmc_popmcmc_options *, const gmcmc_model *,
-                      const gmcmc_dataset *, const gmcmc_prng64 *);
+int gmcmc_popmcmc_mpi(const gmcmc_model *, const void *, gmcmc_likelihood_function,
+                      gmcmc_proposal_function, const gmcmc_popmcmc_options *, const gmcmc_prng64 *);
+
+/**
+ * How often to save posterior samples.
+ */
+extern size_t gmcmc_matlab_save_size;
+
+/**
+ * Whether to save burn-in samples or not.
+ */
+extern bool gmcmc_matlab_save_burn_in;
+
+/**
+ * Where to write the samples to.
+ */
+extern const char * gmcmc_matlab_outputID;
+
+/**
+ * Stores a sample in a global array that is later written to a Matlab file.
+ *
+ * @param [in] options         the MCMC options
+ * @param [in] model           the model
+ * @param [in] i               the current iteration number
+ * @param [in] j               the index on the temperature scale
+ * @param [in] params          the current parameter values
+ * @param [in] log_prior       the log prior of the sample
+ * @param [in] log_likelihood  the log likelihood of the sample
+ * @param [in] stepsize        the current stepsize
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM  if there was not enough memory to create the Matlab
+ *                         structure array,
+ *         GMCMC_EIO     if there was an error writing the Matlab structure
+ *                         array to a file.
+ */
+int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options *, const gmcmc_model *,
+                               size_t, size_t,
+                               const double *, const double *, double, double);
 
 #endif /* GMCMC_POPMCMC_H */

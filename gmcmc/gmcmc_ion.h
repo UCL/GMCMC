@@ -1,7 +1,12 @@
-#ifndef GMCMC_ION_MODEL_H
-#define GMCMC_ION_MODEL_H
+#ifndef GMCMC_ION_H
+#define GMCMC_ION_H
 
-#include <gmcmc/gmcmc_model.h>
+#include <gmcmc/gmcmc_likelihood.h>
+
+/**
+ * Ion channel model likelihood function using Metropolis-Hastings.
+ */
+extern const gmcmc_likelihood_function gmcmc_ion_likelihood_mh;
 
 /**
  * Ion channel model-specific data.
@@ -12,14 +17,22 @@
 typedef struct gmcmc_ion_model gmcmc_ion_model;
 
 /**
- * Ion channel model proposal function using Metropolis-Hastings.
+ * Ion channel dataset type.
  */
-extern const gmcmc_proposal_function gmcmc_ion_proposal_mh;
+typedef struct {
+  void (*destroy)(void *);                      /** Destructor function */
+  size_t (*num_timepoints)(const void *);       /** Returns the number of timepoints in the dataset */
+  const double * (*timepoints)(const void *);   /** Returns a pointer to the timepoints */
+  const double * (*data)(const void *);         /** Returns a pointer to the data */
+} gmcmc_ion_dataset_type;
 
 /**
- * Ion channel model likelihood function using Metropolis-Hastings.
+ * Ion channel dataset.
  */
-extern const gmcmc_likelihood_function gmcmc_ion_likelihood_mh;
+typedef struct {
+  const gmcmc_ion_dataset_type * type;  /** Pointer to function table */
+  void * data;                          /** Pointer to implementation */
+} gmcmc_ion_dataset;
 
 /**
  * Function type that populates the Q matrix based on the current parameter
@@ -89,4 +102,62 @@ unsigned int gmcmc_ion_model_get_num_open_states(const gmcmc_ion_model *);
 void gmcmc_ion_model_calculate_Q_matrix(const gmcmc_ion_model *, const double *,
                                         double *, size_t);
 
-#endif /* GMCMC_ION_MODEL_H */
+/**
+ * Destroys an ion channel dataset.
+ *
+ * @param [in] dataset  the dataset to destroy.
+ */
+void gmcmc_ion_dataset_destroy(gmcmc_ion_dataset *);
+
+/**
+ * Gets the number of timepoints in the dataset.
+ *
+ * @param [in] dataset  the dataset
+ *
+ * @return the number of timepoints in the dataset.
+ */
+static inline size_t gmcmc_ion_dataset_num_timepoints(const gmcmc_ion_dataset * dataset) {
+  return dataset->type->num_timepoints(dataset->data);
+}
+
+/**
+ * Gets a pointer to the timepoints.
+ *
+ * @param [in] dataset  the dataset
+ *
+ * @return a pointer to the timepoints.
+ */
+static inline const double * gmcmc_ion_dataset_timepoints(const gmcmc_ion_dataset * dataset) {
+  return dataset->type->timepoints(dataset->data);
+}
+
+/**
+ * Gets a pointer to the data.
+ *
+ * @param [in] dataset  the dataset
+ *
+ * @return a pointer to the data.
+ */
+static inline const double * gmcmc_ion_dataset_data(const gmcmc_ion_dataset * dataset) {
+  return dataset->type->data(dataset->data);
+}
+
+/**
+ * Loads an ion channel dataset from a Matlab file.  The file must contain a
+ * real-valued column vector named "TimePoints" containing strictly increasing
+ * timepoints and a vector of data points named "Data".
+ * The dimensionality of the timepoints must match that of the data.
+ *
+ * @param [out] dataset     the dataset object to load data into
+ * @param [in]  filename    the name of the Matlab .mat file containing the data
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the dataset or
+ *                        data vectors,
+ *         GMCMC_EINVAL if the Matlab file does not contain valid ion channel
+ *                        data,
+ *         GMCMC_EIO    if there is an input/output error.
+ */
+int gmcmc_ion_dataset_load_matlab(gmcmc_ion_dataset **, const char *);
+
+#endif /* GMCMC_ION_H */

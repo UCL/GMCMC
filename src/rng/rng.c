@@ -62,7 +62,6 @@ int gmcmc_prng64_create_copy(gmcmc_prng64 ** dest, const gmcmc_prng64 * src) {
   memcpy((*dest)->state, src->state, src->type->size);
 
   return 0;
-
 }
 
 /**
