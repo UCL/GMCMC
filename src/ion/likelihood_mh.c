@@ -111,6 +111,7 @@ static int ion_likelihood_mh(const void * dataset, const gmcmc_model * model,
   }
   long info = LAPACKE_dgesv(LAPACK_COL_MAJOR, num_states, 1, S, lds, ipiv, eq_states, num_states);
 
+  free(ipiv);
   free(S);
 
   if (info != 0) {
