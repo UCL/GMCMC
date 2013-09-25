@@ -346,8 +346,8 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      // returns GMCMC_ELINAL if covariance is non-positive-definite
-      if (error == GMCMC_ELINAL)
+      // returns GMCMC_EINVAL if covariance is non-positive-definite
+      if (error == GMCMC_EINVAL)
         return 0; // Non-fatal error
       // returns GMCMC_ENOMEM if out of memory
       GMCMC_ERROR("Failed to sample new parameters", error);    // Fatal error
@@ -418,8 +418,8 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       free(log_prior);
       free(mean);
       free(covariance);
-      // returns GMCMC_ELINAL if covariance is non-positive-definite
-      if (error == GMCMC_ELINAL)
+      // returns GMCMC_EINVAL if covariance is non-positive-definite
+      if (error == GMCMC_EINVAL)
         return 0; // Non-fatal error (reject parameters)
       // returns GMCMC_ENOMEM if out of memory
       GMCMC_ERROR("Failed to sample new parameters", error);    // Fatal error
