@@ -34,16 +34,6 @@
     } \
   } while (false)
 
-static inline size_t strntabs(const char * str, size_t len) {
-  size_t ntabs = 0;
-  while (len && *str) {
-    if (*str++ == '\t')
-      ntabs++;
-    len--;
-  }
-  return ntabs;
-}
-
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
@@ -66,11 +56,11 @@ int main(int argc, char * argv[]) {
   gmcmc_popmcmc_options mcmc_options;
 
   // Set number of tempered distributions to use
-  mcmc_options.num_temperatures = 1;
+  mcmc_options.num_temperatures = 100;
 
   // Set number of burn-in and posterior samples
-  mcmc_options.num_burn_in_samples   =  500;
-  mcmc_options.num_posterior_samples = 1000;
+  mcmc_options.num_burn_in_samples   =  5000;
+  mcmc_options.num_posterior_samples = 50000;
 
   // Set iteration interval for adapting stepsizes
   mcmc_options.adapt_rate            =  50;
@@ -87,8 +77,16 @@ int main(int argc, char * argv[]) {
     return error;
   }
 
+  if (argc < optind + 2) {
+    fprintf(stderr, "Usage: %s [options] <input> <output>\n", argv[0]);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -1;
+  }
+
+  char * input_file = argv[optind];
+
   // Output file
-  gmcmc_matlab_outputID = argv[optind];
+  gmcmc_matlab_outputID = argv[optind + 1];
 
   // How often to save posterior samples
   gmcmc_matlab_save_size = 8500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
@@ -279,7 +277,7 @@ int main(int argc, char * argv[]) {
   gmcmc_prng64_seed(rng, 4721);
 
   gmcmc_eye_model * eye_model;
-  if ((gmcmc_eye_model_create(&eye_model, "data/WNBG05_500Hz.txt",
+  if ((gmcmc_eye_model_create(&eye_model, input_file,
                               115, 2010, rng)) != 0) {
     // Clean up
     free(temperatures);
