@@ -265,7 +265,7 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, ode_model);
 
-  gmcmc_ode_model_set_rhs_sens(ode_model, fitzhughnagumo_sens);
+//   gmcmc_ode_model_set_rhs_sens(ode_model, fitzhughnagumo_sens);
 
   gmcmc_ode_model_set_tolerances(ode_model, 1.0e-08, 1.0e-08);
 
