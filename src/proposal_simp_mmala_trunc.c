@@ -1,4 +1,5 @@
 #include <gmcmc/gmcmc_proposal.h>
+#include <gmcmc/gmcmc_geometry.h>
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <math.h>
@@ -7,19 +8,30 @@
 
 /**
  * Proposal function using truncated Simplified M-MALA.
+ * likelihood.
+ *
+ * @param [in]  n            size of the parameter vector, mean vector and
+ *                             covariance matrix (n by n)
+ * @param [in]  params       parameter vector
+ * @param [in]  likelihood   likelihood value
+ * @param [in]  temperature  chain temperature
+ * @param [in]  stepsize     parameter step size
+ * @param [in]  geometry     geometry data output from the likelihood function
+ * @param [out] mean         mean vector
+ * @param [out] covariance   covariance matrix
+ * @param [in]  ldc          leading dimension of the covariance matrix
+ *
+ * @return 0 on success,
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 static int proposal_simp_mmala_trunc(size_t n, const double * params,
                                      double likelihood, double temperature,
-                                     double stepsize, const void * serdata,
+                                     double stepsize, const void * geometry,
                                      double * mean, double * covariance, size_t ldc) {
   (void)likelihood;     // Unused
 
-  // Unpack the serialised data
-  size_t ldfi = (n + 1u) & ~1u;
-  const double * gradient_ll = serdata;
-  const double * gradient_log_prior = &gradient_ll[ldfi];
-  const double * FI = &gradient_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[ldfi * n];
+  const gmcmc_geometry_simp_mmala * g = (const gmcmc_geometry_simp_mmala *)geometry;
 
   // Calculate posterior gradient and metric tensor
   size_t ldg = (n + 1u) & ~1u;
@@ -32,7 +44,7 @@ static int proposal_simp_mmala_trunc(size_t n, const double * params,
   }
   // Posterior_Grad   = Chain.GradLL*Chain.Temp + Chain.GradLogPrior;
   for (size_t i = 0; i < n; i++)
-    gradient[i] = gradient_ll[i] * temperature + gradient_log_prior[i];
+    gradient[i] = g->gradient_log_likelihood[i] * temperature + g->gradient_log_prior[i];
 
   double max_grad = 10000.0;
   for (size_t i = 0; i < n; i++)
@@ -41,8 +53,8 @@ static int proposal_simp_mmala_trunc(size_t n, const double * params,
   // Posterior_G      = Chain.FI*Chain.Temp - diag(Chain.HessianLogPrior);
   for (size_t j = 0; j < n; j++) {
     for (size_t i = 0; i < n; i++)
-      G[j * ldg + i] = FI[j * ldfi + i] * temperature;
-    G[j * ldg + j] -= hessian_log_prior[j] - (1.0 / stepsize);
+      G[j * ldg + i] = g->FI[j * g->ldfi + i] * temperature;
+    G[j * ldg + j] -= g->hessian_log_prior[j] - (1.0 / stepsize);
   }
 
 

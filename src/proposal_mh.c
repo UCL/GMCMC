@@ -3,12 +3,28 @@
 
 /**
  * Proposal function using Metropolis-Hastings.
+ * likelihood.
+ *
+ * @param [in]  n            size of the parameter vector, mean vector and
+ *                             covariance matrix (n by n)
+ * @param [in]  params       parameter vector
+ * @param [in]  likelihood   likelihood value
+ * @param [in]  temperature  chain temperature
+ * @param [in]  stepsize     parameter step size
+ * @param [in]  geometry     geometry data output from the likelihood function
+ * @param [out] mean         mean vector
+ * @param [out] covariance   covariance matrix
+ * @param [in]  ldc          leading dimension of the covariance matrix
+ *
+ * @return 0 on success,
+ *         greater than zero on fatal error,
+ *         less than zero on non-fatal error.
  */
 static int proposal_mh(size_t n, const double * params, double likelihood,
-                       double temperature, double stepsize, const void * serdata,
+                       double temperature, double stepsize, const void * geometry,
                        double * mean, double * covariance, size_t ldc) {
   (void)likelihood;
-  (void)serdata;
+  (void)geometry;
   (void)temperature;
 
   // Proposal_Mean    = Chain.Paras(Chain.CurrentBlock);

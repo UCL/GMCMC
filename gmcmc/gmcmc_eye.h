@@ -184,4 +184,4 @@ static inline const double * gmcmc_eye_dataset_noisevar(const gmcmc_eye_dataset 
  */
 int gmcmc_eye_dataset_load_matlab(gmcmc_eye_dataset **, const char *);
 
-#endif
+#endif /* GMCMC_EYE_H */

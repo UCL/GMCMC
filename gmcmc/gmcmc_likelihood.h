@@ -6,19 +6,23 @@
 /**
  * Calculates the likelihood of the data given the model and parameters.
  *
- * @param [in]  dataset     the dataset
- * @param [in]  model       the model to evaluate
- * @param [in]  params      the current parameter values to evaluate the model
- * @param [in]  n           the number of parameters in the model
- * @param [out] likelihood  the log likelihood
- * @param [out] serdata     serialised data to be passed to the proposal function
- * @param [out] size        size of serialised data object, in bytes
+ * @param [in]  dataset     dataset
+ * @param [in]  model       model to evaluate
+ * @param [in]  n           number of parameters in the current block
+ * @param [in]  block       indices of the parameters in the current block (may
+ *                            be NULL if there is no blocking)
+ * @param [in]  params      current parameter values to evaluate the model
+ * @param [out] likelihood  likelihood value
+ * @param [out] geometry    geometry for the current parameter block (may be
+ *                            NULL if no geometry is required by the current
+ *                            stage of the algorithm)
  *
  * @return 0 on success,
  *         greater than zero on fatal error,
  *         less than zero on non-fatal error.
  */
-typedef int (*gmcmc_likelihood_function)(const void *, const gmcmc_model *, const double *,
-                                         double *, void **, size_t *);
+typedef int (*gmcmc_likelihood_function)(const void *, const gmcmc_model *,
+                                         size_t, const size_t *, const double *,
+                                         double *, void **);
 
-#endif /** GMCMC_LIKELIHOOD_H */
+#endif /* GMCMC_LIKELIHOOD_H */

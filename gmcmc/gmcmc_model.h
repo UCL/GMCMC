@@ -117,6 +117,63 @@ int gmcmc_model_set_stepsize_bounds(gmcmc_model *, double, double);
 void gmcmc_model_get_stepsize_bounds(const gmcmc_model *, double *, double *);
 
 /**
+ * Sets up parameter blocking.
+ *
+ * @param [in]  model        the model
+ * @param [in]  num_blocks   the number of blocks (zero for no blocking)
+ * @param [in]  block_sizes  the size of each block (length num_blocks, may be
+ *                             NULL if num_blocks is zero)
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if block_sizes does not sum to the number of parameters,
+ *         GMCMC_ENOMEM if the block sizes could not be allocated in the model.
+ */
+int gmcmc_model_set_blocking(gmcmc_model *, size_t, const size_t *);
+
+/**
+ * Gets the number of blocks to use when updating parameters.  If zero, the
+ * parameters are to be updated together in one block.
+ *
+ * @param [in] model  the model
+ *
+ * @return the number of parameter blocks.
+ */
+size_t gmcmc_model_get_num_blocks(const gmcmc_model *);
+
+/**
+ * Gets the size of a parameter block.
+ *
+ * @param [in] model  the model
+ * @param [in] i      the index of the block
+ *
+ * @return the number of parameters in block i, or zero if i is out of range.
+ */
+size_t gmcmc_model_get_block_size(const gmcmc_model *, size_t);
+
+/**
+ * Sets the fixed permutation of parameter indices to use when blocking.
+ *
+ * @param [in]  model        the model
+ * @param [in]  blocks       the indices of the parameters in each block (length
+ *                             num_params, may be NULL for random blocking)
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if blocks is not a valid permutation of the parameter
+ *                        indices,
+ *         GMCMC_ENOMEM if the blocks could not be allocated in the model.
+ */
+int gmcmc_model_set_blocks(gmcmc_model *, const size_t *);
+
+/**
+ * Gets the fixed permutation of parameter indices to use when blocking.
+ *
+ * @param [in] model  the model
+ *
+ * @return the permutation of parameter indices, or NULL for random blocking.
+ */
+const size_t * gmcmc_model_get_blocks(const gmcmc_model *);
+
+/**
  * Stores a pointer to any model-specific data and functions in the model.
  *
  * @param [in,out] model          the model

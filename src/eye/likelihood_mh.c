@@ -6,11 +6,31 @@
 
 /**
  * Stochastic eye model likelihood function using Metropolis-Hastings.
+ *
+ * @param [in]  dataset     dataset
+ * @param [in]  model       model to evaluate
+ * @param [in]  n           number of parameters in the current block
+ * @param [in]  block       indices of the parameters in the current block (may
+ *                            be NULL if there is no blocking)
+ * @param [in]  params      current parameter values to evaluate the model
+ * @param [out] likelihood  likelihood value
+ * @param [out] geometry    geometry for the current parameter block (may be
+ *                            NULL if no geometry is required by the current
+ *                            stage of the algorithm)
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate temporary
+ *                        variables,
+ *         GMCMC_ELINAL if there was an unrecoverable error in an external
+ *                        linear algebra routine.
  */
 static int eye_likelihood_mh(const void * dataset, const gmcmc_model * model,
-                             const double * params, double * likelihood, void ** serdata, size_t * size) {
-  (void)serdata;
-  (void)size;
+                             size_t n, const size_t * block, const double * params,
+                             double * likelihood, void ** geometry) {
+  // Metropolis-Hastings likelihood functions don't calculate geometry
+  (void)geometry;
+  (void)n;
+  (void)block;
 
   // Initialise log likelihood to negative infinity so that it is set on
   // non-fatal errors

@@ -23,12 +23,16 @@ static double log_sum(size_t, double *);
  * Calculates p(D|M,params) (i.e. likelihood of seeing the data D given the
  * model M and parameters params)
  *
- * @param [in]  dataset     the dataset
- * @param [in]  model       the model
- * @param [in]  params      the parameter vector
- * @param [out] likelihood  the likelihood object to create and populate
- * @param [out] serdata     serialised data to be passed to the proposal function
- * @param [out] size        size of serialised data object, in bytes
+ * @param [in]  dataset     dataset
+ * @param [in]  model       model to evaluate
+ * @param [in]  n           number of parameters in the current block
+ * @param [in]  block       indices of the parameters in the current block (may
+ *                            be NULL if there is no blocking)
+ * @param [in]  params      current parameter values to evaluate the model
+ * @param [out] likelihood  likelihood value
+ * @param [out] geometry    geometry for the current parameter block (may be
+ *                            NULL if no geometry is required by the current
+ *                            stage of the algorithm)
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to allocate temporary
@@ -37,10 +41,13 @@ static double log_sum(size_t, double *);
  *                        linear algebra routine.
  */
 static int ion_likelihood_mh(const void * dataset, const gmcmc_model * model,
-                             const double * params,
-                             double * likelihood, void ** serdata, size_t * size) {
-  (void)serdata;
-  (void)size;
+                             size_t n, const size_t * block, const double * params,
+                             double * likelihood, void ** geometry) {
+  // Metropolis-Hastings likelihood functions don't calculate geometry
+  (void)geometry;
+  (void)n;
+  (void)block;
+
   // Initialise error status
   int error = 0;
 

@@ -7,12 +7,13 @@
  * Calculates the proposal mean vector and covariance matrix based on the
  * likelihood.
  *
- * @param [in]  n            size of the parameter vector
+ * @param [in]  n            size of the parameter vector, mean vector and
+ *                             covariance matrix (n by n)
  * @param [in]  params       parameter vector
  * @param [in]  likelihood   likelihood value
  * @param [in]  temperature  chain temperature
  * @param [in]  stepsize     parameter step size
- * @param [in]  serdata      serialised data output from the likelihood function
+ * @param [in]  geometry     geometry data output from the likelihood function
  * @param [out] mean         mean vector
  * @param [out] covariance   covariance matrix
  * @param [in]  ldc          leading dimension of the covariance matrix
@@ -40,4 +41,4 @@ extern const gmcmc_proposal_function gmcmc_proposal_simp_mmala;
  */
 extern const gmcmc_proposal_function gmcmc_proposal_simp_mmala_trunc;
 
-#endif /** GMCMC_PROPOSAL_H */
+#endif /* GMCMC_PROPOSAL_H */

@@ -13,6 +13,9 @@ struct gmcmc_model {
   size_t n;                             /**< Number of parameters in model */
   double stepsize;                      /**< Parameter stepsize (default 0.05) */
   double lower_stepsize, upper_stepsize;/**< Lower and upper bounds for adapting stepsize */
+  size_t num_blocks;                    /**< Number of blocks to use to update parameters.  Will always be >= 1. */
+  size_t * block_sizes;                 /**< The size of each block (length num_blocks) */
+  size_t * blocks;                      /**< The fixed permutation of parameter indices to use as the blocks (may be NULL for random blocking) */
   void * modelspecific;                 /**< Model specific parameters and data (may be NULL) */
 };
 
@@ -28,7 +31,7 @@ struct gmcmc_model {
  */
 int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** priors) {
   // Allocate memory for the model
-  if ((*model = malloc(sizeof(gmcmc_model))) == NULL)
+  if ((*model = calloc(1, sizeof(gmcmc_model))) == NULL)
     GMCMC_ERROR("Unable to allocate model", GMCMC_ENOMEM);
 
   // Allocate memory for the priors
@@ -41,7 +44,6 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
   int error;
   for (size_t i = 0; i < n; i++) {
     if ((error = gmcmc_distribution_create_copy(&(*model)->priors[i], priors[i])) != 0) {
-      free((*model)->params);
       for (size_t j = 0; j < i; j++)
         gmcmc_distribution_destroy((*model)->priors[j]);
       free(*model);
@@ -49,13 +51,28 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
     }
   }
 
+  // Set up default blocking
+  (*model)->num_blocks = 1;
+  if (((*model)->block_sizes = malloc(sizeof(size_t))) == NULL ||
+      ((*model)->blocks = malloc(n * sizeof(size_t))) == NULL) {
+    for (size_t j = 0; j < n; j++)
+      gmcmc_distribution_destroy((*model)->priors[j]);
+    free((*model)->block_sizes);
+    free((*model)->blocks);
+    free(*model);
+    GMCMC_ERROR("Failed to allocate default blocking", GMCMC_ENOMEM);
+  }
+  (*model)->block_sizes[0] = n;
+  for (size_t i = 0; i < n; i++)
+    (*model)->blocks[i] = i;
+
   // Copy the rest of the parameters and set default values
-  (*model)->params = NULL;
+//   (*model)->params = NULL; // calloc'ed
   (*model)->n = n;
   (*model)->stepsize = 0.05;
   (*model)->lower_stepsize = 0.0;
   (*model)->upper_stepsize = 1.0;
-  (*model)->modelspecific = NULL;
+//   (*model)->modelspecific = NULL;  // calloc'ed
 
   return 0;
 }
@@ -70,6 +87,8 @@ void gmcmc_model_destroy(gmcmc_model * model) {
     gmcmc_distribution_destroy(model->priors[i]);
   free(model->priors);
   free(model->params);
+  free(model->block_sizes);
+  free(model->blocks);
   free(model);
 }
 
@@ -185,6 +204,140 @@ int gmcmc_model_set_stepsize_bounds(gmcmc_model * model, double lower, double up
 void gmcmc_model_get_stepsize_bounds(const gmcmc_model * model, double * lower, double * upper) {
   *lower = model->lower_stepsize;
   *upper = model->upper_stepsize;
+}
+
+/**
+ * Sets up parameter blocking.
+ *
+ * @param [in]  model        the model
+ * @param [in]  num_blocks   the number of blocks (>= 1)
+ * @param [in]  block_sizes  the size of each block (length num_blocks)
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if block_sizes does not sum to the number of parameters or if num_blocks is zero,
+ *         GMCMC_ENOMEM if the block sizes could not be allocated in the model.
+ */
+int gmcmc_model_set_blocking(gmcmc_model * model, size_t num_blocks,
+                             const size_t * block_sizes) {
+  if (num_blocks == 0)
+    GMCMC_ERROR("num_blocks cannot be zero", GMCMC_EINVAL);
+
+  size_t * new_block_sizes = NULL;
+
+  // Check that the requested blocking is valid
+
+  // The block sizes should sum to the number of parameters
+  size_t sum = 0;
+  for (size_t i = 0; i < num_blocks; i++)
+    sum += block_sizes[i];
+  if (sum != model->n)
+    GMCMC_ERROR("Invalid block sizes", GMCMC_EINVAL);
+
+  if ((new_block_sizes = malloc(num_blocks * sizeof(size_t))) == NULL)
+    GMCMC_ERROR("Failed to allocate new block sizes", GMCMC_ENOMEM);
+  memcpy(new_block_sizes, block_sizes, num_blocks * sizeof(size_t));
+
+  // Update the blocks in the model
+  free(model->block_sizes);
+  model->num_blocks = num_blocks;
+  model->block_sizes = new_block_sizes;
+
+  return 0;
+}
+
+/**
+ * Gets the number of blocks to use when updating parameters.
+ *
+ * @param [in] model  the model
+ *
+ * @return the number of parameter blocks.
+ */
+size_t gmcmc_model_get_num_blocks(const gmcmc_model * model) {
+  return model->num_blocks;
+}
+
+/**
+ * Gets the size of a parameter block.
+ *
+ * @param [in] model  the model
+ * @param [in] i      the index of the block
+ *
+ * @return the number of parameters in block i, or zero if i is out of range.
+ */
+size_t gmcmc_model_get_block_size(const gmcmc_model * model, size_t i) {
+  if (i >= model->num_blocks)
+    GMCMC_ERROR_VAL("Block index is out of range", GMCMC_EINVAL, 0);
+  return model->block_sizes[i];
+}
+
+/**
+ * Compares two arguments of type size_t.  For use in qsort.
+ */
+static int comparator(const void * x, const void * y) {
+  const size_t * a = (const size_t *)x;
+  const size_t * b = (const size_t *)y;
+  if (*a < *b)
+    return -1;
+  else if (*a > *b)
+    return 1;
+  else
+    return 0;
+}
+
+/**
+ * Sets the fixed permutation of parameter indices to use when blocking.
+ *
+ * @param [in]  model        the model
+ * @param [in]  blocks       the indices of the parameters in each block (length
+ *                             n, may be NULL for random blocking)
+ *
+ * @return 0 on success,
+ *         GMCMC_EINVAL if blocks is not a valid permutation of the parameter
+ *                        indices,
+ *         GMCMC_ENOMEM if the blocks could not be allocated in the model.
+ */
+int gmcmc_model_set_blocks(gmcmc_model * model, const size_t * blocks) {
+  size_t * new_blocks = NULL;
+
+  // The blocks should be a valid permutation of the parameter indices - this
+  // is checked by sorting a copy of the blocks
+  // Allocate an array for a copy of the new blocks
+  if ((new_blocks = malloc(model->n * sizeof(size_t))) == NULL) {
+    free(new_blocks);
+    GMCMC_ERROR("Failed to allocate new block indices", GMCMC_ENOMEM);
+  }
+  // Copy the blocks into the new array
+  memcpy(new_blocks, blocks, model->n * sizeof(size_t));
+
+  // Sort the copy
+  qsort(new_blocks, model->n, sizeof(size_t), comparator);
+  // Check that for each parameter index i, the block index matches
+  for (size_t i = 0; i < model->n; i++) {
+    if (i != new_blocks[i]) {
+      free(new_blocks);
+      GMCMC_ERROR("Block indices are invalid", GMCMC_EINVAL);
+    }
+  }
+
+  // Recopy the permutation of the blocks over the sorted blocks
+  memcpy(new_blocks, blocks, model->n * sizeof(size_t));
+
+  // Update the blocks in the model
+  free(model->blocks);
+  model->blocks = new_blocks;
+
+  return 0;
+}
+
+/**
+ * Gets the fixed permutation of parameter indices to use when blocking.
+ *
+ * @param [in] model  the model
+ *
+ * @return the permutation of parameter indices, or NULL for random blocking.
+ */
+const size_t * gmcmc_model_get_blocks(const gmcmc_model * model) {
+  return model->blocks;
 }
 
 /**
