@@ -43,11 +43,11 @@ typedef struct {
  *                          milliseconds that a photon is detected by a
  *                           photoreceptor, tab-delimited, with one
  *                           photoreceptor per line.
- * @param [in]  offset              the first timepoint to use when comparing
- *                                    the simulated data to the real data
- * @param [in]  length              the number of timepoints to use when comparing
- *                                    the simulated data to the real data
- * @param [in]  rng                 an RNG to use for the stochastic simulation
+ * @param [in]  offset     the first timepoint to use when comparing the
+ *                           simulated data to the real data
+ * @param [in]  length     the number of timepoints to use when comparing the
+ *                           simulated data to the real data
+ * @param [in]  rng        an RNG to use for the stochastic simulation
  *
  * @return 0 on success,
  *         GMCMC_EINVAL if the RNG is NULL, or

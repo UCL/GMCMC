@@ -5,27 +5,30 @@
 void acceptance_monitor(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
                         size_t i, const double * accepts,
                         const double * exchanges, const double * stepsizes) {
-  (void)model;
+  const size_t num_blocks = gmcmc_model_get_num_blocks(model);
 
   if (i < options->num_burn_in_samples) {
     fprintf(stderr, "Burn in iteration: %zu of %zu\n\n", i, options->num_burn_in_samples);
 
     // Display summary information for each chain
-    fputs("Parameter acceptance rates:\n", stderr);
-    for (size_t j = 0; j < options->num_temperatures; j++)
-      fprintf(stderr, "%15.6f", accepts[j]);
-    fputs("\n\n", stderr);
+    for (size_t j = 0; j < options->num_temperatures; j++) {
+      fprintf(stderr, "Chain %zu:\nTemperature: %15.6f\n\n", j, options->temperatures[j]);
 
-    fputs("Parameter stepsizes:\n", stderr);
-    for (size_t j = 0; j < options->num_temperatures; j++)
-      fprintf(stderr, "%15.6f", stepsizes[j]);
-    fputs("\n\n", stderr);
+      fputs("Parameter acceptance rates:\n", stderr);
+      for (size_t k = 0; k < num_blocks; k++)
+        fprintf(stderr, "%15.6f", accepts[j * num_blocks + k]);
+      fputs("\n\n", stderr);
 
-    // Display exchange rate
-    fputs("Model parameter exchange ratios:\n", stderr);
-    for (size_t j = 0; j < options->num_temperatures; j++)
+      fputs("Parameter stepsizes:\n", stderr);
+      for (size_t k = 0; k < num_blocks; k++)
+        fprintf(stderr, "%15.6f", stepsizes[j * num_blocks + i]);
+      fputs("\n\n", stderr);
+
+      // Display exchange rate
+      fputs("Model parameter exchange ratio:\n", stderr);
       fprintf(stderr, "%15.6f", exchanges[j]);
-    fputs("\n\n\n", stderr);
+      fputs("\n\n\n", stderr);
+    }
   }
   else
     fprintf(stderr, "Posterior iteration: %zu of %zu\n\n", i - options->num_burn_in_samples, options->num_posterior_samples);

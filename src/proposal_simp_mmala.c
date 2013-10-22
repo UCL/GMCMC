@@ -8,8 +8,10 @@
 /**
  * Proposal function using Simplified M-MALA.
  *
- * @param [in]  n            size of the parameter vector, mean vector and
- *                             covariance matrix (n by n)
+ * @param [in]  n            size of the mean vector and covariance matrix
+ *                             (n by n) and number of parameters in the current
+ *                             block
+ * @param [in]  blocks       the indices of the parameters in the current block
  * @param [in]  params       parameter vector
  * @param [in]  likelihood   likelihood value
  * @param [in]  temperature  chain temperature
@@ -23,7 +25,7 @@
  *         greater than zero on fatal error,
  *         less than zero on non-fatal error.
  */
-static int proposal_simp_mmala(size_t n, const double * params,
+static int proposal_simp_mmala(size_t n, const size_t * blocks, const double * params,
                                double likelihood, double temperature,
                                double stepsize, const void * geometry,
                                double * mean, double * covariance, size_t ldc) {
@@ -68,7 +70,7 @@ static int proposal_simp_mmala(size_t n, const double * params,
 
   // Proposal_Mean    = CurrentParas + (StepSize^2/2)*NaturalGradient;
   for (size_t i = 0; i < n; i++)
-    mean[i] = params[i] + ((stepsize * stepsize) / 2.0) * gradient[i];
+    mean[i] = params[blocks[i]] + ((stepsize * stepsize) / 2.0) * gradient[i];
 
   // Proposal_Covariance = CholG\(CholG'\( diag(ones(1, NumOfParas)*(StepSize^2)) )); % Stepsize is squared in the covariance term
   for (size_t j = 0; j < n; j++) {

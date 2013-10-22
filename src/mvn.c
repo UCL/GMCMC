@@ -19,15 +19,19 @@
  * @param [in]     C      the covariance matrix(n-by-n)
  * @param [in]     ldc    leading dimension of the covariance matrix (ldc >= n)
  * @param [in,out] rng    a random number generator
- * @param [out]    x      the random vector (length n)
+ * @param [in]     map    an array of indices (length n) to update in x (may be
+ *                          NULL)
+ * @param [out]    x      the random vector
  *
  * @return 0 on success,
  *         GMCMC_EINVAL if ldc < n,
- *         GMCMC_ENOMEM if there is not enough memory to allocate a temporary vector,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate a temporary
+ *                        matrix/vector,
  *         GMCMC_ELINAL if the covariance matrix is not positive definite.
  */
 static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double * C,
-                                   size_t ldc, const gmcmc_prng64 * rng, double * x) {
+                                   size_t ldc, const gmcmc_prng64 * rng,
+                                   const size_t * map, double * x) {
   if (ldc < n)
     GMCMC_ERROR("Invalid leading dimension", GMCMC_EINVAL);
 
@@ -35,29 +39,57 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
   if (n == 0)
     return 0;
 
+  // If x is not contiguous (required for BLAS/LAPACK), allocate a contiguous
+  // vector, y, of length n to store the result and copy it into x
+  double * y;
+  if (map != NULL) {
+    if ((y = malloc(n * sizeof(double))) == NULL)
+      GMCMC_ERROR("Failed to allocate sample vector", GMCMC_ENOMEM);
+  }
+
   // Calculate the Cholesky decomposition of the covariance matrix
   double * cholC;
   size_t ldcc = (n + 1u) & ~1u;
   if ((cholC = malloc(ldcc * n * sizeof(double))) == NULL)
     GMCMC_ERROR("Failed to allocate cholesky", GMCMC_ENOMEM);
+
   for (size_t j = 0; j < n; j++)
     memcpy(&cholC[j * ldcc], &C[j * ldc], n * sizeof(double));
+
   long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, cholC, ldcc);
   if (info != 0) {
     free(cholC);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
   }
 
-  // x = ~N(0,1)
-  for (size_t i = 0; i < n; i++)
-    x[i] = gmcmc_randn(rng);
+  if (map != NULL) {
+    // Generate the sample in y then copy into x using the map
+    // y = ~N(0,1)
+    for (size_t i = 0; i < n; i++)
+      y[i] = gmcmc_randn(rng);
 
-  // Use BLAS DTRMV (matrix-vector product) to compute x = Ax
-  cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, cholC, ldcc, x, 1);
+    // Use BLAS DTRMV (matrix-vector product) to compute y = Ay
+    cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, cholC, ldcc, y, 1);
 
-  // Add the mean
-  for (size_t i = 0; i < n; i++)
-    x[i] += mean[i];
+    // Add the mean, x[map[i]] = y[i] + mean[i]
+    for (size_t i = 0; i < n; i++)
+      x[map[i]] = y[i] + mean[i];
+
+    free(y);
+  }
+  else {
+    // Generate the sample in place
+    // x = ~N(0,1)
+    for (size_t i = 0; i < n; i++)
+      x[i] = gmcmc_randn(rng);
+
+    // Use BLAS DTRMV (matrix-vector product) to compute x = Ax
+    cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, cholC, ldcc, x, 1);
+
+    // Add the mean, x[i] += mean[i]
+    for (size_t i = 0; i < n; i++)
+      x[i] += mean[i];
+  }
 
   free(cholC);
 

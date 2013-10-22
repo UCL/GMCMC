@@ -67,12 +67,10 @@ int gmcmc_model_create(gmcmc_model ** model, size_t n, gmcmc_distribution ** pri
     (*model)->blocks[i] = i;
 
   // Copy the rest of the parameters and set default values
-//   (*model)->params = NULL; // calloc'ed
   (*model)->n = n;
   (*model)->stepsize = 0.05;
   (*model)->lower_stepsize = 0.0;
   (*model)->upper_stepsize = 1.0;
-//   (*model)->modelspecific = NULL;  // calloc'ed
 
   return 0;
 }
@@ -220,7 +218,7 @@ void gmcmc_model_get_stepsize_bounds(const gmcmc_model * model, double * lower, 
 int gmcmc_model_set_blocking(gmcmc_model * model, size_t num_blocks,
                              const size_t * block_sizes) {
   if (num_blocks == 0)
-    GMCMC_ERROR("num_blocks cannot be zero", GMCMC_EINVAL);
+    GMCMC_ERROR("num_blocks must be greater than zero", GMCMC_EINVAL);
 
   size_t * new_block_sizes = NULL;
 

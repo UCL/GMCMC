@@ -7,8 +7,10 @@
  * Calculates the proposal mean vector and covariance matrix based on the
  * likelihood.
  *
- * @param [in]  n            size of the parameter vector, mean vector and
- *                             covariance matrix (n by n)
+ * @param [in]  n            size of the mean vector and covariance matrix
+ *                             (n by n) and number of parameters in the current
+ *                             block
+ * @param [in]  blocks       the indices of the parameters in the current block
  * @param [in]  params       parameter vector
  * @param [in]  likelihood   likelihood value
  * @param [in]  temperature  chain temperature
@@ -22,8 +24,8 @@
  *         greater than zero on fatal error,
  *         less than zero on non-fatal error.
  */
-typedef int (*gmcmc_proposal_function)(size_t, const double *, double, double,
-                                       double, const void *,
+typedef int (*gmcmc_proposal_function)(size_t, const size_t *, const double *,
+                                       double, double, double, const void *,
                                        double *, double *, size_t);
 
 /**

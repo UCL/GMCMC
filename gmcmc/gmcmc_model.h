@@ -49,7 +49,7 @@ size_t gmcmc_model_get_num_params(const gmcmc_model *);
  * Sets the initial parameter values.
  *
  * @param [in,out] model   the model
- * @param [in]    params  the parameter values (may be NULL)
+ * @param [in]     params  the parameter values (may be NULL)
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to copy the initial

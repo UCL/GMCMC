@@ -1,6 +1,6 @@
 #!/bin/bash
-#$ -l h_vmem=4G,tmem=4G
-#$ -l h_rt=8:00:00
+#$ -l h_vmem=4G
+#$ -l tmem=4G
 #$ -R y
 #$ -pe openmpi 20
 #$ -l 10g=yes

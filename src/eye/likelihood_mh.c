@@ -9,10 +9,10 @@
  *
  * @param [in]  dataset     dataset
  * @param [in]  model       model to evaluate
+ * @param [in]  params      current parameter values to evaluate the model
  * @param [in]  n           number of parameters in the current block
  * @param [in]  block       indices of the parameters in the current block (may
  *                            be NULL if there is no blocking)
- * @param [in]  params      current parameter values to evaluate the model
  * @param [out] likelihood  likelihood value
  * @param [out] geometry    geometry for the current parameter block (may be
  *                            NULL if no geometry is required by the current
@@ -25,7 +25,7 @@
  *                        linear algebra routine.
  */
 static int eye_likelihood_mh(const void * dataset, const gmcmc_model * model,
-                             size_t n, const size_t * block, const double * params,
+                             const double * params, size_t n, const size_t * block,
                              double * likelihood, void ** geometry) {
   // Metropolis-Hastings likelihood functions don't calculate geometry
   (void)geometry;

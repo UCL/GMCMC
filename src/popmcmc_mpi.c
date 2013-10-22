@@ -46,6 +46,18 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
     }
   }
 
+  // Allocate arrays to store the acceptance ratios for all blocks in each temperature
+  const size_t num_blocks = gmcmc_model_get_num_blocks(model);
+  double * mutations = NULL, * stepsizes = NULL, * exchanges = NULL;
+  if ((mutations = malloc(num_chains * num_blocks * sizeof(double))) == NULL ||
+      (stepsizes = malloc(num_chains * num_blocks * sizeof(double))) == NULL ||
+      (exchanges = malloc(num_chains * sizeof(double))) == NULL) {
+    for (size_t k = 0; k < num_chains; k++)
+      gmcmc_chain_destroy(chains[k]);
+    free(chains);
+    GMCMC_ERROR("Failed to allocate memory for acceptance ratios", GMCMC_ENOMEM);
+  }
+
   // Burn-in loop
   for (size_t i = 0; i < options->num_burn_in_samples; i++) {
     // Update each chain in the population in parallel
@@ -54,6 +66,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         for (size_t k = 0; k < num_chains; k++)
           gmcmc_chain_destroy(chains[k]);
         free(chains);
+        free(mutations);
+        free(exchanges);
+        free(stepsizes);
         GMCMC_ERROR("Error updating chains", error);
       }
     }
@@ -68,6 +83,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error receiving chains", error);
           }
         }
@@ -81,6 +99,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           for (size_t k = 0; k < num_chains; k++)
             gmcmc_chain_destroy(chains[k]);
           free(chains);
+          free(mutations);
+          free(exchanges);
+          free(stepsizes);
           GMCMC_ERROR("Error sending chains", error);
         }
       }
@@ -94,39 +115,42 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         for (size_t k = 0; k < num_chains; k++)
           gmcmc_chain_destroy(chains[k]);
         free(chains);
+        free(mutations);
+        free(exchanges);
+        free(stepsizes);
         GMCMC_ERROR("Error exchanging chains", error);
       }
 
       // Adjust parameter proposal widths
       if (i % options->adapt_rate == 0) {
-        double mutations[num_chains];
-        double exchanges[num_chains];
-        double stepsizes[num_chains];
-
         double lower_stepsize, upper_stepsize;
         gmcmc_model_get_stepsize_bounds(model, &lower_stepsize, &upper_stepsize);
 
         // For each population
         for (size_t j = 0; j < num_chains; j++) {
-          // Adjust proposal width for parameter value inference
-          mutations[j] = chains[j]->accepted_mutation /
-                         (double)chains[j]->attempted_mutation;
+          // For each block in the population
+          for (size_t i = 0; i < num_blocks; i++) {
+            // Adjust proposal width for parameter value inference
+            mutations[j * num_blocks + i] = chains[j]->accepted_mutation[i] /
+                                            (double)chains[j]->attempted_mutation[i];
 
-          // Don't update chain 0 unless it is the only chain
-          if (j > 0 || options->num_temperatures == 1) {
-            if (mutations[j] < options->lower_acceptance_rate)
-              chains[j]->stepsize = fmax(chains[j]->stepsize * 0.8, lower_stepsize);
-            else if (mutations[j] > options->upper_acceptance_rate)
-              chains[j]->stepsize = fmin(chains[j]->stepsize * 1.2, upper_stepsize);
+            // Don't update chain 0 unless it is the only chain
+            if (j > 0 || options->num_temperatures == 1) {
+              if (mutations[j * num_blocks + i] < options->lower_acceptance_rate)
+                chains[j]->stepsize[i] = fmax(chains[j]->stepsize[i] * 0.8, lower_stepsize);
+              else if (mutations[j * num_blocks + i] > options->upper_acceptance_rate)
+                chains[j]->stepsize[i] = fmin(chains[j]->stepsize[i] * 1.2, upper_stepsize);
+            }
+            stepsizes[j * num_blocks + i] = chains[j]->stepsize[i];
+
+
+            // Reset counters
+            chains[j]->accepted_mutation[i] = 0;
+            chains[j]->attempted_mutation[i] = 0;
           }
-          stepsizes[j] = chains[j]->stepsize;
 
           exchanges[j] = chains[j]->accepted_exchange /
                          (double)chains[j]->attempted_exchange;
-
-          // Reset counters
-          chains[j]->accepted_mutation = 0;
-          chains[j]->attempted_mutation = 0;
         }
 
         if (options->acceptance != NULL)
@@ -143,6 +167,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error writing chains", error);
           }
         }
@@ -159,6 +186,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error sending chains", error);
           }
         }
@@ -172,6 +202,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error receiving chains", error);
         }
       }
@@ -188,6 +221,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         for (size_t k = 0; k < num_chains; k++)
           gmcmc_chain_destroy(chains[k]);
         free(chains);
+        free(mutations);
+        free(exchanges);
+        free(stepsizes);
         GMCMC_ERROR("Error updating chains", error);
       }
     }
@@ -202,6 +238,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error receiving chains", error);
           }
         }
@@ -215,6 +254,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error sending chains", error);
         }
       }
@@ -227,21 +269,24 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         for (size_t k = 0; k < num_chains; k++)
           gmcmc_chain_destroy(chains[k]);
         free(chains);
+        free(mutations);
+        free(exchanges);
+        free(stepsizes);
         GMCMC_ERROR("Error exchanging chains", error);
       }
 
       // Report acceptance ratios
       if (i % options->adapt_rate == 0) {
-        double mutations[num_chains];
-        double exchanges[num_chains];
-        double stepsizes[num_chains];
-
         // For each population
         for (size_t j = 0; j < num_chains; j++) {
-          // Adjust proposal width for parameter value inference
-          mutations[j] = chains[j]->accepted_mutation /
-                         (double)chains[j]->attempted_mutation;
-          stepsizes[j] = chains[j]->stepsize;
+          // For each block
+          for (size_t i = 0; i < num_blocks; i++) {
+            // Adjust proposal width for parameter value inference
+            mutations[j * num_blocks + i] = chains[j]->accepted_mutation[i] /
+                                            (double)chains[j]->attempted_mutation[i];
+            stepsizes[j * num_blocks + i] = chains[j]->stepsize[i];
+          }
+
           exchanges[j] = chains[j]->accepted_exchange /
                          (double)chains[j]->attempted_exchange;
         }
@@ -260,6 +305,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error writing chains", error);
           }
         }
@@ -276,6 +324,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error sending chains", error);
           }
         }
@@ -289,6 +340,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_destroy(chains[k]);
             free(chains);
+            free(mutations);
+            free(exchanges);
+            free(stepsizes);
             GMCMC_ERROR("Error receiving chains", error);
         }
       }
@@ -300,6 +354,9 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
   for (size_t j = 0; j < num_chains; j++)
     gmcmc_chain_destroy(chains[j]);
   free(chains);
+  free(mutations);
+  free(exchanges);
+  free(stepsizes);
 
   return 0;
 }
@@ -347,13 +404,6 @@ static int gmcmc_chain_mpi_send(const gmcmc_chain * chain, int dest, int tag, MP
 
   if ((error = MPI_Send((void *)&chain->log_likelihood, 1, MPI_DOUBLE, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending log likelihood", GMCMC_EIPC);
-
-  uint64_t size = (uint64_t)chain->size;
-  if ((error = MPI_Send(&size, 1, MPI_UINT64_T, dest, tag, comm)) != 0)
-    GMCMC_ERROR("Error sending chain specific data size", GMCMC_EIPC);
-
-  if ((error = MPI_Send(chain->chainspecific, chain->size, MPI_BYTE, dest, tag, comm)) != 0)
-    GMCMC_ERROR("Error sending chain specific data", GMCMC_EIPC);
 
   return 0;
 }
@@ -422,22 +472,6 @@ static int gmcmc_chain_mpi_recv(gmcmc_chain ** chain, int source, int tag, MPI_C
 
   if ((error = MPI_Recv(&(*chain)->log_likelihood, 1, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving log likelihood", GMCMC_EIPC);
-
-  uint64_t size;
-  if ((error = MPI_Recv(&size, 1, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
-    GMCMC_ERROR("Error receiving chain specific data size", GMCMC_EIPC);
-
-  // If the area for chain specific data needs to be resized
-  if (size != (*chain)->size) {
-    free((*chain)->chainspecific);
-
-    if (((*chain)->chainspecific = malloc(size)) == NULL)
-      GMCMC_ERROR("Failed to allocate chain specific data", GMCMC_ENOMEM);
-    (*chain)->size = size;
-  }
-
-  if ((error = MPI_Recv((*chain)->chainspecific, size, MPI_BYTE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
-    GMCMC_ERROR("Error receiving chain specific data", GMCMC_EIPC);
 
   return 0;
 }

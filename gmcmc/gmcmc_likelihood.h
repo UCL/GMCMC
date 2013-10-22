@@ -8,10 +8,10 @@
  *
  * @param [in]  dataset     dataset
  * @param [in]  model       model to evaluate
+ * @param [in]  params      current parameter values to evaluate the model
  * @param [in]  n           number of parameters in the current block
  * @param [in]  block       indices of the parameters in the current block (may
  *                            be NULL if there is no blocking)
- * @param [in]  params      current parameter values to evaluate the model
  * @param [out] likelihood  likelihood value
  * @param [out] geometry    geometry for the current parameter block (may be
  *                            NULL if no geometry is required by the current
@@ -22,7 +22,7 @@
  *         less than zero on non-fatal error.
  */
 typedef int (*gmcmc_likelihood_function)(const void *, const gmcmc_model *,
-                                         size_t, const size_t *, const double *,
+                                         const double *, size_t, const size_t *,
                                          double *, void **);
 
 #endif /* GMCMC_LIKELIHOOD_H */
