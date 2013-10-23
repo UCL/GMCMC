@@ -122,7 +122,7 @@ static int write_matlab_field(mxArray * cells, mwIndex index, const char * field
 int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
                                size_t i, size_t j,
                                const double * params, const double * log_prior,
-                               double log_likelihood, double stepsize) {
+                               double log_likelihood, const double * stepsize) {
   static mxArray * samples = NULL;      // The MATLAB cell array
   static size_t k = 0;                  // Index into the MATLAB cell array [0, gmcmc_matlab_save_size)
   static size_t written = 0;            // The number of samples written to file so far
@@ -130,6 +130,7 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
   static const int nfields = 4;
 
   const size_t num_params = gmcmc_model_get_num_params(model);
+  const size_t num_blocks = gmcmc_model_get_num_blocks(model);
 
   // Lazily create the samples array
   if (samples == NULL) {
@@ -137,7 +138,7 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
                      min(gmcmc_matlab_save_size, max(options->num_burn_in_samples,
                                                      options->num_posterior_samples)) :
                      min(gmcmc_matlab_save_size, options->num_posterior_samples);
-    const mwSize fielddims[][2] = { { n, num_params }, { n, 1 }, { n, num_params }, { n, 1 } };
+    const mwSize fielddims[][2] = { { n, num_params }, { n, 1 }, { n, num_params }, { n, num_blocks } };
 
     if ((samples = create_matlab_array(options->num_temperatures, fieldnames, fielddims, nfields)) == NULL)
       GMCMC_ERROR("Failed to create MATLAB sample array", GMCMC_ENOMEM);
@@ -150,7 +151,7 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
     if ((error = write_matlab_field(samples, j, "Paras", k, params)) != 0 ||
         (error = write_matlab_field(samples, j, "LogPrior", k, log_prior)) != 0 ||
         (error = write_matlab_field(samples, j, "LL", k, &log_likelihood)) != 0 ||
-        (error = write_matlab_field(samples, j, "StepSize", k, &stepsize)) != 0) {
+        (error = write_matlab_field(samples, j, "StepSize", k, stepsize)) != 0) {
       mxDestroyArray(samples);
       samples = NULL;
       k = 0;

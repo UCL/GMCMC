@@ -92,8 +92,8 @@ static int ode_likelihood_mh(const void * dataset, const gmcmc_model * model,
   gmcmc_ode_model_get_tolerances(ode_model, &options.abstol, &options.reltol);
   int error;
   if ((error = cvodes_solve(gmcmc_ode_model_get_rhs(ode_model), NULL,
-                            num_timepoints, num_species, num_params,
-                            timepoints, params, &options, simdata, NULL, lds)) != 0) {
+                            num_timepoints, num_species, num_params, 0,
+                            timepoints, params, NULL, &options, simdata, NULL, lds)) != 0) {
     free(simdata);
     GMCMC_WARNING("Failed to solve system of ODEs", error);
   }

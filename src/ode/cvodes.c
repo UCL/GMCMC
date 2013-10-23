@@ -63,19 +63,26 @@ static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
  * @param [in]  num_timepoints  the number of timepoints
  * @param [in]  num_species     the number of independent variables
  * @param [in]  num_params      the number of parameters
+ * @param [in]  num_sens        the number of parameters to compute sensitivities
+ *                                for (set to zero to disable sensitivity
+ *                                calculations)
  * @param [in]  timepoints      the timepoints at which data is to be returned
  * @param [in]  params          parameters
+ * @param [in]  sens_params     the indices of the parameters to compute the
+ *                                sensitivities for (may be NULL to compute the
+ *                                sensitivities for all parameters)
  * @param [in]  options         options for the integrator
  * @param [out] simdata         contains the state values for each species at
  *                                each timepoint in column-major order.  If
  *                                options.xdotcalc is true then the rhs will be
  *                                evaluated once at time = 0 and simdata need
  *                                only be 1 * num_species.
- * @param [out] sensitivities   sensitivities of each parameter with respect to
- *                                each independent variable.  The sensitivity of
- *                                parameter j with respect to variable k at
- *                                timepoint i is stored at (j * num_ics + k) * lds + i
- *                                Set to NULL if sensitivities are not to be
+ * @param [out] sensitivities   sensitivities of each parameter in sens_params
+ *                                with respect to each independent variable.
+ *                                The sensitivity of parameter j with respect to
+ *                                variable k at timepoint i is stored at
+ *                                (j * num_ics + k) * lds + i.
+ *                                May be NULL if sensitivities are not to be
  *                                calculated.
  * @param [in]  lds             leading dimension of simdata and sensitivities
  *
@@ -85,8 +92,8 @@ static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
  *         GMCMC_ELINAL  if the solution could not be found.
  */
 static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
-                        size_t num_timepoints, size_t num_species, size_t num_params,
-                        const double * timepoints, const double * params,
+                        size_t num_timepoints, size_t num_species, size_t num_params, size_t num_sens,
+                        const double * timepoints, const double * params, const size_t * sens_params,
                         const cvodes_options * options,
                         double * simdata, double * sensitivities, size_t lds) {
   int error;
@@ -129,10 +136,11 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
   }
 
   N_Vector * yS = NULL;
-  if (sensitivities != NULL) {
+  int * plist = NULL;
+  if (num_sens > 0) {
     // Set sensitivity initial conditions
-    yS = N_VCloneVectorArray_Serial(num_params, y);
-    for (size_t j = 0; j < num_params; j++) {
+    yS = N_VCloneVectorArray_Serial(num_sens, y);
+    for (size_t j = 0; j < num_sens; j++) {
       for (size_t i = 0; i < num_species; i++)
         NV_Ith_S(yS[j], i) = sensitivities[(j * num_species + i) * lds];
     }
@@ -140,7 +148,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
     // Activate sensitivity calculations
     if (rhs_sens == NULL) {
       // Use default finite differences
-      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, NULL, yS)) != CV_SUCCESS) {
+      if ((error = CVodeSensInit(cvode_mem, num_sens, CV_SIMULTANEOUS, NULL, yS)) != CV_SUCCESS) {
         CVodeFree(&cvode_mem);
         GMCMC_ERROR("Failed to activate ODE solver sensitivity calculations",
                     (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
@@ -148,7 +156,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
     }
     else {
       // Use supplied sensitivities function
-      if ((error = CVodeSensInit(cvode_mem, num_params, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != CV_SUCCESS) {
+      if ((error = CVodeSensInit(cvode_mem, num_sens, CV_SIMULTANEOUS, cvodes_rhs_sens, yS)) != CV_SUCCESS) {
         CVodeFree(&cvode_mem);
         GMCMC_ERROR("Failed to activate ODE solver sensitivity calculations",
                     (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
@@ -162,17 +170,28 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
                   (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
     }
 
+    if (sens_params != NULL) {
+      if ((plist = malloc(num_sens * sizeof(int))) == NULL) {
+        CVodeFree(&cvode_mem);
+        GMCMC_ERROR("Failed to allocate sensitivity parameter list", GMCMC_ENOMEM);
+      }
+      for (size_t i = 0; i < num_sens; i++)
+        plist[i] = (int)sens_params[i];
+    }
+
     // Set sensitivity analysis optional inputs
-    if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, NULL)) != CV_SUCCESS) {
+    if ((error = CVodeSetSensParams(cvode_mem, (realtype *)params, NULL, plist)) != CV_SUCCESS) {
       CVodeFree(&cvode_mem);
+      free(plist);
       GMCMC_ERROR("Failed to set ODE solver sensitivity parameters",
                   (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);
     }
 
-    if ((userdata.yS = malloc(num_params * sizeof(double *))) == NULL ||
-        (userdata.ySdot = malloc(num_params * sizeof(double *))) == NULL) {
+    if ((userdata.yS = malloc(num_sens * sizeof(double *))) == NULL ||
+        (userdata.ySdot = malloc(num_sens * sizeof(double *))) == NULL) {
       free(userdata.yS);
       free(userdata.ySdot);
+      free(plist);
       CVodeFree(&cvode_mem);
       GMCMC_ERROR("Failed to allocate ODE solver sensitivity vectors", GMCMC_ENOMEM);
     }
@@ -184,6 +203,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
     if ((error = CVode(cvode_mem, timepoints[i], y, &tret, CV_NORMAL)) != CV_SUCCESS) {
       free(userdata.yS);
       free(userdata.ySdot);
+      free(plist);
       CVodeFree(&cvode_mem);
       GMCMC_ERROR("Failed to advance ODE solution", GMCMC_ELINAL);
     }
@@ -196,6 +216,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
       if ((error = CVodeGetSens(cvode_mem, &tret, yS)) != CV_SUCCESS) {
         free(userdata.yS);
         free(userdata.ySdot);
+        free(plist);
         CVodeFree(&cvode_mem);
         GMCMC_ERROR("Failed to extract ODE sensitivity solution", GMCMC_ELINAL);
       }
@@ -212,6 +233,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
 
   free(userdata.yS);
   free(userdata.ySdot);
+  free(plist);
 
   // Free solver memory
   CVodeFree(&cvode_mem);

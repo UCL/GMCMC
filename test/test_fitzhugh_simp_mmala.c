@@ -2,13 +2,13 @@
 static void test_ode_likelihood_fitzhugh_simp_mmala1() {
   // Input argument
   double params[] = { 5.30772176281457675, 3.49070791216272047, 0.13701552198553010 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -16,57 +16,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala1() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -30393.30529750428831903, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -6094.30756303122507234, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 7930.09412095661355124, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 35489.62089548473886680, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -6094.30756303122507234, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 7930.09412095661355124, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 35489.62089548473886680, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 1406.50008107961275527, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -1881.00819482846281971, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 6604.47865289073524764, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -1881.00819482846281971, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2702.64880638519389322, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -15216.00652228701437707, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 6604.47865289073524764, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -15216.00652228701437707, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 758072.54189477069303393, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 1406.50008107961275527, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -1881.00819482846281971, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 6604.47865289073524764, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -1881.00819482846281971, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2702.64880638519389322, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -15216.00652228701437707, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 6604.47865289073524764, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -15216.00652228701437707, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 758072.54189477069303393, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18115
 static void test_ode_likelihood_fitzhugh_simp_mmala2() {
   // Input argument
   double params[] = { 3.50280275038109101, 0.31608456402342666, 0.77259025411692495 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -74,57 +70,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala2() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -120590.63488599375705235, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -122299.14327909013081808, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 395318.72560820187209174, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 26976.44539445302507374, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -122299.14327909013081808, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 395318.72560820187209174, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 26976.44539445302507374, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 74814.75378084374824539, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -237140.31489934676210396, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -7689.15519635166583612, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -237140.31489934676210396, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 758912.04294846730772406, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 30402.46009287963170209, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -7689.15519635166583612, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 30402.46009287963170209, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 24872.64722484523008461, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 74814.75378084374824539, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -237140.31489934676210396, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -7689.15519635166583612, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -237140.31489934676210396, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 758912.04294846730772406, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 30402.46009287963170209, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -7689.15519635166583612, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 30402.46009287963170209, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 24872.64722484523008461, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 2540
 static void test_ode_likelihood_fitzhugh_simp_mmala3() {
   // Input argument
   double params[] = { 6.64738683872214953, 9.13328301186392366, 8.09845418861485200 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -132,57 +124,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala3() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -17573.39949900427018292, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1277.29790791469849864, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 671.01478971623146208, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -63.64396175261231292, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1277.29790791469849864, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 671.01478971623146208, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -63.64396175261231292, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 222.86663429700439565, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -119.32193271704224458, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 5.70461329317951726, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -119.32193271704224458, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 64.72713707161020125, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -4.46484804589183959, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 5.70461329317951726, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -4.46484804589183959, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 10.63385645161818083, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 222.86663429700439565, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -119.32193271704224458, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 5.70461329317951726, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -119.32193271704224458, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 64.72713707161020125, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -4.46484804589183959, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 5.70461329317951726, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -4.46484804589183959, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 10.63385645161818083, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18265
 static void test_ode_likelihood_fitzhugh_simp_mmala4() {
   // Input argument
   double params[] = { 8.96555547704924294, 6.66022781691076382, 0.97285191912022950 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -190,57 +178,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala4() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -26600.35172227480506990, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -3057.16655392707025385, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 3137.37724446679249013, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1408.79303584419631079, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -3057.16655392707025385, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 3137.37724446679249013, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1408.79303584419631079, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 449.81443171469385334, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -483.25114288592931189, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 186.89685753429444048, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -483.25114288592931189, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 525.14025280658074735, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -265.38584116581569106, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 186.89685753429444048, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -265.38584116581569106, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 2202.15783290340141320, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 449.81443171469385334, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -483.25114288592931189, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 186.89685753429444048, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -483.25114288592931189, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 525.14025280658074735, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -265.38584116581569106, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 186.89685753429444048, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -265.38584116581569106, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 2202.15783290340141320, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 12645
 static void test_ode_likelihood_fitzhugh_simp_mmala5() {
   // Input argument
   double params[] = { 7.24044216570513299, 9.91574039712331512, 2.52006494231474276 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -248,57 +232,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala5() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -17801.84839814954830217, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -966.36583180576599261, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 431.71104667275426436, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 519.11458422074645114, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -966.36583180576599261, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 431.71104667275426436, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 519.11458422074645114, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 322.05285825536486755, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -218.16799262286124872, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 301.17338454599718034, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -218.16799262286124872, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 156.68211575463311647, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -263.46160110196984760, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 301.17338454599718034, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -263.46160110196984760, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 722.37438640816128554, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 322.05285825536486755, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -218.16799262286124872, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 301.17338454599718034, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -218.16799262286124872, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 156.68211575463311647, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -263.46160110196984760, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 301.17338454599718034, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -263.46160110196984760, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 722.37438640816128554, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 1951
 static void test_ode_likelihood_fitzhugh_simp_mmala6() {
   // Input argument
   double params[] = { 4.58861540626059128, 2.02886505371407200, 7.38042841808833483 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -306,57 +286,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala6() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -29996.68309443609177833, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -9562.24397989726639935, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 11301.82602701916403021, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 102.00601958271286662, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -9562.24397989726639935, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 11301.82602701916403021, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 102.00601958271286662, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 3039.75054997003280732, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -3603.45800181713912025, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -33.21214546897290631, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -3603.45800181713912025, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4272.27129259952471330, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 38.68644156904293396, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -33.21214546897290631, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 38.68644156904293396, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 8.08688531749990069, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 3039.75054997003280732, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -3603.45800181713912025, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -33.21214546897290631, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -3603.45800181713912025, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4272.27129259952471330, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 38.68644156904293396, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -33.21214546897290631, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 38.68644156904293396, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 8.08688531749990069, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5569
 static void test_ode_likelihood_fitzhugh_simp_mmala7() {
   // Input argument
   double params[] = { 2.08627042526256723, 1.46762527052647584, 7.07751076658575151 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -364,57 +340,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala7() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -15931.81252933866926469, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -3570.24369209542555836, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 1872.07505823340511597, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -296.42204244581694184, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -3570.24369209542555836, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 1872.07505823340511597, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -296.42204244581694184, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 4438.39913142678415170, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -1626.66881949133585294, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 174.43644866701919227, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -1626.66881949133585294, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 719.21177698162932757, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -85.46704485471104817, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 174.43644866701919227, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -85.46704485471104817, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 24.49495497459780680, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 4438.39913142678415170, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -1626.66881949133585294, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 174.43644866701919227, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -1626.66881949133585294, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 719.21177698162932757, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -85.46704485471104817, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 174.43644866701919227, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -85.46704485471104817, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 24.49495497459780680, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 10934
 static void test_ode_likelihood_fitzhugh_simp_mmala8() {
   // Input argument
   double params[] = { 2.70363660707864994, 6.65161240285246258, 2.05318579881762187 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -422,57 +394,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala8() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -17899.89892131178203272, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 411.73156620612485312, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -272.49321256663449731, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 99.82785148969101385, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 411.73156620612485312, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -272.49321256663449731, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 99.82785148969101385, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 507.00582849600499458, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -303.77688533032778651, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 11.57769257036024335, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -303.77688533032778651, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 182.43169819000468124, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -8.71035388268767719, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 11.57769257036024335, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -8.71035388268767719, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 8.99247606459851312, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 507.00582849600499458, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -303.77688533032778651, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 11.57769257036024335, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -303.77688533032778651, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 182.43169819000468124, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -8.71035388268767719, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 11.57769257036024335, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -8.71035388268767719, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 8.99247606459851312, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19143
 static void test_ode_likelihood_fitzhugh_simp_mmala9() {
   // Input argument
   double params[] = { 9.42310304112296215, 0.67100713519613775, 9.31066553459566393 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -480,57 +448,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala9() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -338165.65302355901803821, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -82308.87696763518033549, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 391109.96643096115440130, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 30907.76464423954894301, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -82308.87696763518033549, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 391109.96643096115440130, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 30907.76464423954894301, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 10658.95543681849630957, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -51674.89065165810461622, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -3906.16711242538985971, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -51674.89065165810461622, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 260473.43306378132547252, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 18001.92474651273732889, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -3906.16711242538985971, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 18001.92474651273732889, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 1522.68968675293353954, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 10658.95543681849630957, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -51674.89065165810461622, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -3906.16711242538985971, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -51674.89065165810461622, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 260473.43306378132547252, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 18001.92474651273732889, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -3906.16711242538985971, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 18001.92474651273732889, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 1522.68968675293353954, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19290
 static void test_ode_likelihood_fitzhugh_simp_mmala10() {
   // Input argument
   double params[] = { 8.61176413779069350, 4.91690951271707899, 9.14464616384153928 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -538,57 +502,53 @@ static void test_ode_likelihood_fitzhugh_simp_mmala10() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -32852.94311919403844513, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -4999.97605538145671744, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 6431.25499777820368763, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 68.06778574786926583, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -4999.97605538145671744, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 6431.25499777820368763, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 68.06778574786926583, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 684.01894018218445126, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -881.85771689469106605, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -9.43571135866513622, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -881.85771689469106605, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 1137.61541475323974737, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 11.55420084452324225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -9.43571135866513622, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 11.55420084452324225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 2.86118233151505263, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 684.01894018218445126, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -881.85771689469106605, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -9.43571135866513622, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -881.85771689469106605, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 1137.61541475323974737, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 11.55420084452324225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -9.43571135866513622, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 11.55420084452324225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 2.86118233151505263, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 3153
 static void test_ode_likelihood_fitzhugh_simp_mmala11() {
   // Input argument
   double params[] = { 6.74573396881734233, 3.03855292231693497, 1.74972370170045743 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -596,44 +556,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala11() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -38442.44488384217402199, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -9472.57288142500874528, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 14224.81812159389846784, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 295.38586063013366356, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -9472.57288142500874528, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 14224.81812159389846784, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 295.38586063013366356, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 1862.05473430588040173, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -2802.24997122995910104, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -41.65161654291264881, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -2802.24997122995910104, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4225.80617819890267128, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 80.47854661395686549, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -41.65161654291264881, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 80.47854661395686549, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 244.22440134599810335, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 1862.05473430588040173, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -2802.24997122995910104, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -41.65161654291264881, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -2802.24997122995910104, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4225.80617819890267128, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 80.47854661395686549, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -41.65161654291264881, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 80.47854661395686549, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 244.22440134599810335, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 3153
@@ -643,41 +599,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala11() {
   double likelihood = -38442.44488384217402199;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -9472.57288142500874528;
-  grad_ll[1] = 14224.81812159389846784;
-  grad_ll[2] = 295.38586063013366356;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -9472.57288142500874528;
+  geometry->gradient_log_likelihood[1] = 14224.81812159389846784;
+  geometry->gradient_log_likelihood[2] = 295.38586063013366356;
 
-  FI[0 * ldfi + 0] = 1862.05473430588040173;
-  FI[0 * ldfi + 1] = -2802.24997122995910104;
-  FI[0 * ldfi + 2] = -41.65161654291264881;
-  FI[1 * ldfi + 0] = -2802.24997122995910104;
-  FI[1 * ldfi + 1] = 4225.80617819890267128;
-  FI[1 * ldfi + 2] = 80.47854661395686549;
-  FI[2 * ldfi + 0] = -41.65161654291264881;
-  FI[2 * ldfi + 1] = 80.47854661395686549;
-  FI[2 * ldfi + 2] = 244.22440134599810335;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 1862.05473430588040173;
+  geometry->FI[0 * geometry->ldfi + 1] = -2802.24997122995910104;
+  geometry->FI[0 * geometry->ldfi + 2] = -41.65161654291264881;
+  geometry->FI[1 * geometry->ldfi + 0] = -2802.24997122995910104;
+  geometry->FI[1 * geometry->ldfi + 1] = 4225.80617819890267128;
+  geometry->FI[1 * geometry->ldfi + 2] = 80.47854661395686549;
+  geometry->FI[2 * geometry->ldfi + 0] = -41.65161654291264881;
+  geometry->FI[2 * geometry->ldfi + 1] = 80.47854661395686549;
+  geometry->FI[2 * geometry->ldfi + 2] = 244.22440134599810335;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -704,13 +663,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala11() {
 static void test_ode_likelihood_fitzhugh_simp_mmala12() {
   // Input argument
   double params[] = { 5.18775700372736637, 4.52359344875752356, 9.91933103781988912 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -718,44 +677,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala12() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -20512.15321324777323753, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -3111.79105914265892352, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 2325.64732847600498644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -64.27286563438627809, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -3111.79105914265892352, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 2325.64732847600498644, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -64.27286563438627809, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 768.33086783361216021, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -564.90754979399287095, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 9.54863730308700198, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -564.90754979399287095, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 417.59808985208951526, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -7.74726863971552238, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 9.54863730308700198, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -7.74726863971552238, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 2.64470477673443893, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 768.33086783361216021, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -564.90754979399287095, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 9.54863730308700198, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -564.90754979399287095, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 417.59808985208951526, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -7.74726863971552238, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 9.54863730308700198, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -7.74726863971552238, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 2.64470477673443893, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19411
@@ -765,41 +720,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala12() {
   double likelihood = -20512.15321324777323753;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -3111.79105914265892352;
-  grad_ll[1] = 2325.64732847600498644;
-  grad_ll[2] = -64.27286563438627809;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -3111.79105914265892352;
+  geometry->gradient_log_likelihood[1] = 2325.64732847600498644;
+  geometry->gradient_log_likelihood[2] = -64.27286563438627809;
 
-  FI[0 * ldfi + 0] = 768.33086783361216021;
-  FI[0 * ldfi + 1] = -564.90754979399287095;
-  FI[0 * ldfi + 2] = 9.54863730308700198;
-  FI[1 * ldfi + 0] = -564.90754979399287095;
-  FI[1 * ldfi + 1] = 417.59808985208951526;
-  FI[1 * ldfi + 2] = -7.74726863971552238;
-  FI[2 * ldfi + 0] = 9.54863730308700198;
-  FI[2 * ldfi + 1] = -7.74726863971552238;
-  FI[2 * ldfi + 2] = 2.64470477673443893;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 768.33086783361216021;
+  geometry->FI[0 * geometry->ldfi + 1] = -564.90754979399287095;
+  geometry->FI[0 * geometry->ldfi + 2] = 9.54863730308700198;
+  geometry->FI[1 * geometry->ldfi + 0] = -564.90754979399287095;
+  geometry->FI[1 * geometry->ldfi + 1] = 417.59808985208951526;
+  geometry->FI[1 * geometry->ldfi + 2] = -7.74726863971552238;
+  geometry->FI[2 * geometry->ldfi + 0] = 9.54863730308700198;
+  geometry->FI[2 * geometry->ldfi + 1] = -7.74726863971552238;
+  geometry->FI[2 * geometry->ldfi + 2] = 2.64470477673443893;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -826,13 +784,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala12() {
 static void test_ode_likelihood_fitzhugh_simp_mmala13() {
   // Input argument
   double params[] = { 0.91344669904726339, 0.64954687060182592, 2.40364595026354788 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -840,44 +798,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala13() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14181.40006756805814803, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 616.38832484635395303, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 1476.88940224127009060, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -279.91938842083561667, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 616.38832484635395303, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 1476.88940224127009060, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -279.91938842083561667, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 7688.67180302449469309, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 2131.26572635764478036, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 628.92701716153078451, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 2131.26572635764478036, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2090.40219159164871598, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -36.31157676325436512, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 628.92701716153078451, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -36.31157676325436512, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 300.79149807055779320, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 7688.67180302449469309, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 2131.26572635764478036, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 628.92701716153078451, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 2131.26572635764478036, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2090.40219159164871598, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -36.31157676325436512, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 628.92701716153078451, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -36.31157676325436512, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 300.79149807055779320, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19142
@@ -887,41 +841,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala13() {
   double likelihood = -14181.40006756805814803;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 616.38832484635395303;
-  grad_ll[1] = 1476.88940224127009060;
-  grad_ll[2] = -279.91938842083561667;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 616.38832484635395303;
+  geometry->gradient_log_likelihood[1] = 1476.88940224127009060;
+  geometry->gradient_log_likelihood[2] = -279.91938842083561667;
 
-  FI[0 * ldfi + 0] = 7688.67180302449469309;
-  FI[0 * ldfi + 1] = 2131.26572635764478036;
-  FI[0 * ldfi + 2] = 628.92701716153078451;
-  FI[1 * ldfi + 0] = 2131.26572635764478036;
-  FI[1 * ldfi + 1] = 2090.40219159164871598;
-  FI[1 * ldfi + 2] = -36.31157676325436512;
-  FI[2 * ldfi + 0] = 628.92701716153078451;
-  FI[2 * ldfi + 1] = -36.31157676325436512;
-  FI[2 * ldfi + 2] = 300.79149807055779320;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 7688.67180302449469309;
+  geometry->FI[0 * geometry->ldfi + 1] = 2131.26572635764478036;
+  geometry->FI[0 * geometry->ldfi + 2] = 628.92701716153078451;
+  geometry->FI[1 * geometry->ldfi + 0] = 2131.26572635764478036;
+  geometry->FI[1 * geometry->ldfi + 1] = 2090.40219159164871598;
+  geometry->FI[1 * geometry->ldfi + 2] = -36.31157676325436512;
+  geometry->FI[2 * geometry->ldfi + 0] = 628.92701716153078451;
+  geometry->FI[2 * geometry->ldfi + 1] = -36.31157676325436512;
+  geometry->FI[2 * geometry->ldfi + 2] = 300.79149807055779320;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -948,13 +905,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala13() {
 static void test_ode_likelihood_fitzhugh_simp_mmala14() {
   // Input argument
   double params[] = { 8.21097531144133441, 8.92757186181218820, 1.52967363487828245 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -962,44 +919,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala14() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -20262.71049348211818142, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1443.00208412685947224, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 935.87541462087699529, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 896.73900877167830004, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1443.00208412685947224, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 935.87541462087699529, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 896.73900877167830004, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 311.60030877119629622, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -243.38129876324052248, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 291.30317714598476186, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -243.38129876324052248, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 195.80903048846946035, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -292.72409209135952324, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 291.30317714598476186, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -292.72409209135952324, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 1269.03231563794179237, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 311.60030877119629622, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -243.38129876324052248, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 291.30317714598476186, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -243.38129876324052248, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 195.80903048846946035, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -292.72409209135952324, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 291.30317714598476186, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -292.72409209135952324, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 1269.03231563794179237, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 9707
@@ -1009,41 +962,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala14() {
   double likelihood = -20262.71049348211818142;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1443.00208412685947224;
-  grad_ll[1] = 935.87541462087699529;
-  grad_ll[2] = 896.73900877167830004;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1443.00208412685947224;
+  geometry->gradient_log_likelihood[1] = 935.87541462087699529;
+  geometry->gradient_log_likelihood[2] = 896.73900877167830004;
 
-  FI[0 * ldfi + 0] = 311.60030877119629622;
-  FI[0 * ldfi + 1] = -243.38129876324052248;
-  FI[0 * ldfi + 2] = 291.30317714598476186;
-  FI[1 * ldfi + 0] = -243.38129876324052248;
-  FI[1 * ldfi + 1] = 195.80903048846946035;
-  FI[1 * ldfi + 2] = -292.72409209135952324;
-  FI[2 * ldfi + 0] = 291.30317714598476186;
-  FI[2 * ldfi + 1] = -292.72409209135952324;
-  FI[2 * ldfi + 2] = 1269.03231563794179237;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 311.60030877119629622;
+  geometry->FI[0 * geometry->ldfi + 1] = -243.38129876324052248;
+  geometry->FI[0 * geometry->ldfi + 2] = 291.30317714598476186;
+  geometry->FI[1 * geometry->ldfi + 0] = -243.38129876324052248;
+  geometry->FI[1 * geometry->ldfi + 1] = 195.80903048846946035;
+  geometry->FI[1 * geometry->ldfi + 2] = -292.72409209135952324;
+  geometry->FI[2 * geometry->ldfi + 0] = 291.30317714598476186;
+  geometry->FI[2 * geometry->ldfi + 1] = -292.72409209135952324;
+  geometry->FI[2 * geometry->ldfi + 2] = 1269.03231563794179237;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1070,13 +1026,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala14() {
 static void test_ode_likelihood_fitzhugh_simp_mmala15() {
   // Input argument
   double params[] = { 8.88000477450161263, 9.79870349460009038, 0.30299690512992306 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1084,44 +1040,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala15() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -20544.14363720060282503, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1986.25750462548103314, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 1694.36092745956807448, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -6825.26013742346549407, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1986.25750462548103314, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 1694.36092745956807448, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -6825.26013742346549407, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 683.54614633630933440, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -633.18677025621786925, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 8910.84538529034580279, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -633.18677025621786925, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 592.83455132207757288, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -8665.03393432454868162, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 8910.84538529034580279, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -8665.03393432454868162, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 168048.39534688627463765, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 683.54614633630933440, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -633.18677025621786925, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 8910.84538529034580279, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -633.18677025621786925, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 592.83455132207757288, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -8665.03393432454868162, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 8910.84538529034580279, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -8665.03393432454868162, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 168048.39534688627463765, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 16003
@@ -1131,41 +1083,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala15() {
   double likelihood = -20544.14363720060282503;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1986.25750462548103314;
-  grad_ll[1] = 1694.36092745956807448;
-  grad_ll[2] = -6825.26013742346549407;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1986.25750462548103314;
+  geometry->gradient_log_likelihood[1] = 1694.36092745956807448;
+  geometry->gradient_log_likelihood[2] = -6825.26013742346549407;
 
-  FI[0 * ldfi + 0] = 683.54614633630933440;
-  FI[0 * ldfi + 1] = -633.18677025621786925;
-  FI[0 * ldfi + 2] = 8910.84538529034580279;
-  FI[1 * ldfi + 0] = -633.18677025621786925;
-  FI[1 * ldfi + 1] = 592.83455132207757288;
-  FI[1 * ldfi + 2] = -8665.03393432454868162;
-  FI[2 * ldfi + 0] = 8910.84538529034580279;
-  FI[2 * ldfi + 1] = -8665.03393432454868162;
-  FI[2 * ldfi + 2] = 168048.39534688627463765;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 683.54614633630933440;
+  geometry->FI[0 * geometry->ldfi + 1] = -633.18677025621786925;
+  geometry->FI[0 * geometry->ldfi + 2] = 8910.84538529034580279;
+  geometry->FI[1 * geometry->ldfi + 0] = -633.18677025621786925;
+  geometry->FI[1 * geometry->ldfi + 1] = 592.83455132207757288;
+  geometry->FI[1 * geometry->ldfi + 2] = -8665.03393432454868162;
+  geometry->FI[2 * geometry->ldfi + 0] = 8910.84538529034580279;
+  geometry->FI[2 * geometry->ldfi + 1] = -8665.03393432454868162;
+  geometry->FI[2 * geometry->ldfi + 2] = 168048.39534688627463765;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1192,13 +1147,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala15() {
 static void test_ode_likelihood_fitzhugh_simp_mmala16() {
   // Input argument
   double params[] = { 0.52123404770558746, 1.85972722203385032, 4.32791603819953608 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1206,44 +1161,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala16() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -13799.59049381232398446, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1065.08633598500045991, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 629.14299911562102352, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -133.61973470761478211, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1065.08633598500045991, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 629.14299911562102352, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -133.61973470761478211, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 2871.91144674234192280, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 932.91387266274352896, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 194.04141688699985480, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 932.91387266274352896, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 520.45039466327534683, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -27.93584874392650974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 194.04141688699985480, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -27.93584874392650974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 100.64782965292749850, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 2871.91144674234192280, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 932.91387266274352896, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 194.04141688699985480, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 932.91387266274352896, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 520.45039466327534683, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -27.93584874392650974, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 194.04141688699985480, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -27.93584874392650974, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 100.64782965292749850, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 2838
@@ -1253,41 +1204,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala16() {
   double likelihood = -13799.59049381232398446;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1065.08633598500045991;
-  grad_ll[1] = 629.14299911562102352;
-  grad_ll[2] = -133.61973470761478211;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1065.08633598500045991;
+  geometry->gradient_log_likelihood[1] = 629.14299911562102352;
+  geometry->gradient_log_likelihood[2] = -133.61973470761478211;
 
-  FI[0 * ldfi + 0] = 2871.91144674234192280;
-  FI[0 * ldfi + 1] = 932.91387266274352896;
-  FI[0 * ldfi + 2] = 194.04141688699985480;
-  FI[1 * ldfi + 0] = 932.91387266274352896;
-  FI[1 * ldfi + 1] = 520.45039466327534683;
-  FI[1 * ldfi + 2] = -27.93584874392650974;
-  FI[2 * ldfi + 0] = 194.04141688699985480;
-  FI[2 * ldfi + 1] = -27.93584874392650974;
-  FI[2 * ldfi + 2] = 100.64782965292749850;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 2871.91144674234192280;
+  geometry->FI[0 * geometry->ldfi + 1] = 932.91387266274352896;
+  geometry->FI[0 * geometry->ldfi + 2] = 194.04141688699985480;
+  geometry->FI[1 * geometry->ldfi + 0] = 932.91387266274352896;
+  geometry->FI[1 * geometry->ldfi + 1] = 520.45039466327534683;
+  geometry->FI[1 * geometry->ldfi + 2] = -27.93584874392650974;
+  geometry->FI[2 * geometry->ldfi + 0] = 194.04141688699985480;
+  geometry->FI[2 * geometry->ldfi + 1] = -27.93584874392650974;
+  geometry->FI[2 * geometry->ldfi + 2] = 100.64782965292749850;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1314,13 +1268,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala16() {
 static void test_ode_likelihood_fitzhugh_simp_mmala17() {
   // Input argument
   double params[] = { 1.54490892664056467, 3.25166788715831601, 8.60425058493798822 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1328,44 +1282,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala17() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14024.37841851914345170, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -749.13463057755802765, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 251.80190158240517917, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -143.66157884085339447, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -749.13463057755802765, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 251.80190158240517917, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -143.66157884085339447, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 1298.24685144563090944, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -93.53851071332110223, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 60.62678446631932871, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -93.53851071332110223, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 48.50650604482579809, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -19.28110245170573478, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 60.62678446631932871, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -19.28110245170573478, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 11.66467929177718332, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 1298.24685144563090944, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -93.53851071332110223, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 60.62678446631932871, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -93.53851071332110223, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 48.50650604482579809, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -19.28110245170573478, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 60.62678446631932871, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -19.28110245170573478, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 11.66467929177718332, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 8433
@@ -1375,41 +1325,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala17() {
   double likelihood = -14024.37841851914345170;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -749.13463057755802765;
-  grad_ll[1] = 251.80190158240517917;
-  grad_ll[2] = -143.66157884085339447;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -749.13463057755802765;
+  geometry->gradient_log_likelihood[1] = 251.80190158240517917;
+  geometry->gradient_log_likelihood[2] = -143.66157884085339447;
 
-  FI[0 * ldfi + 0] = 1298.24685144563090944;
-  FI[0 * ldfi + 1] = -93.53851071332110223;
-  FI[0 * ldfi + 2] = 60.62678446631932871;
-  FI[1 * ldfi + 0] = -93.53851071332110223;
-  FI[1 * ldfi + 1] = 48.50650604482579809;
-  FI[1 * ldfi + 2] = -19.28110245170573478;
-  FI[2 * ldfi + 0] = 60.62678446631932871;
-  FI[2 * ldfi + 1] = -19.28110245170573478;
-  FI[2 * ldfi + 2] = 11.66467929177718332;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 1298.24685144563090944;
+  geometry->FI[0 * geometry->ldfi + 1] = -93.53851071332110223;
+  geometry->FI[0 * geometry->ldfi + 2] = 60.62678446631932871;
+  geometry->FI[1 * geometry->ldfi + 0] = -93.53851071332110223;
+  geometry->FI[1 * geometry->ldfi + 1] = 48.50650604482579809;
+  geometry->FI[1 * geometry->ldfi + 2] = -19.28110245170573478;
+  geometry->FI[2 * geometry->ldfi + 0] = 60.62678446631932871;
+  geometry->FI[2 * geometry->ldfi + 1] = -19.28110245170573478;
+  geometry->FI[2 * geometry->ldfi + 2] = 11.66467929177718332;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1436,13 +1389,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala17() {
 static void test_ode_likelihood_fitzhugh_simp_mmala18() {
   // Input argument
   double params[] = { 7.89861977282778582, 4.12200452549465446, 6.08073271914716074 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1450,44 +1403,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala18() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -34959.43213655917497817, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -6368.90648752817196510, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 8709.72952468333096476, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 52.78237752851459419, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -6368.90648752817196510, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 8709.72952468333096476, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 52.78237752851459419, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 987.06796688943268236, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -1350.85422222240867995, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -14.54101505755993351, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -1350.85422222240867995, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 1849.49748155344695988, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 19.42872846786347196, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -14.54101505755993351, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 19.42872846786347196, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 18.20202886704844047, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 987.06796688943268236, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -1350.85422222240867995, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -14.54101505755993351, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -1350.85422222240867995, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 1849.49748155344695988, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 19.42872846786347196, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -14.54101505755993351, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 19.42872846786347196, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 18.20202886704844047, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18309
@@ -1497,41 +1446,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala18() {
   double likelihood = -34959.43213655917497817;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -6368.90648752817196510;
-  grad_ll[1] = 8709.72952468333096476;
-  grad_ll[2] = 52.78237752851459419;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -6368.90648752817196510;
+  geometry->gradient_log_likelihood[1] = 8709.72952468333096476;
+  geometry->gradient_log_likelihood[2] = 52.78237752851459419;
 
-  FI[0 * ldfi + 0] = 987.06796688943268236;
-  FI[0 * ldfi + 1] = -1350.85422222240867995;
-  FI[0 * ldfi + 2] = -14.54101505755993351;
-  FI[1 * ldfi + 0] = -1350.85422222240867995;
-  FI[1 * ldfi + 1] = 1849.49748155344695988;
-  FI[1 * ldfi + 2] = 19.42872846786347196;
-  FI[2 * ldfi + 0] = -14.54101505755993351;
-  FI[2 * ldfi + 1] = 19.42872846786347196;
-  FI[2 * ldfi + 2] = 18.20202886704844047;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 987.06796688943268236;
+  geometry->FI[0 * geometry->ldfi + 1] = -1350.85422222240867995;
+  geometry->FI[0 * geometry->ldfi + 2] = -14.54101505755993351;
+  geometry->FI[1 * geometry->ldfi + 0] = -1350.85422222240867995;
+  geometry->FI[1 * geometry->ldfi + 1] = 1849.49748155344695988;
+  geometry->FI[1 * geometry->ldfi + 2] = 19.42872846786347196;
+  geometry->FI[2 * geometry->ldfi + 0] = -14.54101505755993351;
+  geometry->FI[2 * geometry->ldfi + 1] = 19.42872846786347196;
+  geometry->FI[2 * geometry->ldfi + 2] = 18.20202886704844047;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1558,13 +1510,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala18() {
 static void test_ode_likelihood_fitzhugh_simp_mmala19() {
   // Input argument
   double params[] = { 5.97631014221676082, 4.69827147431422709, 4.05516776884386498 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1572,44 +1524,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala19() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -22240.52564390111365356, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -3649.78143296186317457, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 3093.88600873644645617, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -78.46283899257815619, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -3649.78143296186317457, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 3093.88600873644645617, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -78.46283899257815619, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 796.63111023503108754, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -679.61540129305581104, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 11.67096908216680262, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -679.61540129305581104, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 581.88820413761106920, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -11.67274049504557532, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 11.67096908216680262, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -11.67274049504557532, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44.00812860784166958, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 796.63111023503108754, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -679.61540129305581104, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 11.67096908216680262, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -679.61540129305581104, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 581.88820413761106920, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -11.67274049504557532, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 11.67096908216680262, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -11.67274049504557532, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44.00812860784166958, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15838
@@ -1619,41 +1567,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala19() {
   double likelihood = -22240.52564390111365356;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -3649.78143296186317457;
-  grad_ll[1] = 3093.88600873644645617;
-  grad_ll[2] = -78.46283899257815619;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -3649.78143296186317457;
+  geometry->gradient_log_likelihood[1] = 3093.88600873644645617;
+  geometry->gradient_log_likelihood[2] = -78.46283899257815619;
 
-  FI[0 * ldfi + 0] = 796.63111023503108754;
-  FI[0 * ldfi + 1] = -679.61540129305581104;
-  FI[0 * ldfi + 2] = 11.67096908216680262;
-  FI[1 * ldfi + 0] = -679.61540129305581104;
-  FI[1 * ldfi + 1] = 581.88820413761106920;
-  FI[1 * ldfi + 2] = -11.67274049504557532;
-  FI[2 * ldfi + 0] = 11.67096908216680262;
-  FI[2 * ldfi + 1] = -11.67274049504557532;
-  FI[2 * ldfi + 2] = 44.00812860784166958;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 796.63111023503108754;
+  geometry->FI[0 * geometry->ldfi + 1] = -679.61540129305581104;
+  geometry->FI[0 * geometry->ldfi + 2] = 11.67096908216680262;
+  geometry->FI[1 * geometry->ldfi + 0] = -679.61540129305581104;
+  geometry->FI[1 * geometry->ldfi + 1] = 581.88820413761106920;
+  geometry->FI[1 * geometry->ldfi + 2] = -11.67274049504557532;
+  geometry->FI[2 * geometry->ldfi + 0] = 11.67096908216680262;
+  geometry->FI[2 * geometry->ldfi + 1] = -11.67274049504557532;
+  geometry->FI[2 * geometry->ldfi + 2] = 44.00812860784166958;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1680,13 +1631,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala19() {
 static void test_ode_likelihood_fitzhugh_simp_mmala20() {
   // Input argument
   double params[] = { 9.87382973359608940, 4.39938589558734172, 5.27976116023749942 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1694,44 +1645,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala20() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -45798.82867847270972561, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -7482.11359785458262195, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 12721.86742958898321376, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 161.87917451884217712, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -7482.11359785458262195, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 12721.86742958898321376, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 161.87917451884217712, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 897.56425925607447880, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -1525.80075748931767521, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], -25.08987109565775953, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -1525.80075748931767521, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2597.12475480307284670, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 39.52206838876112727, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], -25.08987109565775953, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 39.52206838876112727, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 24.49431225803590451, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 897.56425925607447880, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -1525.80075748931767521, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], -25.08987109565775953, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -1525.80075748931767521, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2597.12475480307284670, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 39.52206838876112727, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], -25.08987109565775953, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 39.52206838876112727, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 24.49431225803590451, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19182
@@ -1741,41 +1688,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala20() {
   double likelihood = -45798.82867847270972561;
   double temperature = 0.00001693508780843;
   double stepsize = 0.00927712935936001;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -7482.11359785458262195;
-  grad_ll[1] = 12721.86742958898321376;
-  grad_ll[2] = 161.87917451884217712;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -7482.11359785458262195;
+  geometry->gradient_log_likelihood[1] = 12721.86742958898321376;
+  geometry->gradient_log_likelihood[2] = 161.87917451884217712;
 
-  FI[0 * ldfi + 0] = 897.56425925607447880;
-  FI[0 * ldfi + 1] = -1525.80075748931767521;
-  FI[0 * ldfi + 2] = -25.08987109565775953;
-  FI[1 * ldfi + 0] = -1525.80075748931767521;
-  FI[1 * ldfi + 1] = 2597.12475480307284670;
-  FI[1 * ldfi + 2] = 39.52206838876112727;
-  FI[2 * ldfi + 0] = -25.08987109565775953;
-  FI[2 * ldfi + 1] = 39.52206838876112727;
-  FI[2 * ldfi + 2] = 24.49431225803590451;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 897.56425925607447880;
+  geometry->FI[0 * geometry->ldfi + 1] = -1525.80075748931767521;
+  geometry->FI[0 * geometry->ldfi + 2] = -25.08987109565775953;
+  geometry->FI[1 * geometry->ldfi + 0] = -1525.80075748931767521;
+  geometry->FI[1 * geometry->ldfi + 1] = 2597.12475480307284670;
+  geometry->FI[1 * geometry->ldfi + 2] = 39.52206838876112727;
+  geometry->FI[2 * geometry->ldfi + 0] = -25.08987109565775953;
+  geometry->FI[2 * geometry->ldfi + 1] = 39.52206838876112727;
+  geometry->FI[2 * geometry->ldfi + 2] = 24.49431225803590451;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1802,13 +1752,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala20() {
 static void test_ode_likelihood_fitzhugh_simp_mmala21() {
   // Input argument
   double params[] = { 0.07972296897846337, 0.04208076361524250, 3.07174458895110858 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1816,44 +1766,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala21() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -139.01509657858503033, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 4980.23974974320299225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -263.37727473816119073, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 2323.75056163350836869, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 4980.23974974320299225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -263.37727473816119073, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 2323.75056163350836869, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 58606.98936170012166258, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -7112.82477878138342930, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 36870.15647605643607676, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -7112.82477878138342930, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3537.41849211910721351, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -7778.39317398660296021, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 36870.15647605643607676, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -7778.39317398660296021, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44208.69926499565190170, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 58606.98936170012166258, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -7112.82477878138342930, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 36870.15647605643607676, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -7112.82477878138342930, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3537.41849211910721351, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -7778.39317398660296021, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 36870.15647605643607676, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -7778.39317398660296021, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44208.69926499565190170, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13115
@@ -1863,41 +1809,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala21() {
   double likelihood = -139.01509657858503033;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 4980.23974974320299225;
-  grad_ll[1] = -263.37727473816119073;
-  grad_ll[2] = 2323.75056163350836869;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 4980.23974974320299225;
+  geometry->gradient_log_likelihood[1] = -263.37727473816119073;
+  geometry->gradient_log_likelihood[2] = 2323.75056163350836869;
 
-  FI[0 * ldfi + 0] = 58606.98936170012166258;
-  FI[0 * ldfi + 1] = -7112.82477878138342930;
-  FI[0 * ldfi + 2] = 36870.15647605643607676;
-  FI[1 * ldfi + 0] = -7112.82477878138342930;
-  FI[1 * ldfi + 1] = 3537.41849211910721351;
-  FI[1 * ldfi + 2] = -7778.39317398660296021;
-  FI[2 * ldfi + 0] = 36870.15647605643607676;
-  FI[2 * ldfi + 1] = -7778.39317398660296021;
-  FI[2 * ldfi + 2] = 44208.69926499565190170;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 58606.98936170012166258;
+  geometry->FI[0 * geometry->ldfi + 1] = -7112.82477878138342930;
+  geometry->FI[0 * geometry->ldfi + 2] = 36870.15647605643607676;
+  geometry->FI[1 * geometry->ldfi + 0] = -7112.82477878138342930;
+  geometry->FI[1 * geometry->ldfi + 1] = 3537.41849211910721351;
+  geometry->FI[1 * geometry->ldfi + 2] = -7778.39317398660296021;
+  geometry->FI[2 * geometry->ldfi + 0] = 36870.15647605643607676;
+  geometry->FI[2 * geometry->ldfi + 1] = -7778.39317398660296021;
+  geometry->FI[2 * geometry->ldfi + 2] = 44208.69926499565190170;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1924,13 +1873,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala21() {
 static void test_ode_likelihood_fitzhugh_simp_mmala22() {
   // Input argument
   double params[] = { 0.07472328271251523, 0.39573822269845566, 3.22740988399130924 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -1938,44 +1887,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala22() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -519.48455429988416654, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -2114.58604987473518122, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -2985.75224677005098783, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -4970.56343404604649550, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -2114.58604987473518122, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -2985.75224677005098783, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -4970.56343404604649550, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 69802.58688153589901049, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 23264.36900953800068237, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 39398.88704155413870467, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 23264.36900953800068237, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 15683.67621503390182625, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 23788.33101490327317151, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 39398.88704155413870467, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 23788.33101490327317151, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 41148.27110382473620120, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 69802.58688153589901049, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 23264.36900953800068237, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 39398.88704155413870467, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 23264.36900953800068237, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 15683.67621503390182625, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 23788.33101490327317151, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 39398.88704155413870467, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 23788.33101490327317151, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 41148.27110382473620120, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 715
@@ -1985,41 +1930,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala22() {
   double likelihood = -519.48455429988416654;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -2114.58604987473518122;
-  grad_ll[1] = -2985.75224677005098783;
-  grad_ll[2] = -4970.56343404604649550;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -2114.58604987473518122;
+  geometry->gradient_log_likelihood[1] = -2985.75224677005098783;
+  geometry->gradient_log_likelihood[2] = -4970.56343404604649550;
 
-  FI[0 * ldfi + 0] = 69802.58688153589901049;
-  FI[0 * ldfi + 1] = 23264.36900953800068237;
-  FI[0 * ldfi + 2] = 39398.88704155413870467;
-  FI[1 * ldfi + 0] = 23264.36900953800068237;
-  FI[1 * ldfi + 1] = 15683.67621503390182625;
-  FI[1 * ldfi + 2] = 23788.33101490327317151;
-  FI[2 * ldfi + 0] = 39398.88704155413870467;
-  FI[2 * ldfi + 1] = 23788.33101490327317151;
-  FI[2 * ldfi + 2] = 41148.27110382473620120;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 69802.58688153589901049;
+  geometry->FI[0 * geometry->ldfi + 1] = 23264.36900953800068237;
+  geometry->FI[0 * geometry->ldfi + 2] = 39398.88704155413870467;
+  geometry->FI[1 * geometry->ldfi + 0] = 23264.36900953800068237;
+  geometry->FI[1 * geometry->ldfi + 1] = 15683.67621503390182625;
+  geometry->FI[1 * geometry->ldfi + 2] = 23788.33101490327317151;
+  geometry->FI[2 * geometry->ldfi + 0] = 39398.88704155413870467;
+  geometry->FI[2 * geometry->ldfi + 1] = 23788.33101490327317151;
+  geometry->FI[2 * geometry->ldfi + 2] = 41148.27110382473620120;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2046,13 +1994,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala22() {
 static void test_ode_likelihood_fitzhugh_simp_mmala23() {
   // Input argument
   double params[] = { 0.12113331806844098, 0.45566041780808447, 2.79283983600335084 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2060,44 +2008,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala23() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -738.21989922023453801, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 10911.20615510669085779, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 5237.74978675758757163, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 7392.96470301559747895, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 10911.20615510669085779, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 5237.74978675758757163, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 7392.96470301559747895, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 84807.78627908085763920, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 37920.36707660974934697, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 46993.39709637973282952, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 37920.36707660974934697, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 25569.14793599439144600, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 29623.03773096148506738, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 46993.39709637973282952, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 29623.03773096148506738, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 38482.83143116482824553, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 84807.78627908085763920, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 37920.36707660974934697, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 46993.39709637973282952, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 37920.36707660974934697, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 25569.14793599439144600, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 29623.03773096148506738, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 46993.39709637973282952, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 29623.03773096148506738, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 38482.83143116482824553, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 16981
@@ -2107,41 +2051,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala23() {
   double likelihood = -738.21989922023453801;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 10911.20615510669085779;
-  grad_ll[1] = 5237.74978675758757163;
-  grad_ll[2] = 7392.96470301559747895;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 10911.20615510669085779;
+  geometry->gradient_log_likelihood[1] = 5237.74978675758757163;
+  geometry->gradient_log_likelihood[2] = 7392.96470301559747895;
 
-  FI[0 * ldfi + 0] = 84807.78627908085763920;
-  FI[0 * ldfi + 1] = 37920.36707660974934697;
-  FI[0 * ldfi + 2] = 46993.39709637973282952;
-  FI[1 * ldfi + 0] = 37920.36707660974934697;
-  FI[1 * ldfi + 1] = 25569.14793599439144600;
-  FI[1 * ldfi + 2] = 29623.03773096148506738;
-  FI[2 * ldfi + 0] = 46993.39709637973282952;
-  FI[2 * ldfi + 1] = 29623.03773096148506738;
-  FI[2 * ldfi + 2] = 38482.83143116482824553;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 84807.78627908085763920;
+  geometry->FI[0 * geometry->ldfi + 1] = 37920.36707660974934697;
+  geometry->FI[0 * geometry->ldfi + 2] = 46993.39709637973282952;
+  geometry->FI[1 * geometry->ldfi + 0] = 37920.36707660974934697;
+  geometry->FI[1 * geometry->ldfi + 1] = 25569.14793599439144600;
+  geometry->FI[1 * geometry->ldfi + 2] = 29623.03773096148506738;
+  geometry->FI[2 * geometry->ldfi + 0] = 46993.39709637973282952;
+  geometry->FI[2 * geometry->ldfi + 1] = 29623.03773096148506738;
+  geometry->FI[2 * geometry->ldfi + 2] = 38482.83143116482824553;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2168,13 +2115,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala23() {
 static void test_ode_likelihood_fitzhugh_simp_mmala24() {
   // Input argument
   double params[] = { 0.07949921970809190, 0.78259132152244826, 2.98785575281233262 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2182,44 +2129,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala24() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -1887.53386424751988670, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -10760.54514912144804839, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -13405.90485608788912941, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -6910.00157476080221386, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -10760.54514912144804839, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -13405.90485608788912941, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -6910.00157476080221386, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 117951.24691969683044590, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 90523.18481037011952139, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 45169.20373158595612040, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 90523.18481037011952139, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 100230.82247847921098582, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 50385.01875733572524041, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 45169.20373158595612040, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 50385.01875733572524041, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 26608.02409561578315333, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 117951.24691969683044590, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 90523.18481037011952139, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 45169.20373158595612040, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 90523.18481037011952139, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 100230.82247847921098582, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 50385.01875733572524041, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 45169.20373158595612040, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 50385.01875733572524041, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 26608.02409561578315333, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18678
@@ -2229,41 +2172,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala24() {
   double likelihood = -1887.53386424751988670;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -10760.54514912144804839;
-  grad_ll[1] = -13405.90485608788912941;
-  grad_ll[2] = -6910.00157476080221386;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -10760.54514912144804839;
+  geometry->gradient_log_likelihood[1] = -13405.90485608788912941;
+  geometry->gradient_log_likelihood[2] = -6910.00157476080221386;
 
-  FI[0 * ldfi + 0] = 117951.24691969683044590;
-  FI[0 * ldfi + 1] = 90523.18481037011952139;
-  FI[0 * ldfi + 2] = 45169.20373158595612040;
-  FI[1 * ldfi + 0] = 90523.18481037011952139;
-  FI[1 * ldfi + 1] = 100230.82247847921098582;
-  FI[1 * ldfi + 2] = 50385.01875733572524041;
-  FI[2 * ldfi + 0] = 45169.20373158595612040;
-  FI[2 * ldfi + 1] = 50385.01875733572524041;
-  FI[2 * ldfi + 2] = 26608.02409561578315333;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 117951.24691969683044590;
+  geometry->FI[0 * geometry->ldfi + 1] = 90523.18481037011952139;
+  geometry->FI[0 * geometry->ldfi + 2] = 45169.20373158595612040;
+  geometry->FI[1 * geometry->ldfi + 0] = 90523.18481037011952139;
+  geometry->FI[1 * geometry->ldfi + 1] = 100230.82247847921098582;
+  geometry->FI[1 * geometry->ldfi + 2] = 50385.01875733572524041;
+  geometry->FI[2 * geometry->ldfi + 0] = 45169.20373158595612040;
+  geometry->FI[2 * geometry->ldfi + 1] = 50385.01875733572524041;
+  geometry->FI[2 * geometry->ldfi + 2] = 26608.02409561578315333;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2290,13 +2236,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala24() {
 static void test_ode_likelihood_fitzhugh_simp_mmala25() {
   // Input argument
   double params[] = { 0.43200369796210730, 0.28131677859128496, 2.74447935659651820 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2304,44 +2250,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala25() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -1863.89946897182153407, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -31471.11518838893607608, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -7831.46399131458565535, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -9680.11042011242170702, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -31471.11518838893607608, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -7831.46399131458565535, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -9680.11042011242170702, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 450612.63997984508750960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 125409.15968187295948155, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 144675.44519366812892258, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 125409.15968187295948155, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 38789.61051777518878225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 41628.85262460988451494, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 144675.44519366812892258, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 41628.85262460988451494, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 49787.50565179833211005, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 450612.63997984508750960, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 125409.15968187295948155, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 144675.44519366812892258, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 125409.15968187295948155, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 38789.61051777518878225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 41628.85262460988451494, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 144675.44519366812892258, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 41628.85262460988451494, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 49787.50565179833211005, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13572
@@ -2351,41 +2293,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala25() {
   double likelihood = -1863.89946897182153407;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -31471.11518838893607608;
-  grad_ll[1] = -7831.46399131458565535;
-  grad_ll[2] = -9680.11042011242170702;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -31471.11518838893607608;
+  geometry->gradient_log_likelihood[1] = -7831.46399131458565535;
+  geometry->gradient_log_likelihood[2] = -9680.11042011242170702;
 
-  FI[0 * ldfi + 0] = 450612.63997984508750960;
-  FI[0 * ldfi + 1] = 125409.15968187295948155;
-  FI[0 * ldfi + 2] = 144675.44519366812892258;
-  FI[1 * ldfi + 0] = 125409.15968187295948155;
-  FI[1 * ldfi + 1] = 38789.61051777518878225;
-  FI[1 * ldfi + 2] = 41628.85262460988451494;
-  FI[2 * ldfi + 0] = 144675.44519366812892258;
-  FI[2 * ldfi + 1] = 41628.85262460988451494;
-  FI[2 * ldfi + 2] = 49787.50565179833211005;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 450612.63997984508750960;
+  geometry->FI[0 * geometry->ldfi + 1] = 125409.15968187295948155;
+  geometry->FI[0 * geometry->ldfi + 2] = 144675.44519366812892258;
+  geometry->FI[1 * geometry->ldfi + 0] = 125409.15968187295948155;
+  geometry->FI[1 * geometry->ldfi + 1] = 38789.61051777518878225;
+  geometry->FI[1 * geometry->ldfi + 2] = 41628.85262460988451494;
+  geometry->FI[2 * geometry->ldfi + 0] = 144675.44519366812892258;
+  geometry->FI[2 * geometry->ldfi + 1] = 41628.85262460988451494;
+  geometry->FI[2 * geometry->ldfi + 2] = 49787.50565179833211005;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2412,13 +2357,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala25() {
 static void test_ode_likelihood_fitzhugh_simp_mmala26() {
   // Input argument
   double params[] = { 1.67952550552606916, 1.19035449428852180, 2.97893580470204400 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2426,44 +2371,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala26() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -13828.53772597956412937, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -2115.08304545909049921, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 890.38332190303185598, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -285.78958602181177184, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -2115.08304545909049921, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 890.38332190303185598, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -285.78958602181177184, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 6722.92236820781272399, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -733.84859788804646996, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 269.45888547565630233, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -733.84859788804646996, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 471.30092893508867746, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -96.63369689274752261, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 269.45888547565630233, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -96.63369689274752261, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 126.61128842020666241, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 6722.92236820781272399, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -733.84859788804646996, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 269.45888547565630233, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -733.84859788804646996, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 471.30092893508867746, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -96.63369689274752261, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 269.45888547565630233, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -96.63369689274752261, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 126.61128842020666241, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15152
@@ -2473,41 +2414,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala26() {
   double likelihood = -13828.53772597956412937;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -2115.08304545909049921;
-  grad_ll[1] = 890.38332190303185598;
-  grad_ll[2] = -285.78958602181177184;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -2115.08304545909049921;
+  geometry->gradient_log_likelihood[1] = 890.38332190303185598;
+  geometry->gradient_log_likelihood[2] = -285.78958602181177184;
 
-  FI[0 * ldfi + 0] = 6722.92236820781272399;
-  FI[0 * ldfi + 1] = -733.84859788804646996;
-  FI[0 * ldfi + 2] = 269.45888547565630233;
-  FI[1 * ldfi + 0] = -733.84859788804646996;
-  FI[1 * ldfi + 1] = 471.30092893508867746;
-  FI[1 * ldfi + 2] = -96.63369689274752261;
-  FI[2 * ldfi + 0] = 269.45888547565630233;
-  FI[2 * ldfi + 1] = -96.63369689274752261;
-  FI[2 * ldfi + 2] = 126.61128842020666241;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 6722.92236820781272399;
+  geometry->FI[0 * geometry->ldfi + 1] = -733.84859788804646996;
+  geometry->FI[0 * geometry->ldfi + 2] = 269.45888547565630233;
+  geometry->FI[1 * geometry->ldfi + 0] = -733.84859788804646996;
+  geometry->FI[1 * geometry->ldfi + 1] = 471.30092893508867746;
+  geometry->FI[1 * geometry->ldfi + 2] = -96.63369689274752261;
+  geometry->FI[2 * geometry->ldfi + 0] = 269.45888547565630233;
+  geometry->FI[2 * geometry->ldfi + 1] = -96.63369689274752261;
+  geometry->FI[2 * geometry->ldfi + 2] = 126.61128842020666241;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2534,13 +2478,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala26() {
 static void test_ode_likelihood_fitzhugh_simp_mmala27() {
   // Input argument
   double params[] = { 2.37368330546891126, 6.64322972109641796, 3.56885615978620940 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2548,44 +2492,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala27() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14448.89076364125685359, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1829.72185314163425573, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -1849.22270407900009559, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 3145.64610607183612956, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1829.72185314163425573, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -1849.22270407900009559, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 3145.64610607183612956, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 12911.72975641332595842, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -9696.96245084127622249, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 16218.51158657092310023, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -9696.96245084127622249, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 7451.81629297051676986, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -12507.16321115751270554, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 16218.51158657092310023, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -12507.16321115751270554, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 21017.99958801550383214, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 12911.72975641332595842, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -9696.96245084127622249, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 16218.51158657092310023, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -9696.96245084127622249, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 7451.81629297051676986, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -12507.16321115751270554, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 16218.51158657092310023, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -12507.16321115751270554, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 21017.99958801550383214, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 14859
@@ -2595,41 +2535,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala27() {
   double likelihood = -14448.89076364125685359;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1829.72185314163425573;
-  grad_ll[1] = -1849.22270407900009559;
-  grad_ll[2] = 3145.64610607183612956;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1829.72185314163425573;
+  geometry->gradient_log_likelihood[1] = -1849.22270407900009559;
+  geometry->gradient_log_likelihood[2] = 3145.64610607183612956;
 
-  FI[0 * ldfi + 0] = 12911.72975641332595842;
-  FI[0 * ldfi + 1] = -9696.96245084127622249;
-  FI[0 * ldfi + 2] = 16218.51158657092310023;
-  FI[1 * ldfi + 0] = -9696.96245084127622249;
-  FI[1 * ldfi + 1] = 7451.81629297051676986;
-  FI[1 * ldfi + 2] = -12507.16321115751270554;
-  FI[2 * ldfi + 0] = 16218.51158657092310023;
-  FI[2 * ldfi + 1] = -12507.16321115751270554;
-  FI[2 * ldfi + 2] = 21017.99958801550383214;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 12911.72975641332595842;
+  geometry->FI[0 * geometry->ldfi + 1] = -9696.96245084127622249;
+  geometry->FI[0 * geometry->ldfi + 2] = 16218.51158657092310023;
+  geometry->FI[1 * geometry->ldfi + 0] = -9696.96245084127622249;
+  geometry->FI[1 * geometry->ldfi + 1] = 7451.81629297051676986;
+  geometry->FI[1 * geometry->ldfi + 2] = -12507.16321115751270554;
+  geometry->FI[2 * geometry->ldfi + 0] = 16218.51158657092310023;
+  geometry->FI[2 * geometry->ldfi + 1] = -12507.16321115751270554;
+  geometry->FI[2 * geometry->ldfi + 2] = 21017.99958801550383214;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2656,13 +2599,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala27() {
 static void test_ode_likelihood_fitzhugh_simp_mmala28() {
   // Input argument
   double params[] = { 2.95428174002215371, 4.29805945283107960, 0.39499808820572735 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2670,44 +2613,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala28() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -16793.02062743651913479, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -2753.69591323946860939, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 1795.22142074559224056, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -2482.80546497384329996, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -2753.69591323946860939, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 1795.22142074559224056, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -2482.80546497384329996, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 6790.53628197296893632, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -5517.95308566065887135, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 26628.97615561443672050, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -5517.95308566065887135, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4639.91055941908689420, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -22884.77964108402738930, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 26628.97615561443672050, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -22884.77964108402738930, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 122089.85855382664885838, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 6790.53628197296893632, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -5517.95308566065887135, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 26628.97615561443672050, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -5517.95308566065887135, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4639.91055941908689420, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -22884.77964108402738930, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 26628.97615561443672050, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -22884.77964108402738930, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 122089.85855382664885838, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 7842
@@ -2717,41 +2656,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala28() {
   double likelihood = -16793.02062743651913479;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -2753.69591323946860939;
-  grad_ll[1] = 1795.22142074559224056;
-  grad_ll[2] = -2482.80546497384329996;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -2753.69591323946860939;
+  geometry->gradient_log_likelihood[1] = 1795.22142074559224056;
+  geometry->gradient_log_likelihood[2] = -2482.80546497384329996;
 
-  FI[0 * ldfi + 0] = 6790.53628197296893632;
-  FI[0 * ldfi + 1] = -5517.95308566065887135;
-  FI[0 * ldfi + 2] = 26628.97615561443672050;
-  FI[1 * ldfi + 0] = -5517.95308566065887135;
-  FI[1 * ldfi + 1] = 4639.91055941908689420;
-  FI[1 * ldfi + 2] = -22884.77964108402738930;
-  FI[2 * ldfi + 0] = 26628.97615561443672050;
-  FI[2 * ldfi + 1] = -22884.77964108402738930;
-  FI[2 * ldfi + 2] = 122089.85855382664885838;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 6790.53628197296893632;
+  geometry->FI[0 * geometry->ldfi + 1] = -5517.95308566065887135;
+  geometry->FI[0 * geometry->ldfi + 2] = 26628.97615561443672050;
+  geometry->FI[1 * geometry->ldfi + 0] = -5517.95308566065887135;
+  geometry->FI[1 * geometry->ldfi + 1] = 4639.91055941908689420;
+  geometry->FI[1 * geometry->ldfi + 2] = -22884.77964108402738930;
+  geometry->FI[2 * geometry->ldfi + 0] = 26628.97615561443672050;
+  geometry->FI[2 * geometry->ldfi + 1] = -22884.77964108402738930;
+  geometry->FI[2 * geometry->ldfi + 2] = 122089.85855382664885838;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2778,13 +2720,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala28() {
 static void test_ode_likelihood_fitzhugh_simp_mmala29() {
   // Input argument
   double params[] = { 0.02922655215442187, 0.23086409477263986, 3.09743064193888262 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2792,44 +2734,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala29() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -354.19339981478003665, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 5888.45899639265735459, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 282.78773453915687242, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 2542.95963529820346594, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 5888.45899639265735459, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 282.78773453915687242, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 2542.95963529820346594, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 45347.94651342930592364, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4928.31425014203523460, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 26609.81627833686070517, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4928.31425014203523460, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3569.96091268608779501, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 8328.81457878227956826, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 26609.81627833686070517, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 8328.81457878227956826, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 42004.37335836527927313, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 45347.94651342930592364, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4928.31425014203523460, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 26609.81627833686070517, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4928.31425014203523460, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3569.96091268608779501, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 8328.81457878227956826, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 26609.81627833686070517, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 8328.81457878227956826, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 42004.37335836527927313, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13105
@@ -2839,41 +2777,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala29() {
   double likelihood = -354.19339981478003665;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 5888.45899639265735459;
-  grad_ll[1] = 282.78773453915687242;
-  grad_ll[2] = 2542.95963529820346594;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 5888.45899639265735459;
+  geometry->gradient_log_likelihood[1] = 282.78773453915687242;
+  geometry->gradient_log_likelihood[2] = 2542.95963529820346594;
 
-  FI[0 * ldfi + 0] = 45347.94651342930592364;
-  FI[0 * ldfi + 1] = 4928.31425014203523460;
-  FI[0 * ldfi + 2] = 26609.81627833686070517;
-  FI[1 * ldfi + 0] = 4928.31425014203523460;
-  FI[1 * ldfi + 1] = 3569.96091268608779501;
-  FI[1 * ldfi + 2] = 8328.81457878227956826;
-  FI[2 * ldfi + 0] = 26609.81627833686070517;
-  FI[2 * ldfi + 1] = 8328.81457878227956826;
-  FI[2 * ldfi + 2] = 42004.37335836527927313;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 45347.94651342930592364;
+  geometry->FI[0 * geometry->ldfi + 1] = 4928.31425014203523460;
+  geometry->FI[0 * geometry->ldfi + 2] = 26609.81627833686070517;
+  geometry->FI[1 * geometry->ldfi + 0] = 4928.31425014203523460;
+  geometry->FI[1 * geometry->ldfi + 1] = 3569.96091268608779501;
+  geometry->FI[1 * geometry->ldfi + 2] = 8328.81457878227956826;
+  geometry->FI[2 * geometry->ldfi + 0] = 26609.81627833686070517;
+  geometry->FI[2 * geometry->ldfi + 1] = 8328.81457878227956826;
+  geometry->FI[2 * geometry->ldfi + 2] = 42004.37335836527927313;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2900,13 +2841,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala29() {
 static void test_ode_likelihood_fitzhugh_simp_mmala30() {
   // Input argument
   double params[] = { 0.37515850886622848, 0.65431063830975655, 1.98212433514485542 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -2914,44 +2855,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala30() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -1377.97078017276976425, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -27434.76767147647115053, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -19987.40213944881907082, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -1099.59954007477654159, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -27434.76767147647115053, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -19987.40213944881907082, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -1099.59954007477654159, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 1316874.81976339383982122, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 964227.35702548525296152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 90727.22064665300422348, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 964227.35702548525296152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 714826.91067950823344290, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 66622.84206718722998630, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 90727.22064665300422348, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 66622.84206718722998630, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 7976.61916189730891347, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 1316874.81976339383982122, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 964227.35702548525296152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 90727.22064665300422348, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 964227.35702548525296152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 714826.91067950823344290, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 66622.84206718722998630, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 90727.22064665300422348, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 66622.84206718722998630, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 7976.61916189730891347, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 3423
@@ -2961,41 +2898,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala30() {
   double likelihood = -1377.97078017276976425;
   double temperature = 0.00054192280986977;
   double stepsize = 0.08115632763568126;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -27434.76767147647115053;
-  grad_ll[1] = -19987.40213944881907082;
-  grad_ll[2] = -1099.59954007477654159;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -27434.76767147647115053;
+  geometry->gradient_log_likelihood[1] = -19987.40213944881907082;
+  geometry->gradient_log_likelihood[2] = -1099.59954007477654159;
 
-  FI[0 * ldfi + 0] = 1316874.81976339383982122;
-  FI[0 * ldfi + 1] = 964227.35702548525296152;
-  FI[0 * ldfi + 2] = 90727.22064665300422348;
-  FI[1 * ldfi + 0] = 964227.35702548525296152;
-  FI[1 * ldfi + 1] = 714826.91067950823344290;
-  FI[1 * ldfi + 2] = 66622.84206718722998630;
-  FI[2 * ldfi + 0] = 90727.22064665300422348;
-  FI[2 * ldfi + 1] = 66622.84206718722998630;
-  FI[2 * ldfi + 2] = 7976.61916189730891347;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 1316874.81976339383982122;
+  geometry->FI[0 * geometry->ldfi + 1] = 964227.35702548525296152;
+  geometry->FI[0 * geometry->ldfi + 2] = 90727.22064665300422348;
+  geometry->FI[1 * geometry->ldfi + 0] = 964227.35702548525296152;
+  geometry->FI[1 * geometry->ldfi + 1] = 714826.91067950823344290;
+  geometry->FI[1 * geometry->ldfi + 2] = 66622.84206718722998630;
+  geometry->FI[2 * geometry->ldfi + 0] = 90727.22064665300422348;
+  geometry->FI[2 * geometry->ldfi + 1] = 66622.84206718722998630;
+  geometry->FI[2 * geometry->ldfi + 2] = 7976.61916189730891347;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3022,13 +2962,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala30() {
 static void test_ode_likelihood_fitzhugh_simp_mmala31() {
   // Input argument
   double params[] = { 0.28245270301918429, 0.36092828009455741, 2.75118833985311539 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3036,44 +2976,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala31() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -15.03796518953741668, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 321.64754439838679900, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 238.68853745326441640, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1356.28245521357757752, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 321.64754439838679900, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 238.68853745326441640, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1356.28245521357757752, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 213274.79174033179879189, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 69266.61288890082505532, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 89951.34309505876444746, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 69266.61288890082505532, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 26760.20459372940240428, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 32021.29461601899311063, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 89951.34309505876444746, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 32021.29461601899311063, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 43532.05039121350273490, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 213274.79174033179879189, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 69266.61288890082505532, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 89951.34309505876444746, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 69266.61288890082505532, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 26760.20459372940240428, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 32021.29461601899311063, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 89951.34309505876444746, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 32021.29461601899311063, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 43532.05039121350273490, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 14121
@@ -3083,41 +3019,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala31() {
   double likelihood = -15.03796518953741668;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 321.64754439838679900;
-  grad_ll[1] = 238.68853745326441640;
-  grad_ll[2] = 1356.28245521357757752;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 321.64754439838679900;
+  geometry->gradient_log_likelihood[1] = 238.68853745326441640;
+  geometry->gradient_log_likelihood[2] = 1356.28245521357757752;
 
-  FI[0 * ldfi + 0] = 213274.79174033179879189;
-  FI[0 * ldfi + 1] = 69266.61288890082505532;
-  FI[0 * ldfi + 2] = 89951.34309505876444746;
-  FI[1 * ldfi + 0] = 69266.61288890082505532;
-  FI[1 * ldfi + 1] = 26760.20459372940240428;
-  FI[1 * ldfi + 2] = 32021.29461601899311063;
-  FI[2 * ldfi + 0] = 89951.34309505876444746;
-  FI[2 * ldfi + 1] = 32021.29461601899311063;
-  FI[2 * ldfi + 2] = 43532.05039121350273490;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 213274.79174033179879189;
+  geometry->FI[0 * geometry->ldfi + 1] = 69266.61288890082505532;
+  geometry->FI[0 * geometry->ldfi + 2] = 89951.34309505876444746;
+  geometry->FI[1 * geometry->ldfi + 0] = 69266.61288890082505532;
+  geometry->FI[1 * geometry->ldfi + 1] = 26760.20459372940240428;
+  geometry->FI[1 * geometry->ldfi + 2] = 32021.29461601899311063;
+  geometry->FI[2 * geometry->ldfi + 0] = 89951.34309505876444746;
+  geometry->FI[2 * geometry->ldfi + 1] = 32021.29461601899311063;
+  geometry->FI[2 * geometry->ldfi + 2] = 43532.05039121350273490;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3144,13 +3083,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala31() {
 static void test_ode_likelihood_fitzhugh_simp_mmala32() {
   // Input argument
   double params[] = { 0.24489316831907842, 0.46750941962857151, 2.76947764626931381 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3158,44 +3097,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala32() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -9.14487859420505345, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -2144.58513987153492053, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -1175.34512250794114152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -124.17497053136276008, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -2144.58513987153492053, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -1175.34512250794114152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -124.17497053136276008, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 203686.45557689823908731, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 89961.29257739063177723, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 83738.77908797410782427, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 89961.29257739063177723, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 45858.77355538686970249, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 41273.79277311131590977, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 83738.77908797410782427, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 41273.79277311131590977, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 40291.10467237271950580, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 203686.45557689823908731, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 89961.29257739063177723, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 83738.77908797410782427, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 89961.29257739063177723, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 45858.77355538686970249, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 41273.79277311131590977, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 83738.77908797410782427, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 41273.79277311131590977, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 40291.10467237271950580, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 637
@@ -3205,41 +3140,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala32() {
   double likelihood = -9.14487859420505345;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -2144.58513987153492053;
-  grad_ll[1] = -1175.34512250794114152;
-  grad_ll[2] = -124.17497053136276008;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -2144.58513987153492053;
+  geometry->gradient_log_likelihood[1] = -1175.34512250794114152;
+  geometry->gradient_log_likelihood[2] = -124.17497053136276008;
 
-  FI[0 * ldfi + 0] = 203686.45557689823908731;
-  FI[0 * ldfi + 1] = 89961.29257739063177723;
-  FI[0 * ldfi + 2] = 83738.77908797410782427;
-  FI[1 * ldfi + 0] = 89961.29257739063177723;
-  FI[1 * ldfi + 1] = 45858.77355538686970249;
-  FI[1 * ldfi + 2] = 41273.79277311131590977;
-  FI[2 * ldfi + 0] = 83738.77908797410782427;
-  FI[2 * ldfi + 1] = 41273.79277311131590977;
-  FI[2 * ldfi + 2] = 40291.10467237271950580;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 203686.45557689823908731;
+  geometry->FI[0 * geometry->ldfi + 1] = 89961.29257739063177723;
+  geometry->FI[0 * geometry->ldfi + 2] = 83738.77908797410782427;
+  geometry->FI[1 * geometry->ldfi + 0] = 89961.29257739063177723;
+  geometry->FI[1 * geometry->ldfi + 1] = 45858.77355538686970249;
+  geometry->FI[1 * geometry->ldfi + 2] = 41273.79277311131590977;
+  geometry->FI[2 * geometry->ldfi + 0] = 83738.77908797410782427;
+  geometry->FI[2 * geometry->ldfi + 1] = 41273.79277311131590977;
+  geometry->FI[2 * geometry->ldfi + 2] = 40291.10467237271950580;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3266,13 +3204,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala32() {
 static void test_ode_likelihood_fitzhugh_simp_mmala33() {
   // Input argument
   double params[] = { 0.18753095622084062, 0.02900604298165450, 2.92598839658119481 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3280,44 +3218,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala33() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -39.71537958407562030, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 5495.14340106115650997, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -440.74210683053763660, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 3881.24921553230251448, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 5495.14340106115650997, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -440.74210683053763660, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 3881.24921553230251448, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 102456.47869145865843166, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -12295.07404110969036992, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 59183.55944609967991710, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -12295.07404110969036992, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4346.07187670762505149, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -9074.54555798296860303, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 59183.55944609967991710, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -9074.54555798296860303, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45972.23506971835740842, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 102456.47869145865843166, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -12295.07404110969036992, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 59183.55944609967991710, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -12295.07404110969036992, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4346.07187670762505149, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -9074.54555798296860303, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 59183.55944609967991710, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -9074.54555798296860303, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45972.23506971835740842, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5538
@@ -3327,41 +3261,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala33() {
   double likelihood = -39.71537958407562030;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 5495.14340106115650997;
-  grad_ll[1] = -440.74210683053763660;
-  grad_ll[2] = 3881.24921553230251448;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 5495.14340106115650997;
+  geometry->gradient_log_likelihood[1] = -440.74210683053763660;
+  geometry->gradient_log_likelihood[2] = 3881.24921553230251448;
 
-  FI[0 * ldfi + 0] = 102456.47869145865843166;
-  FI[0 * ldfi + 1] = -12295.07404110969036992;
-  FI[0 * ldfi + 2] = 59183.55944609967991710;
-  FI[1 * ldfi + 0] = -12295.07404110969036992;
-  FI[1 * ldfi + 1] = 4346.07187670762505149;
-  FI[1 * ldfi + 2] = -9074.54555798296860303;
-  FI[2 * ldfi + 0] = 59183.55944609967991710;
-  FI[2 * ldfi + 1] = -9074.54555798296860303;
-  FI[2 * ldfi + 2] = 45972.23506971835740842;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 102456.47869145865843166;
+  geometry->FI[0 * geometry->ldfi + 1] = -12295.07404110969036992;
+  geometry->FI[0 * geometry->ldfi + 2] = 59183.55944609967991710;
+  geometry->FI[1 * geometry->ldfi + 0] = -12295.07404110969036992;
+  geometry->FI[1 * geometry->ldfi + 1] = 4346.07187670762505149;
+  geometry->FI[1 * geometry->ldfi + 2] = -9074.54555798296860303;
+  geometry->FI[2 * geometry->ldfi + 0] = 59183.55944609967991710;
+  geometry->FI[2 * geometry->ldfi + 1] = -9074.54555798296860303;
+  geometry->FI[2 * geometry->ldfi + 2] = 45972.23506971835740842;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3388,13 +3325,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala33() {
 static void test_ode_likelihood_fitzhugh_simp_mmala34() {
   // Input argument
   double params[] = { 0.21901735622133420, 0.36970602298383393, 2.90890350578275036 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3402,44 +3339,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala34() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 96.40450694676432875, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1768.41579133042660033, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -960.03339262896099626, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -622.63301579668802788, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1768.41579133042660033, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -960.03339262896099626, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -622.63301579668802788, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 153489.38466444928781129, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 49834.80310561186342966, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 73306.78237348643597215, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 49834.80310561186342966, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 20709.46879440609700396, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 27854.45942717015714152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 73306.78237348643597215, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 27854.45942717015714152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 42895.97821107433264842, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 153489.38466444928781129, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 49834.80310561186342966, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 73306.78237348643597215, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 49834.80310561186342966, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 20709.46879440609700396, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 27854.45942717015714152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 73306.78237348643597215, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 27854.45942717015714152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 42895.97821107433264842, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 924
@@ -3449,41 +3382,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala34() {
   double likelihood = 96.40450694676432875;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1768.41579133042660033;
-  grad_ll[1] = -960.03339262896099626;
-  grad_ll[2] = -622.63301579668802788;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1768.41579133042660033;
+  geometry->gradient_log_likelihood[1] = -960.03339262896099626;
+  geometry->gradient_log_likelihood[2] = -622.63301579668802788;
 
-  FI[0 * ldfi + 0] = 153489.38466444928781129;
-  FI[0 * ldfi + 1] = 49834.80310561186342966;
-  FI[0 * ldfi + 2] = 73306.78237348643597215;
-  FI[1 * ldfi + 0] = 49834.80310561186342966;
-  FI[1 * ldfi + 1] = 20709.46879440609700396;
-  FI[1 * ldfi + 2] = 27854.45942717015714152;
-  FI[2 * ldfi + 0] = 73306.78237348643597215;
-  FI[2 * ldfi + 1] = 27854.45942717015714152;
-  FI[2 * ldfi + 2] = 42895.97821107433264842;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 153489.38466444928781129;
+  geometry->FI[0 * geometry->ldfi + 1] = 49834.80310561186342966;
+  geometry->FI[0 * geometry->ldfi + 2] = 73306.78237348643597215;
+  geometry->FI[1 * geometry->ldfi + 0] = 49834.80310561186342966;
+  geometry->FI[1 * geometry->ldfi + 1] = 20709.46879440609700396;
+  geometry->FI[1 * geometry->ldfi + 2] = 27854.45942717015714152;
+  geometry->FI[2 * geometry->ldfi + 0] = 73306.78237348643597215;
+  geometry->FI[2 * geometry->ldfi + 1] = 27854.45942717015714152;
+  geometry->FI[2 * geometry->ldfi + 2] = 42895.97821107433264842;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3510,13 +3446,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala34() {
 static void test_ode_likelihood_fitzhugh_simp_mmala35() {
   // Input argument
   double params[] = { 0.16055065489838621, 0.15885605931934271, 3.04302405626373451 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3524,44 +3460,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala35() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 126.93787080428363367, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1959.30737689481293273, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 58.89116349130750194, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 537.71119780390893084, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1959.30737689481293273, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 58.89116349130750194, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 537.71119780390893084, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 94879.93687012424925342, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 5313.62637497727246227, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 55059.89850583376392024, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 5313.62637497727246227, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2506.67550431707650205, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 4219.59729916211108502, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 55059.89850583376392024, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 4219.59729916211108502, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44891.80448590346350102, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 94879.93687012424925342, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 5313.62637497727246227, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 55059.89850583376392024, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 5313.62637497727246227, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2506.67550431707650205, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 4219.59729916211108502, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 55059.89850583376392024, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 4219.59729916211108502, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44891.80448590346350102, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 1943
@@ -3571,41 +3503,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala35() {
   double likelihood = 126.93787080428363367;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1959.30737689481293273;
-  grad_ll[1] = 58.89116349130750194;
-  grad_ll[2] = 537.71119780390893084;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1959.30737689481293273;
+  geometry->gradient_log_likelihood[1] = 58.89116349130750194;
+  geometry->gradient_log_likelihood[2] = 537.71119780390893084;
 
-  FI[0 * ldfi + 0] = 94879.93687012424925342;
-  FI[0 * ldfi + 1] = 5313.62637497727246227;
-  FI[0 * ldfi + 2] = 55059.89850583376392024;
-  FI[1 * ldfi + 0] = 5313.62637497727246227;
-  FI[1 * ldfi + 1] = 2506.67550431707650205;
-  FI[1 * ldfi + 2] = 4219.59729916211108502;
-  FI[2 * ldfi + 0] = 55059.89850583376392024;
-  FI[2 * ldfi + 1] = 4219.59729916211108502;
-  FI[2 * ldfi + 2] = 44891.80448590346350102;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 94879.93687012424925342;
+  geometry->FI[0 * geometry->ldfi + 1] = 5313.62637497727246227;
+  geometry->FI[0 * geometry->ldfi + 2] = 55059.89850583376392024;
+  geometry->FI[1 * geometry->ldfi + 0] = 5313.62637497727246227;
+  geometry->FI[1 * geometry->ldfi + 1] = 2506.67550431707650205;
+  geometry->FI[1 * geometry->ldfi + 2] = 4219.59729916211108502;
+  geometry->FI[2 * geometry->ldfi + 0] = 55059.89850583376392024;
+  geometry->FI[2 * geometry->ldfi + 1] = 4219.59729916211108502;
+  geometry->FI[2 * geometry->ldfi + 2] = 44891.80448590346350102;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3632,13 +3567,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala35() {
 static void test_ode_likelihood_fitzhugh_simp_mmala36() {
   // Input argument
   double params[] = { 0.32987381827005913, 0.21770680445884621, 2.86753911603078038 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3646,44 +3581,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala36() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -302.19205994190508591, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -12664.92826438462361693, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -1945.97013598801731860, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -4622.29823190992192394, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -12664.92826438462361693, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -1945.97013598801731860, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -4622.29823190992192394, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 241587.92078782466705889, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 41070.28809569220175035, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 101665.28187621814140584, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 41070.28809569220175035, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 10001.11754235115222400, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 18663.38177782424463658, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 101665.28187621814140584, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 18663.38177782424463658, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 48206.66689757841231767, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 241587.92078782466705889, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 41070.28809569220175035, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 101665.28187621814140584, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 41070.28809569220175035, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 10001.11754235115222400, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 18663.38177782424463658, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 101665.28187621814140584, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 18663.38177782424463658, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 48206.66689757841231767, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 16466
@@ -3693,41 +3624,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala36() {
   double likelihood = -302.19205994190508591;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -12664.92826438462361693;
-  grad_ll[1] = -1945.97013598801731860;
-  grad_ll[2] = -4622.29823190992192394;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -12664.92826438462361693;
+  geometry->gradient_log_likelihood[1] = -1945.97013598801731860;
+  geometry->gradient_log_likelihood[2] = -4622.29823190992192394;
 
-  FI[0 * ldfi + 0] = 241587.92078782466705889;
-  FI[0 * ldfi + 1] = 41070.28809569220175035;
-  FI[0 * ldfi + 2] = 101665.28187621814140584;
-  FI[1 * ldfi + 0] = 41070.28809569220175035;
-  FI[1 * ldfi + 1] = 10001.11754235115222400;
-  FI[1 * ldfi + 2] = 18663.38177782424463658;
-  FI[2 * ldfi + 0] = 101665.28187621814140584;
-  FI[2 * ldfi + 1] = 18663.38177782424463658;
-  FI[2 * ldfi + 2] = 48206.66689757841231767;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 241587.92078782466705889;
+  geometry->FI[0 * geometry->ldfi + 1] = 41070.28809569220175035;
+  geometry->FI[0 * geometry->ldfi + 2] = 101665.28187621814140584;
+  geometry->FI[1 * geometry->ldfi + 0] = 41070.28809569220175035;
+  geometry->FI[1 * geometry->ldfi + 1] = 10001.11754235115222400;
+  geometry->FI[1 * geometry->ldfi + 2] = 18663.38177782424463658;
+  geometry->FI[2 * geometry->ldfi + 0] = 101665.28187621814140584;
+  geometry->FI[2 * geometry->ldfi + 1] = 18663.38177782424463658;
+  geometry->FI[2 * geometry->ldfi + 2] = 48206.66689757841231767;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3754,13 +3688,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala36() {
 static void test_ode_likelihood_fitzhugh_simp_mmala37() {
   // Input argument
   double params[] = { 0.18173075532058772, 0.18263993520273986, 3.12158914879382632 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3768,44 +3702,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala37() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -52.32588718785501669, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -5111.78671626870618638, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -670.99740983506399061, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -4098.94384090293351619, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -5111.78671626870618638, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -670.99740983506399061, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -4098.94384090293351619, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 111905.02677726635010913, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 10800.47497289277453092, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 61583.80583765629853588, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 10800.47497289277453092, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3319.06512439181369700, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 7663.51489077416044893, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 61583.80583765629853588, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 7663.51489077416044893, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45371.64107049294398166, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 111905.02677726635010913, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 10800.47497289277453092, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 61583.80583765629853588, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 10800.47497289277453092, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3319.06512439181369700, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 7663.51489077416044893, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 61583.80583765629853588, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 7663.51489077416044893, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45371.64107049294398166, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13893
@@ -3815,41 +3745,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala37() {
   double likelihood = -52.32588718785501669;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -5111.78671626870618638;
-  grad_ll[1] = -670.99740983506399061;
-  grad_ll[2] = -4098.94384090293351619;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -5111.78671626870618638;
+  geometry->gradient_log_likelihood[1] = -670.99740983506399061;
+  geometry->gradient_log_likelihood[2] = -4098.94384090293351619;
 
-  FI[0 * ldfi + 0] = 111905.02677726635010913;
-  FI[0 * ldfi + 1] = 10800.47497289277453092;
-  FI[0 * ldfi + 2] = 61583.80583765629853588;
-  FI[1 * ldfi + 0] = 10800.47497289277453092;
-  FI[1 * ldfi + 1] = 3319.06512439181369700;
-  FI[1 * ldfi + 2] = 7663.51489077416044893;
-  FI[2 * ldfi + 0] = 61583.80583765629853588;
-  FI[2 * ldfi + 1] = 7663.51489077416044893;
-  FI[2 * ldfi + 2] = 45371.64107049294398166;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 111905.02677726635010913;
+  geometry->FI[0 * geometry->ldfi + 1] = 10800.47497289277453092;
+  geometry->FI[0 * geometry->ldfi + 2] = 61583.80583765629853588;
+  geometry->FI[1 * geometry->ldfi + 0] = 10800.47497289277453092;
+  geometry->FI[1 * geometry->ldfi + 1] = 3319.06512439181369700;
+  geometry->FI[1 * geometry->ldfi + 2] = 7663.51489077416044893;
+  geometry->FI[2 * geometry->ldfi + 0] = 61583.80583765629853588;
+  geometry->FI[2 * geometry->ldfi + 1] = 7663.51489077416044893;
+  geometry->FI[2 * geometry->ldfi + 2] = 45371.64107049294398166;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3876,13 +3809,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala37() {
 static void test_ode_likelihood_fitzhugh_simp_mmala38() {
   // Input argument
   double params[] = { 0.25914820837195685, 0.26832200943197421, 2.91456339416344301 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3890,44 +3823,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala38() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 72.06469003423586628, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -4555.35155388155635592, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -1055.18448246019670478, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -1662.38620978449080212, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -4555.35155388155635592, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -1055.18448246019670478, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -1662.38620978449080212, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 173994.68433999264379963, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 36682.75385371786251199, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 81814.05967168961069547, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 36682.75385371786251199, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 10895.73773726262152195, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 19541.03056000817741733, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 81814.05967168961069547, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 19541.03056000817741733, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45604.46448742966458667, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 173994.68433999264379963, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 36682.75385371786251199, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 81814.05967168961069547, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 36682.75385371786251199, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 10895.73773726262152195, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 19541.03056000817741733, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 81814.05967168961069547, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 19541.03056000817741733, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45604.46448742966458667, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 6340
@@ -3937,41 +3866,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala38() {
   double likelihood = 72.06469003423586628;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -4555.35155388155635592;
-  grad_ll[1] = -1055.18448246019670478;
-  grad_ll[2] = -1662.38620978449080212;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -4555.35155388155635592;
+  geometry->gradient_log_likelihood[1] = -1055.18448246019670478;
+  geometry->gradient_log_likelihood[2] = -1662.38620978449080212;
 
-  FI[0 * ldfi + 0] = 173994.68433999264379963;
-  FI[0 * ldfi + 1] = 36682.75385371786251199;
-  FI[0 * ldfi + 2] = 81814.05967168961069547;
-  FI[1 * ldfi + 0] = 36682.75385371786251199;
-  FI[1 * ldfi + 1] = 10895.73773726262152195;
-  FI[1 * ldfi + 2] = 19541.03056000817741733;
-  FI[2 * ldfi + 0] = 81814.05967168961069547;
-  FI[2 * ldfi + 1] = 19541.03056000817741733;
-  FI[2 * ldfi + 2] = 45604.46448742966458667;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 173994.68433999264379963;
+  geometry->FI[0 * geometry->ldfi + 1] = 36682.75385371786251199;
+  geometry->FI[0 * geometry->ldfi + 2] = 81814.05967168961069547;
+  geometry->FI[1 * geometry->ldfi + 0] = 36682.75385371786251199;
+  geometry->FI[1 * geometry->ldfi + 1] = 10895.73773726262152195;
+  geometry->FI[1 * geometry->ldfi + 2] = 19541.03056000817741733;
+  geometry->FI[2 * geometry->ldfi + 0] = 81814.05967168961069547;
+  geometry->FI[2 * geometry->ldfi + 1] = 19541.03056000817741733;
+  geometry->FI[2 * geometry->ldfi + 2] = 45604.46448742966458667;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -3998,13 +3930,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala38() {
 static void test_ode_likelihood_fitzhugh_simp_mmala39() {
   // Input argument
   double params[] = { 0.15995808664012778, 0.21121571691060487, 3.03882996952186257 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4012,44 +3944,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala39() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 125.44120747092051715, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1817.08216544244851320, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -3.38204458928091611, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 415.98942817622457824, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1817.08216544244851320, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -3.38204458928091611, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 415.98942817622457824, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 96832.05272732165758498, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 11919.00446919142086699, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 55450.04818002563115442, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 11919.00446919142086699, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3999.65810871356643474, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 9191.99689666331141780, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 55450.04818002563115442, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 9191.99689666331141780, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44349.86729545574053191, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 96832.05272732165758498, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 11919.00446919142086699, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 55450.04818002563115442, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 11919.00446919142086699, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3999.65810871356643474, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 9191.99689666331141780, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 55450.04818002563115442, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 9191.99689666331141780, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44349.86729545574053191, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18997
@@ -4059,41 +3987,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala39() {
   double likelihood = 125.44120747092051715;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1817.08216544244851320;
-  grad_ll[1] = -3.38204458928091611;
-  grad_ll[2] = 415.98942817622457824;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1817.08216544244851320;
+  geometry->gradient_log_likelihood[1] = -3.38204458928091611;
+  geometry->gradient_log_likelihood[2] = 415.98942817622457824;
 
-  FI[0 * ldfi + 0] = 96832.05272732165758498;
-  FI[0 * ldfi + 1] = 11919.00446919142086699;
-  FI[0 * ldfi + 2] = 55450.04818002563115442;
-  FI[1 * ldfi + 0] = 11919.00446919142086699;
-  FI[1 * ldfi + 1] = 3999.65810871356643474;
-  FI[1 * ldfi + 2] = 9191.99689666331141780;
-  FI[2 * ldfi + 0] = 55450.04818002563115442;
-  FI[2 * ldfi + 1] = 9191.99689666331141780;
-  FI[2 * ldfi + 2] = 44349.86729545574053191;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 96832.05272732165758498;
+  geometry->FI[0 * geometry->ldfi + 1] = 11919.00446919142086699;
+  geometry->FI[0 * geometry->ldfi + 2] = 55450.04818002563115442;
+  geometry->FI[1 * geometry->ldfi + 0] = 11919.00446919142086699;
+  geometry->FI[1 * geometry->ldfi + 1] = 3999.65810871356643474;
+  geometry->FI[1 * geometry->ldfi + 2] = 9191.99689666331141780;
+  geometry->FI[2 * geometry->ldfi + 0] = 55450.04818002563115442;
+  geometry->FI[2 * geometry->ldfi + 1] = 9191.99689666331141780;
+  geometry->FI[2 * geometry->ldfi + 2] = 44349.86729545574053191;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4120,13 +4051,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala39() {
 static void test_ode_likelihood_fitzhugh_simp_mmala40() {
   // Input argument
   double params[] = { 0.05244195298972831, 0.50482514307274884, 3.12006291672564284 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4134,44 +4065,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala40() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -408.55716957690611935, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 872.79439526509690950, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -2956.07562017048621783, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -3087.90876856601335021, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 872.79439526509690950, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -2956.07562017048621783, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -3087.90876856601335021, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 63214.30835848159767920, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 29076.48396458339993842, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 34187.60727851412957534, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 29076.48396458339993842, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 28921.36699262648835429, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 32073.87956669385312125, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 34187.60727851412957534, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 32073.87956669385312125, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 38586.98990406160010025, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 63214.30835848159767920, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 29076.48396458339993842, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 34187.60727851412957534, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 29076.48396458339993842, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 28921.36699262648835429, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 32073.87956669385312125, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 34187.60727851412957534, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 32073.87956669385312125, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 38586.98990406160010025, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 689
@@ -4181,41 +4108,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala40() {
   double likelihood = -408.55716957690611935;
   double temperature = 0.00411522633744856;
   double stepsize = 0.41085390865563637;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 872.79439526509690950;
-  grad_ll[1] = -2956.07562017048621783;
-  grad_ll[2] = -3087.90876856601335021;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 872.79439526509690950;
+  geometry->gradient_log_likelihood[1] = -2956.07562017048621783;
+  geometry->gradient_log_likelihood[2] = -3087.90876856601335021;
 
-  FI[0 * ldfi + 0] = 63214.30835848159767920;
-  FI[0 * ldfi + 1] = 29076.48396458339993842;
-  FI[0 * ldfi + 2] = 34187.60727851412957534;
-  FI[1 * ldfi + 0] = 29076.48396458339993842;
-  FI[1 * ldfi + 1] = 28921.36699262648835429;
-  FI[1 * ldfi + 2] = 32073.87956669385312125;
-  FI[2 * ldfi + 0] = 34187.60727851412957534;
-  FI[2 * ldfi + 1] = 32073.87956669385312125;
-  FI[2 * ldfi + 2] = 38586.98990406160010025;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 63214.30835848159767920;
+  geometry->FI[0 * geometry->ldfi + 1] = 29076.48396458339993842;
+  geometry->FI[0 * geometry->ldfi + 2] = 34187.60727851412957534;
+  geometry->FI[1 * geometry->ldfi + 0] = 29076.48396458339993842;
+  geometry->FI[1 * geometry->ldfi + 1] = 28921.36699262648835429;
+  geometry->FI[1 * geometry->ldfi + 2] = 32073.87956669385312125;
+  geometry->FI[2 * geometry->ldfi + 0] = 34187.60727851412957534;
+  geometry->FI[2 * geometry->ldfi + 1] = 32073.87956669385312125;
+  geometry->FI[2 * geometry->ldfi + 2] = 38586.98990406160010025;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4242,13 +4172,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala40() {
 static void test_ode_likelihood_fitzhugh_simp_mmala41() {
   // Input argument
   double params[] = { 0.13167909948504586, 0.05081313042973305, 3.06184143852986912 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4256,44 +4186,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala41() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 58.60121836998956724, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 3050.14865912334016684, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 56.89038070508631506, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 988.19683586974838363, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 3050.14865912334016684, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 56.89038070508631506, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 988.19683586974838363, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 78693.49384115490829572, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -7468.81656036854383274, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 48007.60288894304540008, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -7468.81656036854383274, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3149.18239935409383179, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -6539.85064102215437742, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 48007.60288894304540008, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -6539.85064102215437742, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45044.08688490224449197, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 78693.49384115490829572, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -7468.81656036854383274, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 48007.60288894304540008, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -7468.81656036854383274, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3149.18239935409383179, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -6539.85064102215437742, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 48007.60288894304540008, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -6539.85064102215437742, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45044.08688490224449197, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 8775
@@ -4303,41 +4229,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala41() {
   double likelihood = 58.60121836998956724;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 3050.14865912334016684;
-  grad_ll[1] = 56.89038070508631506;
-  grad_ll[2] = 988.19683586974838363;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 3050.14865912334016684;
+  geometry->gradient_log_likelihood[1] = 56.89038070508631506;
+  geometry->gradient_log_likelihood[2] = 988.19683586974838363;
 
-  FI[0 * ldfi + 0] = 78693.49384115490829572;
-  FI[0 * ldfi + 1] = -7468.81656036854383274;
-  FI[0 * ldfi + 2] = 48007.60288894304540008;
-  FI[1 * ldfi + 0] = -7468.81656036854383274;
-  FI[1 * ldfi + 1] = 3149.18239935409383179;
-  FI[1 * ldfi + 2] = -6539.85064102215437742;
-  FI[2 * ldfi + 0] = 48007.60288894304540008;
-  FI[2 * ldfi + 1] = -6539.85064102215437742;
-  FI[2 * ldfi + 2] = 45044.08688490224449197;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 78693.49384115490829572;
+  geometry->FI[0 * geometry->ldfi + 1] = -7468.81656036854383274;
+  geometry->FI[0 * geometry->ldfi + 2] = 48007.60288894304540008;
+  geometry->FI[1 * geometry->ldfi + 0] = -7468.81656036854383274;
+  geometry->FI[1 * geometry->ldfi + 1] = 3149.18239935409383179;
+  geometry->FI[1 * geometry->ldfi + 2] = -6539.85064102215437742;
+  geometry->FI[2 * geometry->ldfi + 0] = 48007.60288894304540008;
+  geometry->FI[2 * geometry->ldfi + 1] = -6539.85064102215437742;
+  geometry->FI[2 * geometry->ldfi + 2] = 45044.08688490224449197;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4364,13 +4293,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala41() {
 static void test_ode_likelihood_fitzhugh_simp_mmala42() {
   // Input argument
   double params[] = { 0.17797495359448942, 0.07795516363060223, 3.04087047929198429 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4378,44 +4307,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala42() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 140.34169359065356275, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 413.54421804426988274, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 196.58472050797973907, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -306.16061601036471984, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 413.54421804426988274, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 196.58472050797973907, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -306.16061601036471984, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 101998.19741159834666178, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -4470.83268714893983997, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 58459.99500683934456902, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -4470.83268714893983997, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2465.46527075947415142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -3303.00532343345912523, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 58459.99500683934456902, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -3303.00532343345912523, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45746.73589297896978678, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 101998.19741159834666178, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -4470.83268714893983997, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 58459.99500683934456902, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -4470.83268714893983997, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2465.46527075947415142, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -3303.00532343345912523, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 58459.99500683934456902, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -3303.00532343345912523, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45746.73589297896978678, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 7631
@@ -4425,41 +4350,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala42() {
   double likelihood = 140.34169359065356275;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 413.54421804426988274;
-  grad_ll[1] = 196.58472050797973907;
-  grad_ll[2] = -306.16061601036471984;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 413.54421804426988274;
+  geometry->gradient_log_likelihood[1] = 196.58472050797973907;
+  geometry->gradient_log_likelihood[2] = -306.16061601036471984;
 
-  FI[0 * ldfi + 0] = 101998.19741159834666178;
-  FI[0 * ldfi + 1] = -4470.83268714893983997;
-  FI[0 * ldfi + 2] = 58459.99500683934456902;
-  FI[1 * ldfi + 0] = -4470.83268714893983997;
-  FI[1 * ldfi + 1] = 2465.46527075947415142;
-  FI[1 * ldfi + 2] = -3303.00532343345912523;
-  FI[2 * ldfi + 0] = 58459.99500683934456902;
-  FI[2 * ldfi + 1] = -3303.00532343345912523;
-  FI[2 * ldfi + 2] = 45746.73589297896978678;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 101998.19741159834666178;
+  geometry->FI[0 * geometry->ldfi + 1] = -4470.83268714893983997;
+  geometry->FI[0 * geometry->ldfi + 2] = 58459.99500683934456902;
+  geometry->FI[1 * geometry->ldfi + 0] = -4470.83268714893983997;
+  geometry->FI[1 * geometry->ldfi + 1] = 2465.46527075947415142;
+  geometry->FI[1 * geometry->ldfi + 2] = -3303.00532343345912523;
+  geometry->FI[2 * geometry->ldfi + 0] = 58459.99500683934456902;
+  geometry->FI[2 * geometry->ldfi + 1] = -3303.00532343345912523;
+  geometry->FI[2 * geometry->ldfi + 2] = 45746.73589297896978678;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4486,13 +4414,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala42() {
 static void test_ode_likelihood_fitzhugh_simp_mmala43() {
   // Input argument
   double params[] = { 0.18393626510508004, 0.23505783362905960, 3.00473772068422118 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4500,44 +4428,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala43() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 146.49454651960348883, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 952.38839857185428173, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -85.41403924870240871, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 250.84542782984078713, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 952.38839857185428173, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -85.41403924870240871, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 250.84542782984078713, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 112127.19350794459751341, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 17644.97548877483495744, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 61495.91805536676110933, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 17644.97548877483495744, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 5553.81769922906096326, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 12265.67910089982069621, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 61495.91805536676110933, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 12265.67910089982069621, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44583.15491841047332855, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 112127.19350794459751341, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 17644.97548877483495744, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 61495.91805536676110933, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 17644.97548877483495744, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 5553.81769922906096326, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 12265.67910089982069621, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 61495.91805536676110933, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 12265.67910089982069621, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44583.15491841047332855, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15309
@@ -4547,41 +4471,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala43() {
   double likelihood = 146.49454651960348883;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 952.38839857185428173;
-  grad_ll[1] = -85.41403924870240871;
-  grad_ll[2] = 250.84542782984078713;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 952.38839857185428173;
+  geometry->gradient_log_likelihood[1] = -85.41403924870240871;
+  geometry->gradient_log_likelihood[2] = 250.84542782984078713;
 
-  FI[0 * ldfi + 0] = 112127.19350794459751341;
-  FI[0 * ldfi + 1] = 17644.97548877483495744;
-  FI[0 * ldfi + 2] = 61495.91805536676110933;
-  FI[1 * ldfi + 0] = 17644.97548877483495744;
-  FI[1 * ldfi + 1] = 5553.81769922906096326;
-  FI[1 * ldfi + 2] = 12265.67910089982069621;
-  FI[2 * ldfi + 0] = 61495.91805536676110933;
-  FI[2 * ldfi + 1] = 12265.67910089982069621;
-  FI[2 * ldfi + 2] = 44583.15491841047332855;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 112127.19350794459751341;
+  geometry->FI[0 * geometry->ldfi + 1] = 17644.97548877483495744;
+  geometry->FI[0 * geometry->ldfi + 2] = 61495.91805536676110933;
+  geometry->FI[1 * geometry->ldfi + 0] = 17644.97548877483495744;
+  geometry->FI[1 * geometry->ldfi + 1] = 5553.81769922906096326;
+  geometry->FI[1 * geometry->ldfi + 2] = 12265.67910089982069621;
+  geometry->FI[2 * geometry->ldfi + 0] = 61495.91805536676110933;
+  geometry->FI[2 * geometry->ldfi + 1] = 12265.67910089982069621;
+  geometry->FI[2 * geometry->ldfi + 2] = 44583.15491841047332855;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4608,13 +4535,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala43() {
 static void test_ode_likelihood_fitzhugh_simp_mmala44() {
   // Input argument
   double params[] = { 0.26858615386277629, 0.06124711127584816, 2.96085258637504989 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4622,44 +4549,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala44() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 5.92480051966533949, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -6611.47725240098588984, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 468.13153127256668995, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -2931.94914927377976710, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -6611.47725240098588984, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 468.13153127256668995, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -2931.94914927377976710, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 161841.04712068187654950, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -5871.18050630663219636, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 80462.14359549032815266, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -5871.18050630663219636, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2764.40910202466011469, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -3390.19171622897465568, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 80462.14359549032815266, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -3390.19171622897465568, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 47954.07510353959514759, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 161841.04712068187654950, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -5871.18050630663219636, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 80462.14359549032815266, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -5871.18050630663219636, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2764.40910202466011469, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -3390.19171622897465568, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 80462.14359549032815266, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -3390.19171622897465568, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 47954.07510353959514759, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15902
@@ -4669,41 +4592,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala44() {
   double likelihood = 5.92480051966533949;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -6611.47725240098588984;
-  grad_ll[1] = 468.13153127256668995;
-  grad_ll[2] = -2931.94914927377976710;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -6611.47725240098588984;
+  geometry->gradient_log_likelihood[1] = 468.13153127256668995;
+  geometry->gradient_log_likelihood[2] = -2931.94914927377976710;
 
-  FI[0 * ldfi + 0] = 161841.04712068187654950;
-  FI[0 * ldfi + 1] = -5871.18050630663219636;
-  FI[0 * ldfi + 2] = 80462.14359549032815266;
-  FI[1 * ldfi + 0] = -5871.18050630663219636;
-  FI[1 * ldfi + 1] = 2764.40910202466011469;
-  FI[1 * ldfi + 2] = -3390.19171622897465568;
-  FI[2 * ldfi + 0] = 80462.14359549032815266;
-  FI[2 * ldfi + 1] = -3390.19171622897465568;
-  FI[2 * ldfi + 2] = 47954.07510353959514759;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 161841.04712068187654950;
+  geometry->FI[0 * geometry->ldfi + 1] = -5871.18050630663219636;
+  geometry->FI[0 * geometry->ldfi + 2] = 80462.14359549032815266;
+  geometry->FI[1 * geometry->ldfi + 0] = -5871.18050630663219636;
+  geometry->FI[1 * geometry->ldfi + 1] = 2764.40910202466011469;
+  geometry->FI[1 * geometry->ldfi + 2] = -3390.19171622897465568;
+  geometry->FI[2 * geometry->ldfi + 0] = 80462.14359549032815266;
+  geometry->FI[2 * geometry->ldfi + 1] = -3390.19171622897465568;
+  geometry->FI[2 * geometry->ldfi + 2] = 47954.07510353959514759;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4730,13 +4656,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala44() {
 static void test_ode_likelihood_fitzhugh_simp_mmala45() {
   // Input argument
   double params[] = { 0.21938510156203328, 0.31608652856213948, 2.87260025267006780 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4744,44 +4670,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala45() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 63.78802611324685756, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 3395.50533190665328220, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 813.43534022124242711, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 2398.88686312344407270, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 3395.50533190665328220, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 813.43534022124242711, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 2398.88686312344407270, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 142301.15872462326660752, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 37252.77872517645300832, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 70934.32255613205779810, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 37252.77872517645300832, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 13499.89438430193513341, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 21856.41014850782084977, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 70934.32255613205779810, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 21856.41014850782084977, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 43607.80682716658338904, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 142301.15872462326660752, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 37252.77872517645300832, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 70934.32255613205779810, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 37252.77872517645300832, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 13499.89438430193513341, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 21856.41014850782084977, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 70934.32255613205779810, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 21856.41014850782084977, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 43607.80682716658338904, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 3737
@@ -4791,41 +4713,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala45() {
   double likelihood = 63.78802611324685756;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 3395.50533190665328220;
-  grad_ll[1] = 813.43534022124242711;
-  grad_ll[2] = 2398.88686312344407270;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 3395.50533190665328220;
+  geometry->gradient_log_likelihood[1] = 813.43534022124242711;
+  geometry->gradient_log_likelihood[2] = 2398.88686312344407270;
 
-  FI[0 * ldfi + 0] = 142301.15872462326660752;
-  FI[0 * ldfi + 1] = 37252.77872517645300832;
-  FI[0 * ldfi + 2] = 70934.32255613205779810;
-  FI[1 * ldfi + 0] = 37252.77872517645300832;
-  FI[1 * ldfi + 1] = 13499.89438430193513341;
-  FI[1 * ldfi + 2] = 21856.41014850782084977;
-  FI[2 * ldfi + 0] = 70934.32255613205779810;
-  FI[2 * ldfi + 1] = 21856.41014850782084977;
-  FI[2 * ldfi + 2] = 43607.80682716658338904;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 142301.15872462326660752;
+  geometry->FI[0 * geometry->ldfi + 1] = 37252.77872517645300832;
+  geometry->FI[0 * geometry->ldfi + 2] = 70934.32255613205779810;
+  geometry->FI[1 * geometry->ldfi + 0] = 37252.77872517645300832;
+  geometry->FI[1 * geometry->ldfi + 1] = 13499.89438430193513341;
+  geometry->FI[1 * geometry->ldfi + 2] = 21856.41014850782084977;
+  geometry->FI[2 * geometry->ldfi + 0] = 70934.32255613205779810;
+  geometry->FI[2 * geometry->ldfi + 1] = 21856.41014850782084977;
+  geometry->FI[2 * geometry->ldfi + 2] = 43607.80682716658338904;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4852,13 +4777,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala45() {
 static void test_ode_likelihood_fitzhugh_simp_mmala46() {
   // Input argument
   double params[] = { 0.22440709131700762, 0.13019537145058899, 2.97717327813071497 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4866,44 +4791,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala46() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.50829384299026970, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1054.16223714084981111, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 28.93367473246951249, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -394.81461189326864769, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1054.16223714084981111, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 28.93367473246951249, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -394.81461189326864769, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 132009.37819344032322988, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4588.32689573486095469, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 69996.16971292778907809, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4588.32689573486095469, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2502.83021016177144702, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2904.14283893699303007, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 69996.16971292778907809, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2904.14283893699303007, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46558.70984210939786863, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 132009.37819344032322988, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4588.32689573486095469, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 69996.16971292778907809, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4588.32689573486095469, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2502.83021016177144702, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2904.14283893699303007, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 69996.16971292778907809, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2904.14283893699303007, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46558.70984210939786863, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 9793
@@ -4913,41 +4834,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala46() {
   double likelihood = 154.50829384299026970;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1054.16223714084981111;
-  grad_ll[1] = 28.93367473246951249;
-  grad_ll[2] = -394.81461189326864769;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1054.16223714084981111;
+  geometry->gradient_log_likelihood[1] = 28.93367473246951249;
+  geometry->gradient_log_likelihood[2] = -394.81461189326864769;
 
-  FI[0 * ldfi + 0] = 132009.37819344032322988;
-  FI[0 * ldfi + 1] = 4588.32689573486095469;
-  FI[0 * ldfi + 2] = 69996.16971292778907809;
-  FI[1 * ldfi + 0] = 4588.32689573486095469;
-  FI[1 * ldfi + 1] = 2502.83021016177144702;
-  FI[1 * ldfi + 2] = 2904.14283893699303007;
-  FI[2 * ldfi + 0] = 69996.16971292778907809;
-  FI[2 * ldfi + 1] = 2904.14283893699303007;
-  FI[2 * ldfi + 2] = 46558.70984210939786863;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 132009.37819344032322988;
+  geometry->FI[0 * geometry->ldfi + 1] = 4588.32689573486095469;
+  geometry->FI[0 * geometry->ldfi + 2] = 69996.16971292778907809;
+  geometry->FI[1 * geometry->ldfi + 0] = 4588.32689573486095469;
+  geometry->FI[1 * geometry->ldfi + 1] = 2502.83021016177144702;
+  geometry->FI[1 * geometry->ldfi + 2] = 2904.14283893699303007;
+  geometry->FI[2 * geometry->ldfi + 0] = 69996.16971292778907809;
+  geometry->FI[2 * geometry->ldfi + 1] = 2904.14283893699303007;
+  geometry->FI[2 * geometry->ldfi + 2] = 46558.70984210939786863;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4974,13 +4898,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala46() {
 static void test_ode_likelihood_fitzhugh_simp_mmala47() {
   // Input argument
   double params[] = { 0.19440519678266885, 0.13543867866273965, 3.01066647614394167 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -4988,44 +4912,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala47() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.60270395307034619, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 468.68769087443251919, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 54.33705085300425708, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 70.78342637932209414, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 468.68769087443251919, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 54.33705085300425708, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 70.78342637932209414, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 112905.97820609931659419, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 3815.55300677357354289, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 62754.28456014666880947, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 3815.55300677357354289, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2375.87564784081860125, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2686.83428417286359036, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 62754.28456014666880947, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2686.83428417286359036, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45824.78994296853488777, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 112905.97820609931659419, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 3815.55300677357354289, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 62754.28456014666880947, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 3815.55300677357354289, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2375.87564784081860125, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2686.83428417286359036, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 62754.28456014666880947, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2686.83428417286359036, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45824.78994296853488777, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 8910
@@ -5035,41 +4955,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala47() {
   double likelihood = 157.60270395307034619;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 468.68769087443251919;
-  grad_ll[1] = 54.33705085300425708;
-  grad_ll[2] = 70.78342637932209414;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 468.68769087443251919;
+  geometry->gradient_log_likelihood[1] = 54.33705085300425708;
+  geometry->gradient_log_likelihood[2] = 70.78342637932209414;
 
-  FI[0 * ldfi + 0] = 112905.97820609931659419;
-  FI[0 * ldfi + 1] = 3815.55300677357354289;
-  FI[0 * ldfi + 2] = 62754.28456014666880947;
-  FI[1 * ldfi + 0] = 3815.55300677357354289;
-  FI[1 * ldfi + 1] = 2375.87564784081860125;
-  FI[1 * ldfi + 2] = 2686.83428417286359036;
-  FI[2 * ldfi + 0] = 62754.28456014666880947;
-  FI[2 * ldfi + 1] = 2686.83428417286359036;
-  FI[2 * ldfi + 2] = 45824.78994296853488777;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 112905.97820609931659419;
+  geometry->FI[0 * geometry->ldfi + 1] = 3815.55300677357354289;
+  geometry->FI[0 * geometry->ldfi + 2] = 62754.28456014666880947;
+  geometry->FI[1 * geometry->ldfi + 0] = 3815.55300677357354289;
+  geometry->FI[1 * geometry->ldfi + 1] = 2375.87564784081860125;
+  geometry->FI[1 * geometry->ldfi + 2] = 2686.83428417286359036;
+  geometry->FI[2 * geometry->ldfi + 0] = 62754.28456014666880947;
+  geometry->FI[2 * geometry->ldfi + 1] = 2686.83428417286359036;
+  geometry->FI[2 * geometry->ldfi + 2] = 45824.78994296853488777;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5096,13 +5019,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala47() {
 static void test_ode_likelihood_fitzhugh_simp_mmala48() {
   // Input argument
   double params[] = { 0.30756830105767752, 0.05192014437110582, 2.80103167954327237 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5110,44 +5033,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala48() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -3.68288493003970530, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -348.15169183663994090, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 195.38026515087807411, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1250.58371502025374866, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -348.15169183663994090, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 195.38026515087807411, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1250.58371502025374866, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 187126.10696200429811142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -8829.62571572517663299, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 88747.74872181378304958, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -8829.62571572517663299, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3414.32154589801120892, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -4636.19397908991959412, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 88747.74872181378304958, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -4636.19397908991959412, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 48782.09351137957128230, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 187126.10696200429811142, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -8829.62571572517663299, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 88747.74872181378304958, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -8829.62571572517663299, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3414.32154589801120892, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -4636.19397908991959412, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 88747.74872181378304958, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -4636.19397908991959412, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 48782.09351137957128230, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 12922
@@ -5157,41 +5076,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala48() {
   double likelihood = -3.68288493003970530;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -348.15169183663994090;
-  grad_ll[1] = 195.38026515087807411;
-  grad_ll[2] = 1250.58371502025374866;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -348.15169183663994090;
+  geometry->gradient_log_likelihood[1] = 195.38026515087807411;
+  geometry->gradient_log_likelihood[2] = 1250.58371502025374866;
 
-  FI[0 * ldfi + 0] = 187126.10696200429811142;
-  FI[0 * ldfi + 1] = -8829.62571572517663299;
-  FI[0 * ldfi + 2] = 88747.74872181378304958;
-  FI[1 * ldfi + 0] = -8829.62571572517663299;
-  FI[1 * ldfi + 1] = 3414.32154589801120892;
-  FI[1 * ldfi + 2] = -4636.19397908991959412;
-  FI[2 * ldfi + 0] = 88747.74872181378304958;
-  FI[2 * ldfi + 1] = -4636.19397908991959412;
-  FI[2 * ldfi + 2] = 48782.09351137957128230;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 187126.10696200429811142;
+  geometry->FI[0 * geometry->ldfi + 1] = -8829.62571572517663299;
+  geometry->FI[0 * geometry->ldfi + 2] = 88747.74872181378304958;
+  geometry->FI[1 * geometry->ldfi + 0] = -8829.62571572517663299;
+  geometry->FI[1 * geometry->ldfi + 1] = 3414.32154589801120892;
+  geometry->FI[1 * geometry->ldfi + 2] = -4636.19397908991959412;
+  geometry->FI[2 * geometry->ldfi + 0] = 88747.74872181378304958;
+  geometry->FI[2 * geometry->ldfi + 1] = -4636.19397908991959412;
+  geometry->FI[2 * geometry->ldfi + 2] = 48782.09351137957128230;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5218,13 +5140,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala48() {
 static void test_ode_likelihood_fitzhugh_simp_mmala49() {
   // Input argument
   double params[] = { 0.24044589905240638, 0.11139551159578634, 2.91492799092215815 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5232,44 +5154,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala49() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 123.18649185230924559, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1327.59392197325746565, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 138.52318794445352523, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1398.49906046948490257, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1327.59392197325746565, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 138.52318794445352523, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1398.49906046948490257, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 139506.53444975119782612, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 1579.47699577651928848, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 72730.58143693022429943, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 1579.47699577651928848, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2493.54208977978987605, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 940.96160253836114862, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 72730.58143693022429943, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 940.96160253836114862, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46655.40335122286342084, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 139506.53444975119782612, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 1579.47699577651928848, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 72730.58143693022429943, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 1579.47699577651928848, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2493.54208977978987605, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 940.96160253836114862, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 72730.58143693022429943, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 940.96160253836114862, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46655.40335122286342084, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 14182
@@ -5279,41 +5197,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala49() {
   double likelihood = 123.18649185230924559;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1327.59392197325746565;
-  grad_ll[1] = 138.52318794445352523;
-  grad_ll[2] = 1398.49906046948490257;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1327.59392197325746565;
+  geometry->gradient_log_likelihood[1] = 138.52318794445352523;
+  geometry->gradient_log_likelihood[2] = 1398.49906046948490257;
 
-  FI[0 * ldfi + 0] = 139506.53444975119782612;
-  FI[0 * ldfi + 1] = 1579.47699577651928848;
-  FI[0 * ldfi + 2] = 72730.58143693022429943;
-  FI[1 * ldfi + 0] = 1579.47699577651928848;
-  FI[1 * ldfi + 1] = 2493.54208977978987605;
-  FI[1 * ldfi + 2] = 940.96160253836114862;
-  FI[2 * ldfi + 0] = 72730.58143693022429943;
-  FI[2 * ldfi + 1] = 940.96160253836114862;
-  FI[2 * ldfi + 2] = 46655.40335122286342084;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 139506.53444975119782612;
+  geometry->FI[0 * geometry->ldfi + 1] = 1579.47699577651928848;
+  geometry->FI[0 * geometry->ldfi + 2] = 72730.58143693022429943;
+  geometry->FI[1 * geometry->ldfi + 0] = 1579.47699577651928848;
+  geometry->FI[1 * geometry->ldfi + 1] = 2493.54208977978987605;
+  geometry->FI[1 * geometry->ldfi + 2] = 940.96160253836114862;
+  geometry->FI[2 * geometry->ldfi + 0] = 72730.58143693022429943;
+  geometry->FI[2 * geometry->ldfi + 1] = 940.96160253836114862;
+  geometry->FI[2 * geometry->ldfi + 2] = 46655.40335122286342084;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5340,13 +5261,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala49() {
 static void test_ode_likelihood_fitzhugh_simp_mmala50() {
   // Input argument
   double params[] = { 0.21996278119012569, 0.39933365894025014, 2.83550923631122487 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5354,44 +5275,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala50() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 51.11564318046879407, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 2124.41880550837731789, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 569.66151046027619032, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1663.97533386749546480, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 2124.41880550837731789, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 569.66151046027619032, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1663.97533386749546480, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 157073.85246596101205796, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 56947.59787384989613201, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 73584.57550557702779770, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 56947.59787384989613201, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 25733.35119585309075774, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 30973.10223695719469106, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 73584.57550557702779770, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 30973.10223695719469106, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 41949.12318727351521375, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 157073.85246596101205796, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 56947.59787384989613201, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 73584.57550557702779770, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 56947.59787384989613201, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 25733.35119585309075774, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 30973.10223695719469106, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 73584.57550557702779770, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 30973.10223695719469106, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 41949.12318727351521375, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15087
@@ -5401,41 +5318,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala50() {
   double likelihood = 51.11564318046879407;
   double temperature = 0.01734152991583261;
   double stepsize = 0.73953703558014539;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 2124.41880550837731789;
-  grad_ll[1] = 569.66151046027619032;
-  grad_ll[2] = 1663.97533386749546480;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 2124.41880550837731789;
+  geometry->gradient_log_likelihood[1] = 569.66151046027619032;
+  geometry->gradient_log_likelihood[2] = 1663.97533386749546480;
 
-  FI[0 * ldfi + 0] = 157073.85246596101205796;
-  FI[0 * ldfi + 1] = 56947.59787384989613201;
-  FI[0 * ldfi + 2] = 73584.57550557702779770;
-  FI[1 * ldfi + 0] = 56947.59787384989613201;
-  FI[1 * ldfi + 1] = 25733.35119585309075774;
-  FI[1 * ldfi + 2] = 30973.10223695719469106;
-  FI[2 * ldfi + 0] = 73584.57550557702779770;
-  FI[2 * ldfi + 1] = 30973.10223695719469106;
-  FI[2 * ldfi + 2] = 41949.12318727351521375;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 157073.85246596101205796;
+  geometry->FI[0 * geometry->ldfi + 1] = 56947.59787384989613201;
+  geometry->FI[0 * geometry->ldfi + 2] = 73584.57550557702779770;
+  geometry->FI[1 * geometry->ldfi + 0] = 56947.59787384989613201;
+  geometry->FI[1 * geometry->ldfi + 1] = 25733.35119585309075774;
+  geometry->FI[1 * geometry->ldfi + 2] = 30973.10223695719469106;
+  geometry->FI[2 * geometry->ldfi + 0] = 73584.57550557702779770;
+  geometry->FI[2 * geometry->ldfi + 1] = 30973.10223695719469106;
+  geometry->FI[2 * geometry->ldfi + 2] = 41949.12318727351521375;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5462,13 +5382,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala50() {
 static void test_ode_likelihood_fitzhugh_simp_mmala51() {
   // Input argument
   double params[] = { 0.18280891932505533, 0.00002506571740844, 3.01014684480835415 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5476,44 +5396,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala51() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 123.68804475937305654, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 926.63409970242855707, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 305.58619424774508389, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 228.27081746646763349, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 926.63409970242855707, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 305.58619424774508389, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 228.27081746646763349, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 102656.79750341355975252, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -15302.68686442026410077, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 58976.53494915932242293, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -15302.68686442026410077, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 5281.70599918291463837, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -11405.49784734656714136, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 58976.53494915932242293, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -11405.49784734656714136, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46167.13325222922867397, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 102656.79750341355975252, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -15302.68686442026410077, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 58976.53494915932242293, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -15302.68686442026410077, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 5281.70599918291463837, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -11405.49784734656714136, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 58976.53494915932242293, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -11405.49784734656714136, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46167.13325222922867397, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5521
@@ -5523,41 +5439,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala51() {
   double likelihood = 123.68804475937305654;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 926.63409970242855707;
-  grad_ll[1] = 305.58619424774508389;
-  grad_ll[2] = 228.27081746646763349;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 926.63409970242855707;
+  geometry->gradient_log_likelihood[1] = 305.58619424774508389;
+  geometry->gradient_log_likelihood[2] = 228.27081746646763349;
 
-  FI[0 * ldfi + 0] = 102656.79750341355975252;
-  FI[0 * ldfi + 1] = -15302.68686442026410077;
-  FI[0 * ldfi + 2] = 58976.53494915932242293;
-  FI[1 * ldfi + 0] = -15302.68686442026410077;
-  FI[1 * ldfi + 1] = 5281.70599918291463837;
-  FI[1 * ldfi + 2] = -11405.49784734656714136;
-  FI[2 * ldfi + 0] = 58976.53494915932242293;
-  FI[2 * ldfi + 1] = -11405.49784734656714136;
-  FI[2 * ldfi + 2] = 46167.13325222922867397;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 102656.79750341355975252;
+  geometry->FI[0 * geometry->ldfi + 1] = -15302.68686442026410077;
+  geometry->FI[0 * geometry->ldfi + 2] = 58976.53494915932242293;
+  geometry->FI[1 * geometry->ldfi + 0] = -15302.68686442026410077;
+  geometry->FI[1 * geometry->ldfi + 1] = 5281.70599918291463837;
+  geometry->FI[1 * geometry->ldfi + 2] = -11405.49784734656714136;
+  geometry->FI[2 * geometry->ldfi + 0] = 58976.53494915932242293;
+  geometry->FI[2 * geometry->ldfi + 1] = -11405.49784734656714136;
+  geometry->FI[2 * geometry->ldfi + 2] = 46167.13325222922867397;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5584,13 +5503,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala51() {
 static void test_ode_likelihood_fitzhugh_simp_mmala52() {
   // Input argument
   double params[] = { 0.16040465196022738, 0.22319399987962757, 3.05021359706380668 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5598,44 +5517,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala52() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 126.28171439251461550, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 987.02536867545450150, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -160.38501463938268898, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -214.15085048226745812, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 987.02536867545450150, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -160.38501463938268898, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -214.15085048226745812, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 98302.29560344161291141, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 13664.83794951709387533, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 55917.67816757474793121, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 13664.83794951709387533, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4537.57232539924189041, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 10431.14544980110622419, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 55917.67816757474793121, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 10431.14544980110622419, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44304.04305348606430925, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 98302.29560344161291141, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 13664.83794951709387533, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 55917.67816757474793121, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 13664.83794951709387533, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4537.57232539924189041, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 10431.14544980110622419, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 55917.67816757474793121, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 10431.14544980110622419, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44304.04305348606430925, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13594
@@ -5645,41 +5560,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala52() {
   double likelihood = 126.28171439251461550;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 987.02536867545450150;
-  grad_ll[1] = -160.38501463938268898;
-  grad_ll[2] = -214.15085048226745812;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 987.02536867545450150;
+  geometry->gradient_log_likelihood[1] = -160.38501463938268898;
+  geometry->gradient_log_likelihood[2] = -214.15085048226745812;
 
-  FI[0 * ldfi + 0] = 98302.29560344161291141;
-  FI[0 * ldfi + 1] = 13664.83794951709387533;
-  FI[0 * ldfi + 2] = 55917.67816757474793121;
-  FI[1 * ldfi + 0] = 13664.83794951709387533;
-  FI[1 * ldfi + 1] = 4537.57232539924189041;
-  FI[1 * ldfi + 2] = 10431.14544980110622419;
-  FI[2 * ldfi + 0] = 55917.67816757474793121;
-  FI[2 * ldfi + 1] = 10431.14544980110622419;
-  FI[2 * ldfi + 2] = 44304.04305348606430925;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 98302.29560344161291141;
+  geometry->FI[0 * geometry->ldfi + 1] = 13664.83794951709387533;
+  geometry->FI[0 * geometry->ldfi + 2] = 55917.67816757474793121;
+  geometry->FI[1 * geometry->ldfi + 0] = 13664.83794951709387533;
+  geometry->FI[1 * geometry->ldfi + 1] = 4537.57232539924189041;
+  geometry->FI[1 * geometry->ldfi + 2] = 10431.14544980110622419;
+  geometry->FI[2 * geometry->ldfi + 0] = 55917.67816757474793121;
+  geometry->FI[2 * geometry->ldfi + 1] = 10431.14544980110622419;
+  geometry->FI[2 * geometry->ldfi + 2] = 44304.04305348606430925;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5706,13 +5624,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala52() {
 static void test_ode_likelihood_fitzhugh_simp_mmala53() {
   // Input argument
   double params[] = { 0.18273687801951749, 0.32256978570147415, 2.94074926560503958 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5720,44 +5638,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala53() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 91.83673662101813306, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 3029.17432417658710619, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 484.89403279199831331, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1720.51673501902405405, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 3029.17432417658710619, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 484.89403279199831331, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1720.51673501902405405, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 116970.15151441928173881, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 31130.05321727393675246, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 62178.41620536250411533, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 31130.05321727393675246, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 12256.71877173788016080, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 20687.29468470969368354, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 62178.41620536250411533, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 20687.29468470969368354, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 43183.52596583085687598, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 116970.15151441928173881, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 31130.05321727393675246, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 62178.41620536250411533, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 31130.05321727393675246, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 12256.71877173788016080, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 20687.29468470969368354, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 62178.41620536250411533, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 20687.29468470969368354, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 43183.52596583085687598, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13101
@@ -5767,41 +5681,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala53() {
   double likelihood = 91.83673662101813306;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 3029.17432417658710619;
-  grad_ll[1] = 484.89403279199831331;
-  grad_ll[2] = 1720.51673501902405405;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 3029.17432417658710619;
+  geometry->gradient_log_likelihood[1] = 484.89403279199831331;
+  geometry->gradient_log_likelihood[2] = 1720.51673501902405405;
 
-  FI[0 * ldfi + 0] = 116970.15151441928173881;
-  FI[0 * ldfi + 1] = 31130.05321727393675246;
-  FI[0 * ldfi + 2] = 62178.41620536250411533;
-  FI[1 * ldfi + 0] = 31130.05321727393675246;
-  FI[1 * ldfi + 1] = 12256.71877173788016080;
-  FI[1 * ldfi + 2] = 20687.29468470969368354;
-  FI[2 * ldfi + 0] = 62178.41620536250411533;
-  FI[2 * ldfi + 1] = 20687.29468470969368354;
-  FI[2 * ldfi + 2] = 43183.52596583085687598;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 116970.15151441928173881;
+  geometry->FI[0 * geometry->ldfi + 1] = 31130.05321727393675246;
+  geometry->FI[0 * geometry->ldfi + 2] = 62178.41620536250411533;
+  geometry->FI[1 * geometry->ldfi + 0] = 31130.05321727393675246;
+  geometry->FI[1 * geometry->ldfi + 1] = 12256.71877173788016080;
+  geometry->FI[1 * geometry->ldfi + 2] = 20687.29468470969368354;
+  geometry->FI[2 * geometry->ldfi + 0] = 62178.41620536250411533;
+  geometry->FI[2 * geometry->ldfi + 1] = 20687.29468470969368354;
+  geometry->FI[2 * geometry->ldfi + 2] = 43183.52596583085687598;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5828,13 +5745,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala53() {
 static void test_ode_likelihood_fitzhugh_simp_mmala54() {
   // Input argument
   double params[] = { 0.19556183777119560, 0.31173060713465567, 2.96374550183349461 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5842,44 +5759,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala54() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 132.79740907537626526, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 240.35386260627581123, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -316.14506585557546714, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 57.12406272570831334, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 240.35386260627581123, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -316.14506585557546714, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 57.12406272570831334, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 126636.93333203256770503, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 32092.14730996848084033, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65733.84024068614235148, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 32092.14730996848084033, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 11851.81863729111501016, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 20392.02505121974172653, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65733.84024068614235148, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 20392.02505121974172653, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 43677.44619257950398605, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 126636.93333203256770503, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 32092.14730996848084033, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65733.84024068614235148, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 32092.14730996848084033, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 11851.81863729111501016, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 20392.02505121974172653, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65733.84024068614235148, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 20392.02505121974172653, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 43677.44619257950398605, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 3252
@@ -5889,41 +5802,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala54() {
   double likelihood = 132.79740907537626526;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 240.35386260627581123;
-  grad_ll[1] = -316.14506585557546714;
-  grad_ll[2] = 57.12406272570831334;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 240.35386260627581123;
+  geometry->gradient_log_likelihood[1] = -316.14506585557546714;
+  geometry->gradient_log_likelihood[2] = 57.12406272570831334;
 
-  FI[0 * ldfi + 0] = 126636.93333203256770503;
-  FI[0 * ldfi + 1] = 32092.14730996848084033;
-  FI[0 * ldfi + 2] = 65733.84024068614235148;
-  FI[1 * ldfi + 0] = 32092.14730996848084033;
-  FI[1 * ldfi + 1] = 11851.81863729111501016;
-  FI[1 * ldfi + 2] = 20392.02505121974172653;
-  FI[2 * ldfi + 0] = 65733.84024068614235148;
-  FI[2 * ldfi + 1] = 20392.02505121974172653;
-  FI[2 * ldfi + 2] = 43677.44619257950398605;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 126636.93333203256770503;
+  geometry->FI[0 * geometry->ldfi + 1] = 32092.14730996848084033;
+  geometry->FI[0 * geometry->ldfi + 2] = 65733.84024068614235148;
+  geometry->FI[1 * geometry->ldfi + 0] = 32092.14730996848084033;
+  geometry->FI[1 * geometry->ldfi + 1] = 11851.81863729111501016;
+  geometry->FI[1 * geometry->ldfi + 2] = 20392.02505121974172653;
+  geometry->FI[2 * geometry->ldfi + 0] = 65733.84024068614235148;
+  geometry->FI[2 * geometry->ldfi + 1] = 20392.02505121974172653;
+  geometry->FI[2 * geometry->ldfi + 2] = 43677.44619257950398605;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5950,13 +5866,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala54() {
 static void test_ode_likelihood_fitzhugh_simp_mmala55() {
   // Input argument
   double params[] = { 0.20378251599506719, 0.26817275553715797, 2.96186133232363025 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -5964,44 +5880,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala55() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 144.72917392705369366, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 594.99018153223391892, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -108.60365980821794096, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 393.33523612319567064, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 594.99018153223391892, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -108.60365980821794096, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 393.33523612319567064, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 127795.36738232706557028, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 25736.45330054283840582, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66925.40923683295841329, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 25736.45330054283840582, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 8326.16168706409553124, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 16384.94433251978261978, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66925.40923683295841329, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 16384.94433251978261978, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44554.33396714682749007, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 127795.36738232706557028, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 25736.45330054283840582, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66925.40923683295841329, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 25736.45330054283840582, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 8326.16168706409553124, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 16384.94433251978261978, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66925.40923683295841329, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 16384.94433251978261978, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44554.33396714682749007, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 2380
@@ -6011,41 +5923,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala55() {
   double likelihood = 144.72917392705369366;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 594.99018153223391892;
-  grad_ll[1] = -108.60365980821794096;
-  grad_ll[2] = 393.33523612319567064;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 594.99018153223391892;
+  geometry->gradient_log_likelihood[1] = -108.60365980821794096;
+  geometry->gradient_log_likelihood[2] = 393.33523612319567064;
 
-  FI[0 * ldfi + 0] = 127795.36738232706557028;
-  FI[0 * ldfi + 1] = 25736.45330054283840582;
-  FI[0 * ldfi + 2] = 66925.40923683295841329;
-  FI[1 * ldfi + 0] = 25736.45330054283840582;
-  FI[1 * ldfi + 1] = 8326.16168706409553124;
-  FI[1 * ldfi + 2] = 16384.94433251978261978;
-  FI[2 * ldfi + 0] = 66925.40923683295841329;
-  FI[2 * ldfi + 1] = 16384.94433251978261978;
-  FI[2 * ldfi + 2] = 44554.33396714682749007;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 127795.36738232706557028;
+  geometry->FI[0 * geometry->ldfi + 1] = 25736.45330054283840582;
+  geometry->FI[0 * geometry->ldfi + 2] = 66925.40923683295841329;
+  geometry->FI[1 * geometry->ldfi + 0] = 25736.45330054283840582;
+  geometry->FI[1 * geometry->ldfi + 1] = 8326.16168706409553124;
+  geometry->FI[1 * geometry->ldfi + 2] = 16384.94433251978261978;
+  geometry->FI[2 * geometry->ldfi + 0] = 66925.40923683295841329;
+  geometry->FI[2 * geometry->ldfi + 1] = 16384.94433251978261978;
+  geometry->FI[2 * geometry->ldfi + 2] = 44554.33396714682749007;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6072,13 +5987,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala55() {
 static void test_ode_likelihood_fitzhugh_simp_mmala56() {
   // Input argument
   double params[] = { 0.17586465723155023, 0.13561769001074150, 3.02685720300166805 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6086,44 +6001,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala56() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 143.67466998423506652, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1484.71209111012990434, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 76.04083055018767823, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 465.95068125931419445, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1484.71209111012990434, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 76.04083055018767823, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 465.95068125931419445, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 102087.97084728223853745, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 2988.08148605513997609, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 58337.07771006958500948, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 2988.08148605513997609, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2284.00062219779920270, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2273.65795274039601281, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 58337.07771006958500948, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2273.65795274039601281, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45407.89311588040436618, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 102087.97084728223853745, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 2988.08148605513997609, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 58337.07771006958500948, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 2988.08148605513997609, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2284.00062219779920270, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2273.65795274039601281, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 58337.07771006958500948, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2273.65795274039601281, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45407.89311588040436618, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 9965
@@ -6133,41 +6044,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala56() {
   double likelihood = 143.67466998423506652;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1484.71209111012990434;
-  grad_ll[1] = 76.04083055018767823;
-  grad_ll[2] = 465.95068125931419445;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1484.71209111012990434;
+  geometry->gradient_log_likelihood[1] = 76.04083055018767823;
+  geometry->gradient_log_likelihood[2] = 465.95068125931419445;
 
-  FI[0 * ldfi + 0] = 102087.97084728223853745;
-  FI[0 * ldfi + 1] = 2988.08148605513997609;
-  FI[0 * ldfi + 2] = 58337.07771006958500948;
-  FI[1 * ldfi + 0] = 2988.08148605513997609;
-  FI[1 * ldfi + 1] = 2284.00062219779920270;
-  FI[1 * ldfi + 2] = 2273.65795274039601281;
-  FI[2 * ldfi + 0] = 58337.07771006958500948;
-  FI[2 * ldfi + 1] = 2273.65795274039601281;
-  FI[2 * ldfi + 2] = 45407.89311588040436618;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 102087.97084728223853745;
+  geometry->FI[0 * geometry->ldfi + 1] = 2988.08148605513997609;
+  geometry->FI[0 * geometry->ldfi + 2] = 58337.07771006958500948;
+  geometry->FI[1 * geometry->ldfi + 0] = 2988.08148605513997609;
+  geometry->FI[1 * geometry->ldfi + 1] = 2284.00062219779920270;
+  geometry->FI[1 * geometry->ldfi + 2] = 2273.65795274039601281;
+  geometry->FI[2 * geometry->ldfi + 0] = 58337.07771006958500948;
+  geometry->FI[2 * geometry->ldfi + 1] = 2273.65795274039601281;
+  geometry->FI[2 * geometry->ldfi + 2] = 45407.89311588040436618;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6194,13 +6108,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala56() {
 static void test_ode_likelihood_fitzhugh_simp_mmala57() {
   // Input argument
   double params[] = { 0.20381090361946677, 0.18145674784509394, 2.97830626536475762 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6208,44 +6122,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala57() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.38498058043859373, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1116.59613290775996575, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 62.63555290845437895, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 704.05739878877398041, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1116.59613290775996575, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 62.63555290845437895, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 704.05739878877398041, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 120535.34431843784113880, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 11254.37003426856608712, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65379.25773507179837907, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 11254.37003426856608712, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3489.95190908796394069, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 7515.89501861712778918, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65379.25773507179837907, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 7515.89501861712778918, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45591.80654720521124545, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 120535.34431843784113880, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 11254.37003426856608712, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65379.25773507179837907, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 11254.37003426856608712, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3489.95190908796394069, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 7515.89501861712778918, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65379.25773507179837907, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 7515.89501861712778918, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45591.80654720521124545, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19190
@@ -6255,41 +6165,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala57() {
   double likelihood = 154.38498058043859373;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1116.59613290775996575;
-  grad_ll[1] = 62.63555290845437895;
-  grad_ll[2] = 704.05739878877398041;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1116.59613290775996575;
+  geometry->gradient_log_likelihood[1] = 62.63555290845437895;
+  geometry->gradient_log_likelihood[2] = 704.05739878877398041;
 
-  FI[0 * ldfi + 0] = 120535.34431843784113880;
-  FI[0 * ldfi + 1] = 11254.37003426856608712;
-  FI[0 * ldfi + 2] = 65379.25773507179837907;
-  FI[1 * ldfi + 0] = 11254.37003426856608712;
-  FI[1 * ldfi + 1] = 3489.95190908796394069;
-  FI[1 * ldfi + 2] = 7515.89501861712778918;
-  FI[2 * ldfi + 0] = 65379.25773507179837907;
-  FI[2 * ldfi + 1] = 7515.89501861712778918;
-  FI[2 * ldfi + 2] = 45591.80654720521124545;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 120535.34431843784113880;
+  geometry->FI[0 * geometry->ldfi + 1] = 11254.37003426856608712;
+  geometry->FI[0 * geometry->ldfi + 2] = 65379.25773507179837907;
+  geometry->FI[1 * geometry->ldfi + 0] = 11254.37003426856608712;
+  geometry->FI[1 * geometry->ldfi + 1] = 3489.95190908796394069;
+  geometry->FI[1 * geometry->ldfi + 2] = 7515.89501861712778918;
+  geometry->FI[2 * geometry->ldfi + 0] = 65379.25773507179837907;
+  geometry->FI[2 * geometry->ldfi + 1] = 7515.89501861712778918;
+  geometry->FI[2 * geometry->ldfi + 2] = 45591.80654720521124545;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6316,13 +6229,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala57() {
 static void test_ode_likelihood_fitzhugh_simp_mmala58() {
   // Input argument
   double params[] = { 0.21439403654787090, 0.15026581176148512, 2.94623834298170317 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6330,44 +6243,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala58() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 129.94569354334259970, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 2286.87751350831058517, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 182.59662734536800599, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 1670.30554449295050290, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 2286.87751350831058517, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 182.59662734536800599, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 1670.30554449295050290, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 124056.49832612332829740, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 6742.21660088016597001, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66899.48219283274374902, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 6742.21660088016597001, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2756.61688248687642044, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 4406.83953857288906875, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66899.48219283274374902, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 4406.83953857288906875, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45777.58429635027277982, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 124056.49832612332829740, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 6742.21660088016597001, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66899.48219283274374902, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 6742.21660088016597001, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2756.61688248687642044, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 4406.83953857288906875, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66899.48219283274374902, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 4406.83953857288906875, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45777.58429635027277982, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 6806
@@ -6377,41 +6286,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala58() {
   double likelihood = 129.94569354334259970;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 2286.87751350831058517;
-  grad_ll[1] = 182.59662734536800599;
-  grad_ll[2] = 1670.30554449295050290;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 2286.87751350831058517;
+  geometry->gradient_log_likelihood[1] = 182.59662734536800599;
+  geometry->gradient_log_likelihood[2] = 1670.30554449295050290;
 
-  FI[0 * ldfi + 0] = 124056.49832612332829740;
-  FI[0 * ldfi + 1] = 6742.21660088016597001;
-  FI[0 * ldfi + 2] = 66899.48219283274374902;
-  FI[1 * ldfi + 0] = 6742.21660088016597001;
-  FI[1 * ldfi + 1] = 2756.61688248687642044;
-  FI[1 * ldfi + 2] = 4406.83953857288906875;
-  FI[2 * ldfi + 0] = 66899.48219283274374902;
-  FI[2 * ldfi + 1] = 4406.83953857288906875;
-  FI[2 * ldfi + 2] = 45777.58429635027277982;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 124056.49832612332829740;
+  geometry->FI[0 * geometry->ldfi + 1] = 6742.21660088016597001;
+  geometry->FI[0 * geometry->ldfi + 2] = 66899.48219283274374902;
+  geometry->FI[1 * geometry->ldfi + 0] = 6742.21660088016597001;
+  geometry->FI[1 * geometry->ldfi + 1] = 2756.61688248687642044;
+  geometry->FI[1 * geometry->ldfi + 2] = 4406.83953857288906875;
+  geometry->FI[2 * geometry->ldfi + 0] = 66899.48219283274374902;
+  geometry->FI[2 * geometry->ldfi + 1] = 4406.83953857288906875;
+  geometry->FI[2 * geometry->ldfi + 2] = 45777.58429635027277982;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6438,13 +6350,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala58() {
 static void test_ode_likelihood_fitzhugh_simp_mmala59() {
   // Input argument
   double params[] = { 0.23685559837778242, 0.16458766857730825, 2.94156712463872561 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6452,44 +6364,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala59() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 148.24440311732485043, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -508.05560906368151564, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -10.56444480238324246, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 189.46163477417439935, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -508.05560906368151564, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -10.56444480238324246, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 189.46163477417439935, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 142293.93894488655496389, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 11355.83964179898612201, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 73296.30687644750287291, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 11355.83964179898612201, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3387.54040039673100182, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 6854.35903933481495187, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 73296.30687644750287291, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 6854.35903933481495187, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46425.90535834201727994, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 142293.93894488655496389, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 11355.83964179898612201, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 73296.30687644750287291, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 11355.83964179898612201, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3387.54040039673100182, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 6854.35903933481495187, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 73296.30687644750287291, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 6854.35903933481495187, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46425.90535834201727994, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 11701
@@ -6499,41 +6407,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala59() {
   double likelihood = 148.24440311732485043;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -508.05560906368151564;
-  grad_ll[1] = -10.56444480238324246;
-  grad_ll[2] = 189.46163477417439935;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -508.05560906368151564;
+  geometry->gradient_log_likelihood[1] = -10.56444480238324246;
+  geometry->gradient_log_likelihood[2] = 189.46163477417439935;
 
-  FI[0 * ldfi + 0] = 142293.93894488655496389;
-  FI[0 * ldfi + 1] = 11355.83964179898612201;
-  FI[0 * ldfi + 2] = 73296.30687644750287291;
-  FI[1 * ldfi + 0] = 11355.83964179898612201;
-  FI[1 * ldfi + 1] = 3387.54040039673100182;
-  FI[1 * ldfi + 2] = 6854.35903933481495187;
-  FI[2 * ldfi + 0] = 73296.30687644750287291;
-  FI[2 * ldfi + 1] = 6854.35903933481495187;
-  FI[2 * ldfi + 2] = 46425.90535834201727994;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 142293.93894488655496389;
+  geometry->FI[0 * geometry->ldfi + 1] = 11355.83964179898612201;
+  geometry->FI[0 * geometry->ldfi + 2] = 73296.30687644750287291;
+  geometry->FI[1 * geometry->ldfi + 0] = 11355.83964179898612201;
+  geometry->FI[1 * geometry->ldfi + 1] = 3387.54040039673100182;
+  geometry->FI[1 * geometry->ldfi + 2] = 6854.35903933481495187;
+  geometry->FI[2 * geometry->ldfi + 0] = 73296.30687644750287291;
+  geometry->FI[2 * geometry->ldfi + 1] = 6854.35903933481495187;
+  geometry->FI[2 * geometry->ldfi + 2] = 46425.90535834201727994;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6560,13 +6471,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala59() {
 static void test_ode_likelihood_fitzhugh_simp_mmala60() {
   // Input argument
   double params[] = { 0.22163704573102253, 0.22102967885179037, 2.95916383517195314 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6574,44 +6485,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala60() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 152.26503936943205986, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -546.06050563764949857, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -182.98700380017118050, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -63.83217311257965321, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -546.06050563764949857, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -182.98700380017118050, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -63.83217311257965321, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 136497.51403225376270711, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 20025.34000040876344428, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 70633.50689701206283644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 20025.34000040876344428, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 5656.48129812399747607, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 12339.15743925952483551, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 70633.50689701206283644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 12339.15743925952483551, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45555.25661325928376755, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 136497.51403225376270711, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 20025.34000040876344428, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 70633.50689701206283644, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 20025.34000040876344428, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 5656.48129812399747607, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 12339.15743925952483551, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 70633.50689701206283644, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 12339.15743925952483551, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45555.25661325928376755, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 4475
@@ -6621,41 +6528,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala60() {
   double likelihood = 152.26503936943205986;
   double temperature = 0.05292214940134465;
   double stepsize = 1.22680319758319123;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -546.06050563764949857;
-  grad_ll[1] = -182.98700380017118050;
-  grad_ll[2] = -63.83217311257965321;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -546.06050563764949857;
+  geometry->gradient_log_likelihood[1] = -182.98700380017118050;
+  geometry->gradient_log_likelihood[2] = -63.83217311257965321;
 
-  FI[0 * ldfi + 0] = 136497.51403225376270711;
-  FI[0 * ldfi + 1] = 20025.34000040876344428;
-  FI[0 * ldfi + 2] = 70633.50689701206283644;
-  FI[1 * ldfi + 0] = 20025.34000040876344428;
-  FI[1 * ldfi + 1] = 5656.48129812399747607;
-  FI[1 * ldfi + 2] = 12339.15743925952483551;
-  FI[2 * ldfi + 0] = 70633.50689701206283644;
-  FI[2 * ldfi + 1] = 12339.15743925952483551;
-  FI[2 * ldfi + 2] = 45555.25661325928376755;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 136497.51403225376270711;
+  geometry->FI[0 * geometry->ldfi + 1] = 20025.34000040876344428;
+  geometry->FI[0 * geometry->ldfi + 2] = 70633.50689701206283644;
+  geometry->FI[1 * geometry->ldfi + 0] = 20025.34000040876344428;
+  geometry->FI[1 * geometry->ldfi + 1] = 5656.48129812399747607;
+  geometry->FI[1 * geometry->ldfi + 2] = 12339.15743925952483551;
+  geometry->FI[2 * geometry->ldfi + 0] = 70633.50689701206283644;
+  geometry->FI[2 * geometry->ldfi + 1] = 12339.15743925952483551;
+  geometry->FI[2 * geometry->ldfi + 2] = 45555.25661325928376755;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6682,13 +6592,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala60() {
 static void test_ode_likelihood_fitzhugh_simp_mmala61() {
   // Input argument
   double params[] = { 0.17293207875201463, 0.23042741011073820, 3.01627046179172664 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6696,44 +6606,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala61() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 137.09378044195887014, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1542.69337727637366697, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -15.18657864357935949, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 466.84621376569299400, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1542.69337727637366697, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -15.18657864357935949, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 466.84621376569299400, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 105017.03399525990244001, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 15709.94345340503969055, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 58714.41708578860561829, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 15709.94345340503969055, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 5076.65123971628509025, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 11411.15562109876736940, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 58714.41708578860561829, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 11411.15562109876736940, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44400.78247259034833405, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 105017.03399525990244001, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 15709.94345340503969055, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 58714.41708578860561829, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 15709.94345340503969055, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 5076.65123971628509025, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 11411.15562109876736940, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 58714.41708578860561829, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 11411.15562109876736940, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44400.78247259034833405, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15026
@@ -6743,41 +6649,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala61() {
   double likelihood = 137.09378044195887014;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1542.69337727637366697;
-  grad_ll[1] = -15.18657864357935949;
-  grad_ll[2] = 466.84621376569299400;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1542.69337727637366697;
+  geometry->gradient_log_likelihood[1] = -15.18657864357935949;
+  geometry->gradient_log_likelihood[2] = 466.84621376569299400;
 
-  FI[0 * ldfi + 0] = 105017.03399525990244001;
-  FI[0 * ldfi + 1] = 15709.94345340503969055;
-  FI[0 * ldfi + 2] = 58714.41708578860561829;
-  FI[1 * ldfi + 0] = 15709.94345340503969055;
-  FI[1 * ldfi + 1] = 5076.65123971628509025;
-  FI[1 * ldfi + 2] = 11411.15562109876736940;
-  FI[2 * ldfi + 0] = 58714.41708578860561829;
-  FI[2 * ldfi + 1] = 11411.15562109876736940;
-  FI[2 * ldfi + 2] = 44400.78247259034833405;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 105017.03399525990244001;
+  geometry->FI[0 * geometry->ldfi + 1] = 15709.94345340503969055;
+  geometry->FI[0 * geometry->ldfi + 2] = 58714.41708578860561829;
+  geometry->FI[1 * geometry->ldfi + 0] = 15709.94345340503969055;
+  geometry->FI[1 * geometry->ldfi + 1] = 5076.65123971628509025;
+  geometry->FI[1 * geometry->ldfi + 2] = 11411.15562109876736940;
+  geometry->FI[2 * geometry->ldfi + 0] = 58714.41708578860561829;
+  geometry->FI[2 * geometry->ldfi + 1] = 11411.15562109876736940;
+  geometry->FI[2 * geometry->ldfi + 2] = 44400.78247259034833405;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6804,13 +6713,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala61() {
 static void test_ode_likelihood_fitzhugh_simp_mmala62() {
   // Input argument
   double params[] = { 0.19818487444370622, 0.09240087861927357, 3.01721351046107600 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6818,44 +6727,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala62() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 152.52727953358879631, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -346.46430229859936389, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 161.10611641799920335, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -439.70524172847069622, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -346.46430229859936389, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 161.10611641799920335, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -439.70524172847069622, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 113859.59360345611639787, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -2252.25701935615052207, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 63325.65247114602243528, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -2252.25701935615052207, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2318.37847321542130885, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -1556.08969015624984422, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 63325.65247114602243528, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -1556.08969015624984422, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46183.62720340553642018, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 113859.59360345611639787, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -2252.25701935615052207, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 63325.65247114602243528, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -2252.25701935615052207, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2318.37847321542130885, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -1556.08969015624984422, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 63325.65247114602243528, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -1556.08969015624984422, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46183.62720340553642018, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5102
@@ -6865,41 +6770,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala62() {
   double likelihood = 152.52727953358879631;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -346.46430229859936389;
-  grad_ll[1] = 161.10611641799920335;
-  grad_ll[2] = -439.70524172847069622;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -346.46430229859936389;
+  geometry->gradient_log_likelihood[1] = 161.10611641799920335;
+  geometry->gradient_log_likelihood[2] = -439.70524172847069622;
 
-  FI[0 * ldfi + 0] = 113859.59360345611639787;
-  FI[0 * ldfi + 1] = -2252.25701935615052207;
-  FI[0 * ldfi + 2] = 63325.65247114602243528;
-  FI[1 * ldfi + 0] = -2252.25701935615052207;
-  FI[1 * ldfi + 1] = 2318.37847321542130885;
-  FI[1 * ldfi + 2] = -1556.08969015624984422;
-  FI[2 * ldfi + 0] = 63325.65247114602243528;
-  FI[2 * ldfi + 1] = -1556.08969015624984422;
-  FI[2 * ldfi + 2] = 46183.62720340553642018;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 113859.59360345611639787;
+  geometry->FI[0 * geometry->ldfi + 1] = -2252.25701935615052207;
+  geometry->FI[0 * geometry->ldfi + 2] = 63325.65247114602243528;
+  geometry->FI[1 * geometry->ldfi + 0] = -2252.25701935615052207;
+  geometry->FI[1 * geometry->ldfi + 1] = 2318.37847321542130885;
+  geometry->FI[1 * geometry->ldfi + 2] = -1556.08969015624984422;
+  geometry->FI[2 * geometry->ldfi + 0] = 63325.65247114602243528;
+  geometry->FI[2 * geometry->ldfi + 1] = -1556.08969015624984422;
+  geometry->FI[2 * geometry->ldfi + 2] = 46183.62720340553642018;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6926,13 +6834,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala62() {
 static void test_ode_likelihood_fitzhugh_simp_mmala63() {
   // Input argument
   double params[] = { 0.18315871614474655, 0.15174688247045939, 3.01281624418331662 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -6940,44 +6848,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala63() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 148.14881954029510780, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1500.94582412325871701, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 72.95179580023410892, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 614.72048253571449550, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1500.94582412325871701, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 72.95179580023410892, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 614.72048253571449550, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 106627.19666144342045300, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 5478.94108032603162428, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 60150.04750921890808968, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 5478.94108032603162428, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2537.45618214507521770, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3998.11621802939953341, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 60150.04750921890808968, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3998.11621802939953341, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45444.88687219434359577, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 106627.19666144342045300, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 5478.94108032603162428, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 60150.04750921890808968, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 5478.94108032603162428, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2537.45618214507521770, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3998.11621802939953341, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 60150.04750921890808968, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3998.11621802939953341, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45444.88687219434359577, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 10119
@@ -6987,41 +6891,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala63() {
   double likelihood = 148.14881954029510780;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1500.94582412325871701;
-  grad_ll[1] = 72.95179580023410892;
-  grad_ll[2] = 614.72048253571449550;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1500.94582412325871701;
+  geometry->gradient_log_likelihood[1] = 72.95179580023410892;
+  geometry->gradient_log_likelihood[2] = 614.72048253571449550;
 
-  FI[0 * ldfi + 0] = 106627.19666144342045300;
-  FI[0 * ldfi + 1] = 5478.94108032603162428;
-  FI[0 * ldfi + 2] = 60150.04750921890808968;
-  FI[1 * ldfi + 0] = 5478.94108032603162428;
-  FI[1 * ldfi + 1] = 2537.45618214507521770;
-  FI[1 * ldfi + 2] = 3998.11621802939953341;
-  FI[2 * ldfi + 0] = 60150.04750921890808968;
-  FI[2 * ldfi + 1] = 3998.11621802939953341;
-  FI[2 * ldfi + 2] = 45444.88687219434359577;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 106627.19666144342045300;
+  geometry->FI[0 * geometry->ldfi + 1] = 5478.94108032603162428;
+  geometry->FI[0 * geometry->ldfi + 2] = 60150.04750921890808968;
+  geometry->FI[1 * geometry->ldfi + 0] = 5478.94108032603162428;
+  geometry->FI[1 * geometry->ldfi + 1] = 2537.45618214507521770;
+  geometry->FI[1 * geometry->ldfi + 2] = 3998.11621802939953341;
+  geometry->FI[2 * geometry->ldfi + 0] = 60150.04750921890808968;
+  geometry->FI[2 * geometry->ldfi + 1] = 3998.11621802939953341;
+  geometry->FI[2 * geometry->ldfi + 2] = 45444.88687219434359577;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7048,13 +6955,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala63() {
 static void test_ode_likelihood_fitzhugh_simp_mmala64() {
   // Input argument
   double params[] = { 0.21529514369249345, 0.19888564499424516, 2.98383339107542378 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7062,44 +6969,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala64() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.78080091625088244, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1007.95616811305990268, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -212.26381019387167726, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -498.38543417499573707, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1007.95616811305990268, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -212.26381019387167726, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -498.38543417499573707, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 130597.25898221691022627, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 15485.60730785407213261, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 68770.46862183307530358, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 15485.60730785407213261, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4376.18387202658504975, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 9827.70444160379702225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 68770.46862183307530358, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 9827.70444160379702225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45667.82832260613940889, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 130597.25898221691022627, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 15485.60730785407213261, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 68770.46862183307530358, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 15485.60730785407213261, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4376.18387202658504975, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 9827.70444160379702225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 68770.46862183307530358, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 9827.70444160379702225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45667.82832260613940889, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 13980
@@ -7109,41 +7012,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala64() {
   double likelihood = 154.78080091625088244;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1007.95616811305990268;
-  grad_ll[1] = -212.26381019387167726;
-  grad_ll[2] = -498.38543417499573707;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1007.95616811305990268;
+  geometry->gradient_log_likelihood[1] = -212.26381019387167726;
+  geometry->gradient_log_likelihood[2] = -498.38543417499573707;
 
-  FI[0 * ldfi + 0] = 130597.25898221691022627;
-  FI[0 * ldfi + 1] = 15485.60730785407213261;
-  FI[0 * ldfi + 2] = 68770.46862183307530358;
-  FI[1 * ldfi + 0] = 15485.60730785407213261;
-  FI[1 * ldfi + 1] = 4376.18387202658504975;
-  FI[1 * ldfi + 2] = 9827.70444160379702225;
-  FI[2 * ldfi + 0] = 68770.46862183307530358;
-  FI[2 * ldfi + 1] = 9827.70444160379702225;
-  FI[2 * ldfi + 2] = 45667.82832260613940889;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 130597.25898221691022627;
+  geometry->FI[0 * geometry->ldfi + 1] = 15485.60730785407213261;
+  geometry->FI[0 * geometry->ldfi + 2] = 68770.46862183307530358;
+  geometry->FI[1 * geometry->ldfi + 0] = 15485.60730785407213261;
+  geometry->FI[1 * geometry->ldfi + 1] = 4376.18387202658504975;
+  geometry->FI[1 * geometry->ldfi + 2] = 9827.70444160379702225;
+  geometry->FI[2 * geometry->ldfi + 0] = 68770.46862183307530358;
+  geometry->FI[2 * geometry->ldfi + 1] = 9827.70444160379702225;
+  geometry->FI[2 * geometry->ldfi + 2] = 45667.82832260613940889;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7170,13 +7076,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala64() {
 static void test_ode_likelihood_fitzhugh_simp_mmala65() {
   // Input argument
   double params[] = { 0.19423488684121257, 0.02998531402937407, 2.99494525491288721 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7184,44 +7090,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala65() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 136.72070837790343489, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1047.81169353662926369, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 203.75404363056054535, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 520.61266667591416990, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1047.81169353662926369, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 203.75404363056054535, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 520.61266667591416990, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 108899.20310908417741302, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -11544.14202286852741963, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 61594.05546862888149917, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -11544.14202286852741963, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3900.68178844604517508, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -8268.88266891848252271, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 61594.05546862888149917, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -8268.88266891848252271, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46310.20544440374214901, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 108899.20310908417741302, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -11544.14202286852741963, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 61594.05546862888149917, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -11544.14202286852741963, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3900.68178844604517508, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -8268.88266891848252271, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 61594.05546862888149917, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -8268.88266891848252271, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46310.20544440374214901, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 17815
@@ -7231,41 +7133,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala65() {
   double likelihood = 136.72070837790343489;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1047.81169353662926369;
-  grad_ll[1] = 203.75404363056054535;
-  grad_ll[2] = 520.61266667591416990;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1047.81169353662926369;
+  geometry->gradient_log_likelihood[1] = 203.75404363056054535;
+  geometry->gradient_log_likelihood[2] = 520.61266667591416990;
 
-  FI[0 * ldfi + 0] = 108899.20310908417741302;
-  FI[0 * ldfi + 1] = -11544.14202286852741963;
-  FI[0 * ldfi + 2] = 61594.05546862888149917;
-  FI[1 * ldfi + 0] = -11544.14202286852741963;
-  FI[1 * ldfi + 1] = 3900.68178844604517508;
-  FI[1 * ldfi + 2] = -8268.88266891848252271;
-  FI[2 * ldfi + 0] = 61594.05546862888149917;
-  FI[2 * ldfi + 1] = -8268.88266891848252271;
-  FI[2 * ldfi + 2] = 46310.20544440374214901;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 108899.20310908417741302;
+  geometry->FI[0 * geometry->ldfi + 1] = -11544.14202286852741963;
+  geometry->FI[0 * geometry->ldfi + 2] = 61594.05546862888149917;
+  geometry->FI[1 * geometry->ldfi + 0] = -11544.14202286852741963;
+  geometry->FI[1 * geometry->ldfi + 1] = 3900.68178844604517508;
+  geometry->FI[1 * geometry->ldfi + 2] = -8268.88266891848252271;
+  geometry->FI[2 * geometry->ldfi + 0] = 61594.05546862888149917;
+  geometry->FI[2 * geometry->ldfi + 1] = -8268.88266891848252271;
+  geometry->FI[2 * geometry->ldfi + 2] = 46310.20544440374214901;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7292,13 +7197,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala65() {
 static void test_ode_likelihood_fitzhugh_simp_mmala66() {
   // Input argument
   double params[] = { 0.20050191669046197, 0.16270822411165856, 3.03941585338018161 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7306,44 +7211,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala66() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 126.78466032606378633, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -2313.27664010855505694, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -222.30565387470886662, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -1716.01257884269489296, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -2313.27664010855505694, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -222.30565387470886662, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -1716.01257884269489296, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 119681.52362807345343754, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 8651.35434355839788623, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65028.62437877388583729, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 8651.35434355839788623, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2912.27557067409770752, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 5846.30580729569373943, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65028.62437877388583729, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 5846.30580729569373943, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45805.90340474909316981, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 119681.52362807345343754, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 8651.35434355839788623, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65028.62437877388583729, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 8651.35434355839788623, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2912.27557067409770752, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 5846.30580729569373943, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65028.62437877388583729, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 5846.30580729569373943, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45805.90340474909316981, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 19182
@@ -7353,41 +7254,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala66() {
   double likelihood = 126.78466032606378633;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -2313.27664010855505694;
-  grad_ll[1] = -222.30565387470886662;
-  grad_ll[2] = -1716.01257884269489296;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -2313.27664010855505694;
+  geometry->gradient_log_likelihood[1] = -222.30565387470886662;
+  geometry->gradient_log_likelihood[2] = -1716.01257884269489296;
 
-  FI[0 * ldfi + 0] = 119681.52362807345343754;
-  FI[0 * ldfi + 1] = 8651.35434355839788623;
-  FI[0 * ldfi + 2] = 65028.62437877388583729;
-  FI[1 * ldfi + 0] = 8651.35434355839788623;
-  FI[1 * ldfi + 1] = 2912.27557067409770752;
-  FI[1 * ldfi + 2] = 5846.30580729569373943;
-  FI[2 * ldfi + 0] = 65028.62437877388583729;
-  FI[2 * ldfi + 1] = 5846.30580729569373943;
-  FI[2 * ldfi + 2] = 45805.90340474909316981;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 119681.52362807345343754;
+  geometry->FI[0 * geometry->ldfi + 1] = 8651.35434355839788623;
+  geometry->FI[0 * geometry->ldfi + 2] = 65028.62437877388583729;
+  geometry->FI[1 * geometry->ldfi + 0] = 8651.35434355839788623;
+  geometry->FI[1 * geometry->ldfi + 1] = 2912.27557067409770752;
+  geometry->FI[1 * geometry->ldfi + 2] = 5846.30580729569373943;
+  geometry->FI[2 * geometry->ldfi + 0] = 65028.62437877388583729;
+  geometry->FI[2 * geometry->ldfi + 1] = 5846.30580729569373943;
+  geometry->FI[2 * geometry->ldfi + 2] = 45805.90340474909316981;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7414,13 +7318,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala66() {
 static void test_ode_likelihood_fitzhugh_simp_mmala67() {
   // Input argument
   double params[] = { 0.21631046465326240, 0.21780588623738562, 2.95106531827180563 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7428,44 +7332,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala67() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 148.90152134761376601, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 850.61265523388601650, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 41.94500891849400404, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 740.99893395959361442, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 850.61265523388601650, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 41.94500891849400404, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 740.99893395959361442, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 131607.04773041044245474, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 18580.81022084460710175, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 68995.46624398624408059, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 18580.81022084460710175, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 5321.88511198149717529, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 11688.56034197281587694, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 68995.46624398624408059, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 11688.56034197281587694, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45421.37983486247685505, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 131607.04773041044245474, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 18580.81022084460710175, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 68995.46624398624408059, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 18580.81022084460710175, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 5321.88511198149717529, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 11688.56034197281587694, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 68995.46624398624408059, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 11688.56034197281587694, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45421.37983486247685505, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 10942
@@ -7475,41 +7375,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala67() {
   double likelihood = 148.90152134761376601;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 850.61265523388601650;
-  grad_ll[1] = 41.94500891849400404;
-  grad_ll[2] = 740.99893395959361442;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 850.61265523388601650;
+  geometry->gradient_log_likelihood[1] = 41.94500891849400404;
+  geometry->gradient_log_likelihood[2] = 740.99893395959361442;
 
-  FI[0 * ldfi + 0] = 131607.04773041044245474;
-  FI[0 * ldfi + 1] = 18580.81022084460710175;
-  FI[0 * ldfi + 2] = 68995.46624398624408059;
-  FI[1 * ldfi + 0] = 18580.81022084460710175;
-  FI[1 * ldfi + 1] = 5321.88511198149717529;
-  FI[1 * ldfi + 2] = 11688.56034197281587694;
-  FI[2 * ldfi + 0] = 68995.46624398624408059;
-  FI[2 * ldfi + 1] = 11688.56034197281587694;
-  FI[2 * ldfi + 2] = 45421.37983486247685505;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 131607.04773041044245474;
+  geometry->FI[0 * geometry->ldfi + 1] = 18580.81022084460710175;
+  geometry->FI[0 * geometry->ldfi + 2] = 68995.46624398624408059;
+  geometry->FI[1 * geometry->ldfi + 0] = 18580.81022084460710175;
+  geometry->FI[1 * geometry->ldfi + 1] = 5321.88511198149717529;
+  geometry->FI[1 * geometry->ldfi + 2] = 11688.56034197281587694;
+  geometry->FI[2 * geometry->ldfi + 0] = 68995.46624398624408059;
+  geometry->FI[2 * geometry->ldfi + 1] = 11688.56034197281587694;
+  geometry->FI[2 * geometry->ldfi + 2] = 45421.37983486247685505;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7536,13 +7439,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala67() {
 static void test_ode_likelihood_fitzhugh_simp_mmala68() {
   // Input argument
   double params[] = { 0.19465342779641953, 0.20083884141967029, 3.00728497344830492 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7550,44 +7453,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala68() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 156.02025020932154575, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 66.82818624474049329, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -128.69054969168806224, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -182.65772731957869723, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 66.82818624474049329, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -128.69054969168806224, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -182.65772731957869723, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 116964.86998628913715947, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 13667.81820606156543363, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 63721.27022456309350673, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 13667.81820606156543363, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4100.49139763012681215, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 9292.77582017676650139, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 63721.27022456309350673, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 9292.77582017676650139, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45212.54166009681648575, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 116964.86998628913715947, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 13667.81820606156543363, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 63721.27022456309350673, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 13667.81820606156543363, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4100.49139763012681215, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 9292.77582017676650139, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 63721.27022456309350673, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 9292.77582017676650139, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45212.54166009681648575, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 2772
@@ -7597,41 +7496,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala68() {
   double likelihood = 156.02025020932154575;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 66.82818624474049329;
-  grad_ll[1] = -128.69054969168806224;
-  grad_ll[2] = -182.65772731957869723;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 66.82818624474049329;
+  geometry->gradient_log_likelihood[1] = -128.69054969168806224;
+  geometry->gradient_log_likelihood[2] = -182.65772731957869723;
 
-  FI[0 * ldfi + 0] = 116964.86998628913715947;
-  FI[0 * ldfi + 1] = 13667.81820606156543363;
-  FI[0 * ldfi + 2] = 63721.27022456309350673;
-  FI[1 * ldfi + 0] = 13667.81820606156543363;
-  FI[1 * ldfi + 1] = 4100.49139763012681215;
-  FI[1 * ldfi + 2] = 9292.77582017676650139;
-  FI[2 * ldfi + 0] = 63721.27022456309350673;
-  FI[2 * ldfi + 1] = 9292.77582017676650139;
-  FI[2 * ldfi + 2] = 45212.54166009681648575;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 116964.86998628913715947;
+  geometry->FI[0 * geometry->ldfi + 1] = 13667.81820606156543363;
+  geometry->FI[0 * geometry->ldfi + 2] = 63721.27022456309350673;
+  geometry->FI[1 * geometry->ldfi + 0] = 13667.81820606156543363;
+  geometry->FI[1 * geometry->ldfi + 1] = 4100.49139763012681215;
+  geometry->FI[1 * geometry->ldfi + 2] = 9292.77582017676650139;
+  geometry->FI[2 * geometry->ldfi + 0] = 63721.27022456309350673;
+  geometry->FI[2 * geometry->ldfi + 1] = 9292.77582017676650139;
+  geometry->FI[2 * geometry->ldfi + 2] = 45212.54166009681648575;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7658,13 +7560,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala68() {
 static void test_ode_likelihood_fitzhugh_simp_mmala69() {
   // Input argument
   double params[] = { 0.17683374845004740, 0.18434839910623080, 3.02571520746945222 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7672,44 +7574,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala69() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 146.49159841048344788, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 1151.55698740735192587, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -8.49362945749413356, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 236.36339878987178054, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 1151.55698740735192587, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -8.49362945749413356, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 236.36339878987178054, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 104940.88253882316348609, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 9680.93263552410462580, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 59118.02609076738008298, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 9680.93263552410462580, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3258.37770786644205145, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 7089.86245203632734047, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 59118.02609076738008298, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 7089.86245203632734047, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 44979.20385468937456608, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 104940.88253882316348609, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 9680.93263552410462580, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 59118.02609076738008298, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 9680.93263552410462580, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3258.37770786644205145, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 7089.86245203632734047, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 59118.02609076738008298, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 7089.86245203632734047, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 44979.20385468937456608, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 2985
@@ -7719,41 +7617,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala69() {
   double likelihood = 146.49159841048344788;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 1151.55698740735192587;
-  grad_ll[1] = -8.49362945749413356;
-  grad_ll[2] = 236.36339878987178054;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 1151.55698740735192587;
+  geometry->gradient_log_likelihood[1] = -8.49362945749413356;
+  geometry->gradient_log_likelihood[2] = 236.36339878987178054;
 
-  FI[0 * ldfi + 0] = 104940.88253882316348609;
-  FI[0 * ldfi + 1] = 9680.93263552410462580;
-  FI[0 * ldfi + 2] = 59118.02609076738008298;
-  FI[1 * ldfi + 0] = 9680.93263552410462580;
-  FI[1 * ldfi + 1] = 3258.37770786644205145;
-  FI[1 * ldfi + 2] = 7089.86245203632734047;
-  FI[2 * ldfi + 0] = 59118.02609076738008298;
-  FI[2 * ldfi + 1] = 7089.86245203632734047;
-  FI[2 * ldfi + 2] = 44979.20385468937456608;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 104940.88253882316348609;
+  geometry->FI[0 * geometry->ldfi + 1] = 9680.93263552410462580;
+  geometry->FI[0 * geometry->ldfi + 2] = 59118.02609076738008298;
+  geometry->FI[1 * geometry->ldfi + 0] = 9680.93263552410462580;
+  geometry->FI[1 * geometry->ldfi + 1] = 3258.37770786644205145;
+  geometry->FI[1 * geometry->ldfi + 2] = 7089.86245203632734047;
+  geometry->FI[2 * geometry->ldfi + 0] = 59118.02609076738008298;
+  geometry->FI[2 * geometry->ldfi + 1] = 7089.86245203632734047;
+  geometry->FI[2 * geometry->ldfi + 2] = 44979.20385468937456608;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7780,13 +7681,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala69() {
 static void test_ode_likelihood_fitzhugh_simp_mmala70() {
   // Input argument
   double params[] = { 0.17411084347726496, 0.08750545587902914, 3.01995806136670852 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7794,44 +7695,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala70() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 131.15823875135214394, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 2020.72837987679372418, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 104.35058636363176277, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 867.25104760220688149, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 2020.72837987679372418, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 104.35058636363176277, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 867.25104760220688149, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 99416.10559047009155620, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -3469.73136371757300367, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 57506.30480669140524697, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -3469.73136371757300367, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2387.20269218605244532, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -2585.13766467077266498, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 57506.30480669140524697, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -2585.13766467077266498, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45726.27269059480022406, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 99416.10559047009155620, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -3469.73136371757300367, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 57506.30480669140524697, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -3469.73136371757300367, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2387.20269218605244532, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -2585.13766467077266498, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 57506.30480669140524697, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -2585.13766467077266498, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45726.27269059480022406, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5148
@@ -7841,41 +7738,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala70() {
   double likelihood = 131.15823875135214394;
   double temperature = 0.13168724279835398;
   double stepsize = 1.22680319758319145;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 2020.72837987679372418;
-  grad_ll[1] = 104.35058636363176277;
-  grad_ll[2] = 867.25104760220688149;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 2020.72837987679372418;
+  geometry->gradient_log_likelihood[1] = 104.35058636363176277;
+  geometry->gradient_log_likelihood[2] = 867.25104760220688149;
 
-  FI[0 * ldfi + 0] = 99416.10559047009155620;
-  FI[0 * ldfi + 1] = -3469.73136371757300367;
-  FI[0 * ldfi + 2] = 57506.30480669140524697;
-  FI[1 * ldfi + 0] = -3469.73136371757300367;
-  FI[1 * ldfi + 1] = 2387.20269218605244532;
-  FI[1 * ldfi + 2] = -2585.13766467077266498;
-  FI[2 * ldfi + 0] = 57506.30480669140524697;
-  FI[2 * ldfi + 1] = -2585.13766467077266498;
-  FI[2 * ldfi + 2] = 45726.27269059480022406;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 99416.10559047009155620;
+  geometry->FI[0 * geometry->ldfi + 1] = -3469.73136371757300367;
+  geometry->FI[0 * geometry->ldfi + 2] = 57506.30480669140524697;
+  geometry->FI[1 * geometry->ldfi + 0] = -3469.73136371757300367;
+  geometry->FI[1 * geometry->ldfi + 1] = 2387.20269218605244532;
+  geometry->FI[1 * geometry->ldfi + 2] = -2585.13766467077266498;
+  geometry->FI[2 * geometry->ldfi + 0] = 57506.30480669140524697;
+  geometry->FI[2 * geometry->ldfi + 1] = -2585.13766467077266498;
+  geometry->FI[2 * geometry->ldfi + 2] = 45726.27269059480022406;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7902,13 +7802,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala70() {
 static void test_ode_likelihood_fitzhugh_simp_mmala71() {
   // Input argument
   double params[] = { 0.20328253069297350, 0.09585722171871133, 3.01366820177757377 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -7916,44 +7816,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala71() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 152.18811353822474075, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -726.89041236619641495, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 153.08442423399114318, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -601.95684906627900546, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -726.89041236619641495, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 153.08442423399114318, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -601.95684906627900546, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 117173.36831584082392510, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -1607.91912144308207644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 64603.20068935677409172, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -1607.91912144308207644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2299.13135553890015217, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -1094.11497109366064251, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 64603.20068935677409172, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -1094.11497109366064251, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46284.14984832214395283, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 117173.36831584082392510, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -1607.91912144308207644, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 64603.20068935677409172, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -1607.91912144308207644, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2299.13135553890015217, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -1094.11497109366064251, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 64603.20068935677409172, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -1094.11497109366064251, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46284.14984832214395283, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 16815
@@ -7963,41 +7859,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala71() {
   double likelihood = 152.18811353822474075;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -726.89041236619641495;
-  grad_ll[1] = 153.08442423399114318;
-  grad_ll[2] = -601.95684906627900546;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -726.89041236619641495;
+  geometry->gradient_log_likelihood[1] = 153.08442423399114318;
+  geometry->gradient_log_likelihood[2] = -601.95684906627900546;
 
-  FI[0 * ldfi + 0] = 117173.36831584082392510;
-  FI[0 * ldfi + 1] = -1607.91912144308207644;
-  FI[0 * ldfi + 2] = 64603.20068935677409172;
-  FI[1 * ldfi + 0] = -1607.91912144308207644;
-  FI[1 * ldfi + 1] = 2299.13135553890015217;
-  FI[1 * ldfi + 2] = -1094.11497109366064251;
-  FI[2 * ldfi + 0] = 64603.20068935677409172;
-  FI[2 * ldfi + 1] = -1094.11497109366064251;
-  FI[2 * ldfi + 2] = 46284.14984832214395283;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 117173.36831584082392510;
+  geometry->FI[0 * geometry->ldfi + 1] = -1607.91912144308207644;
+  geometry->FI[0 * geometry->ldfi + 2] = 64603.20068935677409172;
+  geometry->FI[1 * geometry->ldfi + 0] = -1607.91912144308207644;
+  geometry->FI[1 * geometry->ldfi + 1] = 2299.13135553890015217;
+  geometry->FI[1 * geometry->ldfi + 2] = -1094.11497109366064251;
+  geometry->FI[2 * geometry->ldfi + 0] = 64603.20068935677409172;
+  geometry->FI[2 * geometry->ldfi + 1] = -1094.11497109366064251;
+  geometry->FI[2 * geometry->ldfi + 2] = 46284.14984832214395283;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8024,13 +7923,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala71() {
 static void test_ode_likelihood_fitzhugh_simp_mmala72() {
   // Input argument
   double params[] = { 0.21726179244175503, 0.15584387435374689, 2.97636444286104629 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8038,44 +7937,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala72() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.34148871594601360, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -205.18970191256872226, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -0.12543941956454319, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 39.85101299417753751, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -205.18970191256872226, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -0.12543941956454319, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 39.85101299417753751, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 128430.04655647219624370, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 8327.02221353929417091, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 68515.12729076835967135, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 8327.02221353929417091, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2912.53855979383251906, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 5360.66168920017844357, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 68515.12729076835967135, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 5360.66168920017844357, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46180.60112730486434884, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 128430.04655647219624370, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 8327.02221353929417091, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 68515.12729076835967135, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 8327.02221353929417091, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2912.53855979383251906, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 5360.66168920017844357, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 68515.12729076835967135, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 5360.66168920017844357, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46180.60112730486434884, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5086
@@ -8085,41 +7980,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala72() {
   double likelihood = 159.34148871594601360;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -205.18970191256872226;
-  grad_ll[1] = -0.12543941956454319;
-  grad_ll[2] = 39.85101299417753751;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -205.18970191256872226;
+  geometry->gradient_log_likelihood[1] = -0.12543941956454319;
+  geometry->gradient_log_likelihood[2] = 39.85101299417753751;
 
-  FI[0 * ldfi + 0] = 128430.04655647219624370;
-  FI[0 * ldfi + 1] = 8327.02221353929417091;
-  FI[0 * ldfi + 2] = 68515.12729076835967135;
-  FI[1 * ldfi + 0] = 8327.02221353929417091;
-  FI[1 * ldfi + 1] = 2912.53855979383251906;
-  FI[1 * ldfi + 2] = 5360.66168920017844357;
-  FI[2 * ldfi + 0] = 68515.12729076835967135;
-  FI[2 * ldfi + 1] = 5360.66168920017844357;
-  FI[2 * ldfi + 2] = 46180.60112730486434884;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 128430.04655647219624370;
+  geometry->FI[0 * geometry->ldfi + 1] = 8327.02221353929417091;
+  geometry->FI[0 * geometry->ldfi + 2] = 68515.12729076835967135;
+  geometry->FI[1 * geometry->ldfi + 0] = 8327.02221353929417091;
+  geometry->FI[1 * geometry->ldfi + 1] = 2912.53855979383251906;
+  geometry->FI[1 * geometry->ldfi + 2] = 5360.66168920017844357;
+  geometry->FI[2 * geometry->ldfi + 0] = 68515.12729076835967135;
+  geometry->FI[2 * geometry->ldfi + 1] = 5360.66168920017844357;
+  geometry->FI[2 * geometry->ldfi + 2] = 46180.60112730486434884;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8146,13 +8044,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala72() {
 static void test_ode_likelihood_fitzhugh_simp_mmala73() {
   // Input argument
   double params[] = { 0.21341473257565952, 0.12944640687383197, 2.96948551023897744 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8160,44 +8058,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala73() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 153.62990653592038370, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 931.16685818987775747, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 100.78466951643157756, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 735.27992404654719394, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 931.16685818987775747, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 100.78466951643157756, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 735.27992404654719394, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 123470.72316777435480617, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 3608.13674147637175338, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66893.46111063740681857, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 3608.13674147637175338, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2438.44513353701677261, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2381.50197788173863955, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66893.46111063740681857, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2381.50197788173863955, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46173.48853626628988422, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 123470.72316777435480617, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 3608.13674147637175338, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66893.46111063740681857, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 3608.13674147637175338, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2438.44513353701677261, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2381.50197788173863955, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66893.46111063740681857, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2381.50197788173863955, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46173.48853626628988422, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 16285
@@ -8207,41 +8101,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala73() {
   double likelihood = 153.62990653592038370;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 931.16685818987775747;
-  grad_ll[1] = 100.78466951643157756;
-  grad_ll[2] = 735.27992404654719394;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 931.16685818987775747;
+  geometry->gradient_log_likelihood[1] = 100.78466951643157756;
+  geometry->gradient_log_likelihood[2] = 735.27992404654719394;
 
-  FI[0 * ldfi + 0] = 123470.72316777435480617;
-  FI[0 * ldfi + 1] = 3608.13674147637175338;
-  FI[0 * ldfi + 2] = 66893.46111063740681857;
-  FI[1 * ldfi + 0] = 3608.13674147637175338;
-  FI[1 * ldfi + 1] = 2438.44513353701677261;
-  FI[1 * ldfi + 2] = 2381.50197788173863955;
-  FI[2 * ldfi + 0] = 66893.46111063740681857;
-  FI[2 * ldfi + 1] = 2381.50197788173863955;
-  FI[2 * ldfi + 2] = 46173.48853626628988422;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 123470.72316777435480617;
+  geometry->FI[0 * geometry->ldfi + 1] = 3608.13674147637175338;
+  geometry->FI[0 * geometry->ldfi + 2] = 66893.46111063740681857;
+  geometry->FI[1 * geometry->ldfi + 0] = 3608.13674147637175338;
+  geometry->FI[1 * geometry->ldfi + 1] = 2438.44513353701677261;
+  geometry->FI[1 * geometry->ldfi + 2] = 2381.50197788173863955;
+  geometry->FI[2 * geometry->ldfi + 0] = 66893.46111063740681857;
+  geometry->FI[2 * geometry->ldfi + 1] = 2381.50197788173863955;
+  geometry->FI[2 * geometry->ldfi + 2] = 46173.48853626628988422;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8268,13 +8165,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala73() {
 static void test_ode_likelihood_fitzhugh_simp_mmala74() {
   // Input argument
   double params[] = { 0.21893664710464161, 0.12556088841112015, 2.98491794283608947 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8282,44 +8179,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala74() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 156.58237423581141456, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -834.46244702952219541, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 49.13867275188236050, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -356.23652718541558215, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -834.46244702952219541, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 49.13867275188236050, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -356.23652718541558215, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 128119.83914141519926488, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 3530.78832710792357830, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 68618.90384152818296570, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 3530.78832710792357830, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2416.79526219398303510, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2277.96850776433802821, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 68618.90384152818296570, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2277.96850776433802821, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46476.73101105786918197, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 128119.83914141519926488, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 3530.78832710792357830, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 68618.90384152818296570, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 3530.78832710792357830, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2416.79526219398303510, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2277.96850776433802821, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 68618.90384152818296570, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2277.96850776433802821, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46476.73101105786918197, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 4870
@@ -8329,41 +8222,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala74() {
   double likelihood = 156.58237423581141456;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -834.46244702952219541;
-  grad_ll[1] = 49.13867275188236050;
-  grad_ll[2] = -356.23652718541558215;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -834.46244702952219541;
+  geometry->gradient_log_likelihood[1] = 49.13867275188236050;
+  geometry->gradient_log_likelihood[2] = -356.23652718541558215;
 
-  FI[0 * ldfi + 0] = 128119.83914141519926488;
-  FI[0 * ldfi + 1] = 3530.78832710792357830;
-  FI[0 * ldfi + 2] = 68618.90384152818296570;
-  FI[1 * ldfi + 0] = 3530.78832710792357830;
-  FI[1 * ldfi + 1] = 2416.79526219398303510;
-  FI[1 * ldfi + 2] = 2277.96850776433802821;
-  FI[2 * ldfi + 0] = 68618.90384152818296570;
-  FI[2 * ldfi + 1] = 2277.96850776433802821;
-  FI[2 * ldfi + 2] = 46476.73101105786918197;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 128119.83914141519926488;
+  geometry->FI[0 * geometry->ldfi + 1] = 3530.78832710792357830;
+  geometry->FI[0 * geometry->ldfi + 2] = 68618.90384152818296570;
+  geometry->FI[1 * geometry->ldfi + 0] = 3530.78832710792357830;
+  geometry->FI[1 * geometry->ldfi + 1] = 2416.79526219398303510;
+  geometry->FI[1 * geometry->ldfi + 2] = 2277.96850776433802821;
+  geometry->FI[2 * geometry->ldfi + 0] = 68618.90384152818296570;
+  geometry->FI[2 * geometry->ldfi + 1] = 2277.96850776433802821;
+  geometry->FI[2 * geometry->ldfi + 2] = 46476.73101105786918197;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8390,13 +8286,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala74() {
 static void test_ode_likelihood_fitzhugh_simp_mmala75() {
   // Input argument
   double params[] = { 0.19317602732109490, 0.11707919744823335, 3.00960789931670369 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8404,44 +8300,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala75() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 155.31314547817228799, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 721.17029359013599787, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 94.79339731683506898, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 228.85868089291585648, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 721.17029359013599787, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 94.79339731683506898, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 228.85868089291585648, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 111215.56400199473137036, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 1065.46029679070488783, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 62215.15998561143351253, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 1065.46029679070488783, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2250.99624184545109529, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 777.63318327672413943, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 62215.15998561143351253, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 777.63318327672413943, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45928.57912028756254585, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 111215.56400199473137036, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 1065.46029679070488783, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 62215.15998561143351253, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 1065.46029679070488783, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2250.99624184545109529, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 777.63318327672413943, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 62215.15998561143351253, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 777.63318327672413943, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45928.57912028756254585, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18582
@@ -8451,41 +8343,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala75() {
   double likelihood = 155.31314547817228799;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 721.17029359013599787;
-  grad_ll[1] = 94.79339731683506898;
-  grad_ll[2] = 228.85868089291585648;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 721.17029359013599787;
+  geometry->gradient_log_likelihood[1] = 94.79339731683506898;
+  geometry->gradient_log_likelihood[2] = 228.85868089291585648;
 
-  FI[0 * ldfi + 0] = 111215.56400199473137036;
-  FI[0 * ldfi + 1] = 1065.46029679070488783;
-  FI[0 * ldfi + 2] = 62215.15998561143351253;
-  FI[1 * ldfi + 0] = 1065.46029679070488783;
-  FI[1 * ldfi + 1] = 2250.99624184545109529;
-  FI[1 * ldfi + 2] = 777.63318327672413943;
-  FI[2 * ldfi + 0] = 62215.15998561143351253;
-  FI[2 * ldfi + 1] = 777.63318327672413943;
-  FI[2 * ldfi + 2] = 45928.57912028756254585;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 111215.56400199473137036;
+  geometry->FI[0 * geometry->ldfi + 1] = 1065.46029679070488783;
+  geometry->FI[0 * geometry->ldfi + 2] = 62215.15998561143351253;
+  geometry->FI[1 * geometry->ldfi + 0] = 1065.46029679070488783;
+  geometry->FI[1 * geometry->ldfi + 1] = 2250.99624184545109529;
+  geometry->FI[1 * geometry->ldfi + 2] = 777.63318327672413943;
+  geometry->FI[2 * geometry->ldfi + 0] = 62215.15998561143351253;
+  geometry->FI[2 * geometry->ldfi + 1] = 777.63318327672413943;
+  geometry->FI[2 * geometry->ldfi + 2] = 45928.57912028756254585;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8512,13 +8407,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala75() {
 static void test_ode_likelihood_fitzhugh_simp_mmala76() {
   // Input argument
   double params[] = { 0.21579076881610798, 0.08693950385836537, 2.98704379893896732 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8526,44 +8421,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala76() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 153.76672779951596226, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -543.28102939108896408, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 170.82156336334284674, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -225.76105152122971731, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -543.28102939108896408, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 170.82156336334284674, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -225.76105152122971731, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 124102.89464892906835303, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -2850.14776929189974908, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 67379.88748405862133950, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -2850.14776929189974908, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2425.26041495579147522, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -1890.58582450047310886, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 67379.88748405862133950, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -1890.58582450047310886, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46655.82619555044220760, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 124102.89464892906835303, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -2850.14776929189974908, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 67379.88748405862133950, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -2850.14776929189974908, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2425.26041495579147522, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -1890.58582450047310886, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 67379.88748405862133950, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -1890.58582450047310886, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46655.82619555044220760, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 6998
@@ -8573,41 +8464,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala76() {
   double likelihood = 153.76672779951596226;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -543.28102939108896408;
-  grad_ll[1] = 170.82156336334284674;
-  grad_ll[2] = -225.76105152122971731;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -543.28102939108896408;
+  geometry->gradient_log_likelihood[1] = 170.82156336334284674;
+  geometry->gradient_log_likelihood[2] = -225.76105152122971731;
 
-  FI[0 * ldfi + 0] = 124102.89464892906835303;
-  FI[0 * ldfi + 1] = -2850.14776929189974908;
-  FI[0 * ldfi + 2] = 67379.88748405862133950;
-  FI[1 * ldfi + 0] = -2850.14776929189974908;
-  FI[1 * ldfi + 1] = 2425.26041495579147522;
-  FI[1 * ldfi + 2] = -1890.58582450047310886;
-  FI[2 * ldfi + 0] = 67379.88748405862133950;
-  FI[2 * ldfi + 1] = -1890.58582450047310886;
-  FI[2 * ldfi + 2] = 46655.82619555044220760;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 124102.89464892906835303;
+  geometry->FI[0 * geometry->ldfi + 1] = -2850.14776929189974908;
+  geometry->FI[0 * geometry->ldfi + 2] = 67379.88748405862133950;
+  geometry->FI[1 * geometry->ldfi + 0] = -2850.14776929189974908;
+  geometry->FI[1 * geometry->ldfi + 1] = 2425.26041495579147522;
+  geometry->FI[1 * geometry->ldfi + 2] = -1890.58582450047310886;
+  geometry->FI[2 * geometry->ldfi + 0] = 67379.88748405862133950;
+  geometry->FI[2 * geometry->ldfi + 1] = -1890.58582450047310886;
+  geometry->FI[2 * geometry->ldfi + 2] = 46655.82619555044220760;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8634,13 +8528,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala76() {
 static void test_ode_likelihood_fitzhugh_simp_mmala77() {
   // Input argument
   double params[] = { 0.20793232568553782, 0.15839889292362669, 3.00637956264266348 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8648,44 +8542,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala77() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 155.05819468759057145, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1062.92252969703440613, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -90.11242464043684208, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -712.77963084664781945, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1062.92252969703440613, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -90.11242464043684208, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -712.77963084664781945, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 123198.87053787811601069, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 8254.37620098225670517, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66445.55437066074227914, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 8254.37620098225670517, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2875.76931885224666985, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 5455.34661103033431573, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66445.55437066074227914, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 5455.34661103033431573, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45907.94815804393147118, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 123198.87053787811601069, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 8254.37620098225670517, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66445.55437066074227914, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 8254.37620098225670517, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2875.76931885224666985, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 5455.34661103033431573, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66445.55437066074227914, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 5455.34661103033431573, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45907.94815804393147118, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 3931
@@ -8695,41 +8585,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala77() {
   double likelihood = 155.05819468759057145;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1062.92252969703440613;
-  grad_ll[1] = -90.11242464043684208;
-  grad_ll[2] = -712.77963084664781945;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1062.92252969703440613;
+  geometry->gradient_log_likelihood[1] = -90.11242464043684208;
+  geometry->gradient_log_likelihood[2] = -712.77963084664781945;
 
-  FI[0 * ldfi + 0] = 123198.87053787811601069;
-  FI[0 * ldfi + 1] = 8254.37620098225670517;
-  FI[0 * ldfi + 2] = 66445.55437066074227914;
-  FI[1 * ldfi + 0] = 8254.37620098225670517;
-  FI[1 * ldfi + 1] = 2875.76931885224666985;
-  FI[1 * ldfi + 2] = 5455.34661103033431573;
-  FI[2 * ldfi + 0] = 66445.55437066074227914;
-  FI[2 * ldfi + 1] = 5455.34661103033431573;
-  FI[2 * ldfi + 2] = 45907.94815804393147118;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 123198.87053787811601069;
+  geometry->FI[0 * geometry->ldfi + 1] = 8254.37620098225670517;
+  geometry->FI[0 * geometry->ldfi + 2] = 66445.55437066074227914;
+  geometry->FI[1 * geometry->ldfi + 0] = 8254.37620098225670517;
+  geometry->FI[1 * geometry->ldfi + 1] = 2875.76931885224666985;
+  geometry->FI[1 * geometry->ldfi + 2] = 5455.34661103033431573;
+  geometry->FI[2 * geometry->ldfi + 0] = 66445.55437066074227914;
+  geometry->FI[2 * geometry->ldfi + 1] = 5455.34661103033431573;
+  geometry->FI[2 * geometry->ldfi + 2] = 45907.94815804393147118;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8756,13 +8649,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala77() {
 static void test_ode_likelihood_fitzhugh_simp_mmala78() {
   // Input argument
   double params[] = { 0.18741984391863822, 0.14397133219911740, 3.01584092107428159 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8770,44 +8663,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala78() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.09385899484593097, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 896.26216671390761803, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 51.75226555227061453, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 246.82047971322182889, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 896.26216671390761803, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 51.75226555227061453, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 246.82047971322182889, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 109040.88918568380177021, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4677.32857617620356905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 61149.81922034463786986, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4677.32857617620356905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2442.05300450404456569, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3367.35733211637216300, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 61149.81922034463786986, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3367.35733211637216300, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45593.76066109108796809, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 109040.88918568380177021, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4677.32857617620356905, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 61149.81922034463786986, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4677.32857617620356905, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2442.05300450404456569, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3367.35733211637216300, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 61149.81922034463786986, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3367.35733211637216300, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45593.76066109108796809, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5020
@@ -8817,41 +8706,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala78() {
   double likelihood = 154.09385899484593097;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 896.26216671390761803;
-  grad_ll[1] = 51.75226555227061453;
-  grad_ll[2] = 246.82047971322182889;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 896.26216671390761803;
+  geometry->gradient_log_likelihood[1] = 51.75226555227061453;
+  geometry->gradient_log_likelihood[2] = 246.82047971322182889;
 
-  FI[0 * ldfi + 0] = 109040.88918568380177021;
-  FI[0 * ldfi + 1] = 4677.32857617620356905;
-  FI[0 * ldfi + 2] = 61149.81922034463786986;
-  FI[1 * ldfi + 0] = 4677.32857617620356905;
-  FI[1 * ldfi + 1] = 2442.05300450404456569;
-  FI[1 * ldfi + 2] = 3367.35733211637216300;
-  FI[2 * ldfi + 0] = 61149.81922034463786986;
-  FI[2 * ldfi + 1] = 3367.35733211637216300;
-  FI[2 * ldfi + 2] = 45593.76066109108796809;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 109040.88918568380177021;
+  geometry->FI[0 * geometry->ldfi + 1] = 4677.32857617620356905;
+  geometry->FI[0 * geometry->ldfi + 2] = 61149.81922034463786986;
+  geometry->FI[1 * geometry->ldfi + 0] = 4677.32857617620356905;
+  geometry->FI[1 * geometry->ldfi + 1] = 2442.05300450404456569;
+  geometry->FI[1 * geometry->ldfi + 2] = 3367.35733211637216300;
+  geometry->FI[2 * geometry->ldfi + 0] = 61149.81922034463786986;
+  geometry->FI[2 * geometry->ldfi + 1] = 3367.35733211637216300;
+  geometry->FI[2 * geometry->ldfi + 2] = 45593.76066109108796809;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8878,13 +8770,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala78() {
 static void test_ode_likelihood_fitzhugh_simp_mmala79() {
   // Input argument
   double params[] = { 0.20283876594632871, 0.17479026355698601, 3.00194005066136071 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -8892,44 +8784,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala79() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.16368608050964895, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -272.08391049169193820, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -81.00702575790036519, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -269.69818454308870059, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -272.08391049169193820, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -81.00702575790036519, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -269.69818454308870059, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 120564.55540540200308897, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 10363.81784252907891641, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65362.09823512702860171, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 10363.81784252907891641, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3270.57224284022322536, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 6933.79981248096919444, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65362.09823512702860171, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 6933.79981248096919444, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45670.29490723329217872, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 120564.55540540200308897, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 10363.81784252907891641, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65362.09823512702860171, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 10363.81784252907891641, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3270.57224284022322536, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 6933.79981248096919444, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65362.09823512702860171, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 6933.79981248096919444, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45670.29490723329217872, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 12316
@@ -8939,41 +8827,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala79() {
   double likelihood = 159.16368608050964895;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -272.08391049169193820;
-  grad_ll[1] = -81.00702575790036519;
-  grad_ll[2] = -269.69818454308870059;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -272.08391049169193820;
+  geometry->gradient_log_likelihood[1] = -81.00702575790036519;
+  geometry->gradient_log_likelihood[2] = -269.69818454308870059;
 
-  FI[0 * ldfi + 0] = 120564.55540540200308897;
-  FI[0 * ldfi + 1] = 10363.81784252907891641;
-  FI[0 * ldfi + 2] = 65362.09823512702860171;
-  FI[1 * ldfi + 0] = 10363.81784252907891641;
-  FI[1 * ldfi + 1] = 3270.57224284022322536;
-  FI[1 * ldfi + 2] = 6933.79981248096919444;
-  FI[2 * ldfi + 0] = 65362.09823512702860171;
-  FI[2 * ldfi + 1] = 6933.79981248096919444;
-  FI[2 * ldfi + 2] = 45670.29490723329217872;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 120564.55540540200308897;
+  geometry->FI[0 * geometry->ldfi + 1] = 10363.81784252907891641;
+  geometry->FI[0 * geometry->ldfi + 2] = 65362.09823512702860171;
+  geometry->FI[1 * geometry->ldfi + 0] = 10363.81784252907891641;
+  geometry->FI[1 * geometry->ldfi + 1] = 3270.57224284022322536;
+  geometry->FI[1 * geometry->ldfi + 2] = 6933.79981248096919444;
+  geometry->FI[2 * geometry->ldfi + 0] = 65362.09823512702860171;
+  geometry->FI[2 * geometry->ldfi + 1] = 6933.79981248096919444;
+  geometry->FI[2 * geometry->ldfi + 2] = 45670.29490723329217872;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9000,13 +8891,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala79() {
 static void test_ode_likelihood_fitzhugh_simp_mmala80() {
   // Input argument
   double params[] = { 0.21793261468049030, 0.11700998676367801, 2.98975493210587873 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9014,44 +8905,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala80() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.93505151703888600, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1008.69379585784076880, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 72.91669727149019309, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -494.11351017320254186, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1008.69379585784076880, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 72.91669727149019309, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -494.11351017320254186, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 127138.72881735954433680, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 2121.90484018256756826, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 68301.20557258796179667, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 2121.90484018256756826, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2345.79951340718434949, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 1373.48037703332056481, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 68301.20557258796179667, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 1373.48037703332056481, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46511.97353609173296718, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 127138.72881735954433680, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 2121.90484018256756826, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 68301.20557258796179667, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 2121.90484018256756826, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2345.79951340718434949, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 1373.48037703332056481, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 68301.20557258796179667, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 1373.48037703332056481, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46511.97353609173296718, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 9462
@@ -9061,41 +8948,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala80() {
   double likelihood = 154.93505151703888600;
   double temperature = 0.28462802079628785;
   double stepsize = 1.53350399697898920;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1008.69379585784076880;
-  grad_ll[1] = 72.91669727149019309;
-  grad_ll[2] = -494.11351017320254186;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1008.69379585784076880;
+  geometry->gradient_log_likelihood[1] = 72.91669727149019309;
+  geometry->gradient_log_likelihood[2] = -494.11351017320254186;
 
-  FI[0 * ldfi + 0] = 127138.72881735954433680;
-  FI[0 * ldfi + 1] = 2121.90484018256756826;
-  FI[0 * ldfi + 2] = 68301.20557258796179667;
-  FI[1 * ldfi + 0] = 2121.90484018256756826;
-  FI[1 * ldfi + 1] = 2345.79951340718434949;
-  FI[1 * ldfi + 2] = 1373.48037703332056481;
-  FI[2 * ldfi + 0] = 68301.20557258796179667;
-  FI[2 * ldfi + 1] = 1373.48037703332056481;
-  FI[2 * ldfi + 2] = 46511.97353609173296718;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 127138.72881735954433680;
+  geometry->FI[0 * geometry->ldfi + 1] = 2121.90484018256756826;
+  geometry->FI[0 * geometry->ldfi + 2] = 68301.20557258796179667;
+  geometry->FI[1 * geometry->ldfi + 0] = 2121.90484018256756826;
+  geometry->FI[1 * geometry->ldfi + 1] = 2345.79951340718434949;
+  geometry->FI[1 * geometry->ldfi + 2] = 1373.48037703332056481;
+  geometry->FI[2 * geometry->ldfi + 0] = 68301.20557258796179667;
+  geometry->FI[2 * geometry->ldfi + 1] = 1373.48037703332056481;
+  geometry->FI[2 * geometry->ldfi + 2] = 46511.97353609173296718;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9122,13 +9012,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala80() {
 static void test_ode_likelihood_fitzhugh_simp_mmala81() {
   // Input argument
   double params[] = { 0.19319530155989431, 0.16063399351473429, 3.01155759862279471 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9136,44 +9026,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala81() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.77194197181461277, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 405.93269983124048395, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -3.15002291265289003, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 7.75078620257092155, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 405.93269983124048395, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -3.15002291265289003, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 7.75078620257092155, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 113504.08733292986289598, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 7463.52051503914572095, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 62784.50248436396941543, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 7463.52051503914572095, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2790.10689590714082442, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 5204.94705992913532100, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 62784.50248436396941543, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 5204.94705992913532100, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45584.29727648261177819, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 113504.08733292986289598, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 7463.52051503914572095, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 62784.50248436396941543, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 7463.52051503914572095, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2790.10689590714082442, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 5204.94705992913532100, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 62784.50248436396941543, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 5204.94705992913532100, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45584.29727648261177819, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 7034
@@ -9183,41 +9069,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala81() {
   double likelihood = 157.77194197181461277;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 405.93269983124048395;
-  grad_ll[1] = -3.15002291265289003;
-  grad_ll[2] = 7.75078620257092155;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 405.93269983124048395;
+  geometry->gradient_log_likelihood[1] = -3.15002291265289003;
+  geometry->gradient_log_likelihood[2] = 7.75078620257092155;
 
-  FI[0 * ldfi + 0] = 113504.08733292986289598;
-  FI[0 * ldfi + 1] = 7463.52051503914572095;
-  FI[0 * ldfi + 2] = 62784.50248436396941543;
-  FI[1 * ldfi + 0] = 7463.52051503914572095;
-  FI[1 * ldfi + 1] = 2790.10689590714082442;
-  FI[1 * ldfi + 2] = 5204.94705992913532100;
-  FI[2 * ldfi + 0] = 62784.50248436396941543;
-  FI[2 * ldfi + 1] = 5204.94705992913532100;
-  FI[2 * ldfi + 2] = 45584.29727648261177819;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 113504.08733292986289598;
+  geometry->FI[0 * geometry->ldfi + 1] = 7463.52051503914572095;
+  geometry->FI[0 * geometry->ldfi + 2] = 62784.50248436396941543;
+  geometry->FI[1 * geometry->ldfi + 0] = 7463.52051503914572095;
+  geometry->FI[1 * geometry->ldfi + 1] = 2790.10689590714082442;
+  geometry->FI[1 * geometry->ldfi + 2] = 5204.94705992913532100;
+  geometry->FI[2 * geometry->ldfi + 0] = 62784.50248436396941543;
+  geometry->FI[2 * geometry->ldfi + 1] = 5204.94705992913532100;
+  geometry->FI[2 * geometry->ldfi + 2] = 45584.29727648261177819;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9244,13 +9133,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala81() {
 static void test_ode_likelihood_fitzhugh_simp_mmala82() {
   // Input argument
   double params[] = { 0.19103785213343680, 0.19176986900191351, 3.00410463180113529 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9258,44 +9147,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala82() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.90036759902727681, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 824.22178091895921170, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -19.30524560875135620, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 274.07397764619508962, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 824.22178091895921170, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -19.30524560875135620, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 274.07397764619508962, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 113675.80416626029182225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 11862.88210173978768580, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 62598.28217465816123877, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 11862.88210173978768580, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3685.38441007353776513, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 8225.18928107561259822, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 62598.28217465816123877, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 8225.18928107561259822, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45241.93114065987901995, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 113675.80416626029182225, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 11862.88210173978768580, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 62598.28217465816123877, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 11862.88210173978768580, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3685.38441007353776513, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 8225.18928107561259822, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 62598.28217465816123877, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 8225.18928107561259822, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45241.93114065987901995, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 16616
@@ -9305,41 +9190,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala82() {
   double likelihood = 154.90036759902727681;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 824.22178091895921170;
-  grad_ll[1] = -19.30524560875135620;
-  grad_ll[2] = 274.07397764619508962;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 824.22178091895921170;
+  geometry->gradient_log_likelihood[1] = -19.30524560875135620;
+  geometry->gradient_log_likelihood[2] = 274.07397764619508962;
 
-  FI[0 * ldfi + 0] = 113675.80416626029182225;
-  FI[0 * ldfi + 1] = 11862.88210173978768580;
-  FI[0 * ldfi + 2] = 62598.28217465816123877;
-  FI[1 * ldfi + 0] = 11862.88210173978768580;
-  FI[1 * ldfi + 1] = 3685.38441007353776513;
-  FI[1 * ldfi + 2] = 8225.18928107561259822;
-  FI[2 * ldfi + 0] = 62598.28217465816123877;
-  FI[2 * ldfi + 1] = 8225.18928107561259822;
-  FI[2 * ldfi + 2] = 45241.93114065987901995;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 113675.80416626029182225;
+  geometry->FI[0 * geometry->ldfi + 1] = 11862.88210173978768580;
+  geometry->FI[0 * geometry->ldfi + 2] = 62598.28217465816123877;
+  geometry->FI[1 * geometry->ldfi + 0] = 11862.88210173978768580;
+  geometry->FI[1 * geometry->ldfi + 1] = 3685.38441007353776513;
+  geometry->FI[1 * geometry->ldfi + 2] = 8225.18928107561259822;
+  geometry->FI[2 * geometry->ldfi + 0] = 62598.28217465816123877;
+  geometry->FI[2 * geometry->ldfi + 1] = 8225.18928107561259822;
+  geometry->FI[2 * geometry->ldfi + 2] = 45241.93114065987901995;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9366,13 +9254,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala82() {
 static void test_ode_likelihood_fitzhugh_simp_mmala83() {
   // Input argument
   double params[] = { 0.21101707163448802, 0.13535122765561036, 2.99725665317405721 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9380,44 +9268,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala83() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.22231313912359951, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -685.30859826808443813, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 18.16128771096771288, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -407.34778433686426524, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -685.30859826808443813, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 18.16128771096771288, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -407.34778433686426524, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 123605.56280750308360439, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4724.85476186791129294, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66850.43795624336053152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4724.85476186791129294, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2474.60234840115663246, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3122.65157002297337385, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66850.43795624336053152, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3122.65157002297337385, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46212.21686306557967328, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 123605.56280750308360439, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4724.85476186791129294, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66850.43795624336053152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4724.85476186791129294, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2474.60234840115663246, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3122.65157002297337385, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66850.43795624336053152, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3122.65157002297337385, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46212.21686306557967328, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 11705
@@ -9427,41 +9311,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala83() {
   double likelihood = 158.22231313912359951;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -685.30859826808443813;
-  grad_ll[1] = 18.16128771096771288;
-  grad_ll[2] = -407.34778433686426524;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -685.30859826808443813;
+  geometry->gradient_log_likelihood[1] = 18.16128771096771288;
+  geometry->gradient_log_likelihood[2] = -407.34778433686426524;
 
-  FI[0 * ldfi + 0] = 123605.56280750308360439;
-  FI[0 * ldfi + 1] = 4724.85476186791129294;
-  FI[0 * ldfi + 2] = 66850.43795624336053152;
-  FI[1 * ldfi + 0] = 4724.85476186791129294;
-  FI[1 * ldfi + 1] = 2474.60234840115663246;
-  FI[1 * ldfi + 2] = 3122.65157002297337385;
-  FI[2 * ldfi + 0] = 66850.43795624336053152;
-  FI[2 * ldfi + 1] = 3122.65157002297337385;
-  FI[2 * ldfi + 2] = 46212.21686306557967328;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 123605.56280750308360439;
+  geometry->FI[0 * geometry->ldfi + 1] = 4724.85476186791129294;
+  geometry->FI[0 * geometry->ldfi + 2] = 66850.43795624336053152;
+  geometry->FI[1 * geometry->ldfi + 0] = 4724.85476186791129294;
+  geometry->FI[1 * geometry->ldfi + 1] = 2474.60234840115663246;
+  geometry->FI[1 * geometry->ldfi + 2] = 3122.65157002297337385;
+  geometry->FI[2 * geometry->ldfi + 0] = 66850.43795624336053152;
+  geometry->FI[2 * geometry->ldfi + 1] = 3122.65157002297337385;
+  geometry->FI[2 * geometry->ldfi + 2] = 46212.21686306557967328;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9488,13 +9375,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala83() {
 static void test_ode_likelihood_fitzhugh_simp_mmala84() {
   // Input argument
   double params[] = { 0.19929911036684800, 0.20173430983716267, 3.00299721259714136 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9502,44 +9389,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala84() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 156.52507258945419721, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -243.42651817367442391, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -160.67867208597726858, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -302.92546088523840808, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -243.42651817367442391, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -160.67867208597726858, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -302.92546088523840808, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 120084.46952768722258043, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 14282.36196190492591995, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 64887.97311396179429721, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 14282.36196190492591995, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 4216.78440696019424649, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 9547.79932020670275961, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 64887.97311396179429721, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 9547.79932020670275961, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45301.70692001555289607, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 120084.46952768722258043, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 14282.36196190492591995, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 64887.97311396179429721, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 14282.36196190492591995, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 4216.78440696019424649, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 9547.79932020670275961, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 64887.97311396179429721, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 9547.79932020670275961, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45301.70692001555289607, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 10993
@@ -9549,41 +9432,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala84() {
   double likelihood = 156.52507258945419721;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -243.42651817367442391;
-  grad_ll[1] = -160.67867208597726858;
-  grad_ll[2] = -302.92546088523840808;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -243.42651817367442391;
+  geometry->gradient_log_likelihood[1] = -160.67867208597726858;
+  geometry->gradient_log_likelihood[2] = -302.92546088523840808;
 
-  FI[0 * ldfi + 0] = 120084.46952768722258043;
-  FI[0 * ldfi + 1] = 14282.36196190492591995;
-  FI[0 * ldfi + 2] = 64887.97311396179429721;
-  FI[1 * ldfi + 0] = 14282.36196190492591995;
-  FI[1 * ldfi + 1] = 4216.78440696019424649;
-  FI[1 * ldfi + 2] = 9547.79932020670275961;
-  FI[2 * ldfi + 0] = 64887.97311396179429721;
-  FI[2 * ldfi + 1] = 9547.79932020670275961;
-  FI[2 * ldfi + 2] = 45301.70692001555289607;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 120084.46952768722258043;
+  geometry->FI[0 * geometry->ldfi + 1] = 14282.36196190492591995;
+  geometry->FI[0 * geometry->ldfi + 2] = 64887.97311396179429721;
+  geometry->FI[1 * geometry->ldfi + 0] = 14282.36196190492591995;
+  geometry->FI[1 * geometry->ldfi + 1] = 4216.78440696019424649;
+  geometry->FI[1 * geometry->ldfi + 2] = 9547.79932020670275961;
+  geometry->FI[2 * geometry->ldfi + 0] = 64887.97311396179429721;
+  geometry->FI[2 * geometry->ldfi + 1] = 9547.79932020670275961;
+  geometry->FI[2 * geometry->ldfi + 2] = 45301.70692001555289607;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9610,13 +9496,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala84() {
 static void test_ode_likelihood_fitzhugh_simp_mmala85() {
   // Input argument
   double params[] = { 0.21096920459535456, 0.16661958851739755, 2.99655340727904873 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9624,44 +9510,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala85() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.38826344501563881, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -874.30270760724272350, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -98.55199801709079566, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -519.85010006955599238, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -874.30270760724272350, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -98.55199801709079566, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -519.85010006955599238, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 125497.41235608365968801, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 9750.26484209536829439, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 67258.55297638493357226, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 9750.26484209536829439, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3124.86138792905967421, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 6364.20898675105945586, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 67258.55297638493357226, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 6364.20898675105945586, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45918.21891497247270308, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 125497.41235608365968801, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 9750.26484209536829439, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 67258.55297638493357226, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 9750.26484209536829439, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3124.86138792905967421, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 6364.20898675105945586, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 67258.55297638493357226, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 6364.20898675105945586, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45918.21891497247270308, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18341
@@ -9671,41 +9553,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala85() {
   double likelihood = 157.38826344501563881;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -874.30270760724272350;
-  grad_ll[1] = -98.55199801709079566;
-  grad_ll[2] = -519.85010006955599238;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -874.30270760724272350;
+  geometry->gradient_log_likelihood[1] = -98.55199801709079566;
+  geometry->gradient_log_likelihood[2] = -519.85010006955599238;
 
-  FI[0 * ldfi + 0] = 125497.41235608365968801;
-  FI[0 * ldfi + 1] = 9750.26484209536829439;
-  FI[0 * ldfi + 2] = 67258.55297638493357226;
-  FI[1 * ldfi + 0] = 9750.26484209536829439;
-  FI[1 * ldfi + 1] = 3124.86138792905967421;
-  FI[1 * ldfi + 2] = 6364.20898675105945586;
-  FI[2 * ldfi + 0] = 67258.55297638493357226;
-  FI[2 * ldfi + 1] = 6364.20898675105945586;
-  FI[2 * ldfi + 2] = 45918.21891497247270308;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 125497.41235608365968801;
+  geometry->FI[0 * geometry->ldfi + 1] = 9750.26484209536829439;
+  geometry->FI[0 * geometry->ldfi + 2] = 67258.55297638493357226;
+  geometry->FI[1 * geometry->ldfi + 0] = 9750.26484209536829439;
+  geometry->FI[1 * geometry->ldfi + 1] = 3124.86138792905967421;
+  geometry->FI[1 * geometry->ldfi + 2] = 6364.20898675105945586;
+  geometry->FI[2 * geometry->ldfi + 0] = 67258.55297638493357226;
+  geometry->FI[2 * geometry->ldfi + 1] = 6364.20898675105945586;
+  geometry->FI[2 * geometry->ldfi + 2] = 45918.21891497247270308;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9732,13 +9617,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala85() {
 static void test_ode_likelihood_fitzhugh_simp_mmala86() {
   // Input argument
   double params[] = { 0.20644284163905097, 0.17024135532878706, 2.99954394593303109 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9746,44 +9631,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala86() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.88033843259097466, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -523.14363908768757483, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -85.55203322880481664, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -371.74141430439880196, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -523.14363908768757483, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -85.55203322880481664, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -371.74141430439880196, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 122676.74343819642672315, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 9951.09186093091193470, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66191.54660290482570417, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 9951.09186093091193470, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3176.87981276671143860, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 6587.51976231412118068, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66191.54660290482570417, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 6587.51976231412118068, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45791.94120954146637814, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 122676.74343819642672315, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 9951.09186093091193470, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66191.54660290482570417, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 9951.09186093091193470, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3176.87981276671143860, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 6587.51976231412118068, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66191.54660290482570417, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 6587.51976231412118068, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45791.94120954146637814, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 5716
@@ -9793,41 +9674,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala86() {
   double likelihood = 158.88033843259097466;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -523.14363908768757483;
-  grad_ll[1] = -85.55203322880481664;
-  grad_ll[2] = -371.74141430439880196;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -523.14363908768757483;
+  geometry->gradient_log_likelihood[1] = -85.55203322880481664;
+  geometry->gradient_log_likelihood[2] = -371.74141430439880196;
 
-  FI[0 * ldfi + 0] = 122676.74343819642672315;
-  FI[0 * ldfi + 1] = 9951.09186093091193470;
-  FI[0 * ldfi + 2] = 66191.54660290482570417;
-  FI[1 * ldfi + 0] = 9951.09186093091193470;
-  FI[1 * ldfi + 1] = 3176.87981276671143860;
-  FI[1 * ldfi + 2] = 6587.51976231412118068;
-  FI[2 * ldfi + 0] = 66191.54660290482570417;
-  FI[2 * ldfi + 1] = 6587.51976231412118068;
-  FI[2 * ldfi + 2] = 45791.94120954146637814;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 122676.74343819642672315;
+  geometry->FI[0 * geometry->ldfi + 1] = 9951.09186093091193470;
+  geometry->FI[0 * geometry->ldfi + 2] = 66191.54660290482570417;
+  geometry->FI[1 * geometry->ldfi + 0] = 9951.09186093091193470;
+  geometry->FI[1 * geometry->ldfi + 1] = 3176.87981276671143860;
+  geometry->FI[1 * geometry->ldfi + 2] = 6587.51976231412118068;
+  geometry->FI[2 * geometry->ldfi + 0] = 66191.54660290482570417;
+  geometry->FI[2 * geometry->ldfi + 1] = 6587.51976231412118068;
+  geometry->FI[2 * geometry->ldfi + 2] = 45791.94120954146637814;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9854,13 +9738,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala86() {
 static void test_ode_likelihood_fitzhugh_simp_mmala87() {
   // Input argument
   double params[] = { 0.21434321320628752, 0.15478009382673016, 2.98879839925976709 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9868,44 +9752,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala87() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.85734368553141849, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -675.35589170479056520, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -38.21117679515337784, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -327.69960549414429352, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -675.35589170479056520, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -38.21117679515337784, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -327.69960549414429352, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 126798.89492724348383490, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 8033.28735354665332125, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 67886.53804515216324944, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 8033.28735354665332125, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2856.54694134414330620, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 5215.34670737978740362, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 67886.53804515216324944, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 5215.34670737978740362, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46126.30126071728591342, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 126798.89492724348383490, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 8033.28735354665332125, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 67886.53804515216324944, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 8033.28735354665332125, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2856.54694134414330620, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 5215.34670737978740362, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 67886.53804515216324944, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 5215.34670737978740362, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46126.30126071728591342, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15140
@@ -9915,41 +9795,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala87() {
   double likelihood = 158.85734368553141849;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -675.35589170479056520;
-  grad_ll[1] = -38.21117679515337784;
-  grad_ll[2] = -327.69960549414429352;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -675.35589170479056520;
+  geometry->gradient_log_likelihood[1] = -38.21117679515337784;
+  geometry->gradient_log_likelihood[2] = -327.69960549414429352;
 
-  FI[0 * ldfi + 0] = 126798.89492724348383490;
-  FI[0 * ldfi + 1] = 8033.28735354665332125;
-  FI[0 * ldfi + 2] = 67886.53804515216324944;
-  FI[1 * ldfi + 0] = 8033.28735354665332125;
-  FI[1 * ldfi + 1] = 2856.54694134414330620;
-  FI[1 * ldfi + 2] = 5215.34670737978740362;
-  FI[2 * ldfi + 0] = 67886.53804515216324944;
-  FI[2 * ldfi + 1] = 5215.34670737978740362;
-  FI[2 * ldfi + 2] = 46126.30126071728591342;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 126798.89492724348383490;
+  geometry->FI[0 * geometry->ldfi + 1] = 8033.28735354665332125;
+  geometry->FI[0 * geometry->ldfi + 2] = 67886.53804515216324944;
+  geometry->FI[1 * geometry->ldfi + 0] = 8033.28735354665332125;
+  geometry->FI[1 * geometry->ldfi + 1] = 2856.54694134414330620;
+  geometry->FI[1 * geometry->ldfi + 2] = 5215.34670737978740362;
+  geometry->FI[2 * geometry->ldfi + 0] = 67886.53804515216324944;
+  geometry->FI[2 * geometry->ldfi + 1] = 5215.34670737978740362;
+  geometry->FI[2 * geometry->ldfi + 2] = 46126.30126071728591342;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9976,13 +9859,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala87() {
 static void test_ode_likelihood_fitzhugh_simp_mmala88() {
   // Input argument
   double params[] = { 0.20467371530372075, 0.14949840167389777, 3.00828550465730915 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -9990,44 +9873,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala88() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.28701806329820556, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -699.39201531894445907, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -36.09978336904237040, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -538.01917763299252329, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -699.39201531894445907, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -36.09978336904237040, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -538.01917763299252329, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 120492.91929775140306447, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 6613.84943612396182289, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65526.43673638426116668, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 6613.84943612396182289, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2654.49209520584599886, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 4439.00925283645119634, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65526.43673638426116668, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 4439.00925283645119634, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45928.73301583501597634, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 120492.91929775140306447, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 6613.84943612396182289, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65526.43673638426116668, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 6613.84943612396182289, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2654.49209520584599886, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 4439.00925283645119634, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65526.43673638426116668, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 4439.00925283645119634, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45928.73301583501597634, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15070
@@ -10037,41 +9916,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala88() {
   double likelihood = 157.28701806329820556;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -699.39201531894445907;
-  grad_ll[1] = -36.09978336904237040;
-  grad_ll[2] = -538.01917763299252329;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -699.39201531894445907;
+  geometry->gradient_log_likelihood[1] = -36.09978336904237040;
+  geometry->gradient_log_likelihood[2] = -538.01917763299252329;
 
-  FI[0 * ldfi + 0] = 120492.91929775140306447;
-  FI[0 * ldfi + 1] = 6613.84943612396182289;
-  FI[0 * ldfi + 2] = 65526.43673638426116668;
-  FI[1 * ldfi + 0] = 6613.84943612396182289;
-  FI[1 * ldfi + 1] = 2654.49209520584599886;
-  FI[1 * ldfi + 2] = 4439.00925283645119634;
-  FI[2 * ldfi + 0] = 65526.43673638426116668;
-  FI[2 * ldfi + 1] = 4439.00925283645119634;
-  FI[2 * ldfi + 2] = 45928.73301583501597634;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 120492.91929775140306447;
+  geometry->FI[0 * geometry->ldfi + 1] = 6613.84943612396182289;
+  geometry->FI[0 * geometry->ldfi + 2] = 65526.43673638426116668;
+  geometry->FI[1 * geometry->ldfi + 0] = 6613.84943612396182289;
+  geometry->FI[1 * geometry->ldfi + 1] = 2654.49209520584599886;
+  geometry->FI[1 * geometry->ldfi + 2] = 4439.00925283645119634;
+  geometry->FI[2 * geometry->ldfi + 0] = 65526.43673638426116668;
+  geometry->FI[2 * geometry->ldfi + 1] = 4439.00925283645119634;
+  geometry->FI[2 * geometry->ldfi + 2] = 45928.73301583501597634;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10098,13 +9980,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala88() {
 static void test_ode_likelihood_fitzhugh_simp_mmala89() {
   // Input argument
   double params[] = { 0.19998406141514530, 0.10369294845053054, 2.99409186094700486 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10112,44 +9994,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala89() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 153.76315825245083602, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 934.80252797800767439, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 116.60494212525543389, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 511.21480016031875948, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 934.80252797800767439, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 116.60494212525543389, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 511.21480016031875948, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 114329.05108702048892155, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], -775.02041812175593805, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 63556.23354151155217551, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], -775.02041812175593805, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2294.38536950964726202, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], -519.32990819814312999, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 63556.23354151155217551, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], -519.32990819814312999, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46135.19765549658040982, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 114329.05108702048892155, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], -775.02041812175593805, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 63556.23354151155217551, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], -775.02041812175593805, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2294.38536950964726202, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], -519.32990819814312999, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 63556.23354151155217551, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], -519.32990819814312999, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46135.19765549658040982, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 7606
@@ -10159,41 +10037,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala89() {
   double likelihood = 153.76315825245083602;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 934.80252797800767439;
-  grad_ll[1] = 116.60494212525543389;
-  grad_ll[2] = 511.21480016031875948;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 934.80252797800767439;
+  geometry->gradient_log_likelihood[1] = 116.60494212525543389;
+  geometry->gradient_log_likelihood[2] = 511.21480016031875948;
 
-  FI[0 * ldfi + 0] = 114329.05108702048892155;
-  FI[0 * ldfi + 1] = -775.02041812175593805;
-  FI[0 * ldfi + 2] = 63556.23354151155217551;
-  FI[1 * ldfi + 0] = -775.02041812175593805;
-  FI[1 * ldfi + 1] = 2294.38536950964726202;
-  FI[1 * ldfi + 2] = -519.32990819814312999;
-  FI[2 * ldfi + 0] = 63556.23354151155217551;
-  FI[2 * ldfi + 1] = -519.32990819814312999;
-  FI[2 * ldfi + 2] = 46135.19765549658040982;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 114329.05108702048892155;
+  geometry->FI[0 * geometry->ldfi + 1] = -775.02041812175593805;
+  geometry->FI[0 * geometry->ldfi + 2] = 63556.23354151155217551;
+  geometry->FI[1 * geometry->ldfi + 0] = -775.02041812175593805;
+  geometry->FI[1 * geometry->ldfi + 1] = 2294.38536950964726202;
+  geometry->FI[1 * geometry->ldfi + 2] = -519.32990819814312999;
+  geometry->FI[2 * geometry->ldfi + 0] = 63556.23354151155217551;
+  geometry->FI[2 * geometry->ldfi + 1] = -519.32990819814312999;
+  geometry->FI[2 * geometry->ldfi + 2] = 46135.19765549658040982;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10220,13 +10101,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala89() {
 static void test_ode_likelihood_fitzhugh_simp_mmala90() {
   // Input argument
   double params[] = { 0.20308192424130916, 0.16250982865008406, 3.00441269756031692 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10234,44 +10115,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala90() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.18383162555278432, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -345.31408110267068423, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -52.78500981643620094, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -321.34986122792827246, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -345.31408110267068423, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -52.78500981643620094, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -321.34986122792827246, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 120031.24766841769451275, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 8480.33618043858223245, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65268.20704054575617192, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 8480.33618043858223245, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2929.52108642719394993, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 5698.11766057413478848, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65268.20704054575617192, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 5698.11766057413478848, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45790.60618204041384161, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 120031.24766841769451275, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 8480.33618043858223245, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65268.20704054575617192, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 8480.33618043858223245, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2929.52108642719394993, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 5698.11766057413478848, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65268.20704054575617192, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 5698.11766057413478848, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45790.60618204041384161, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 11352
@@ -10281,41 +10158,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala90() {
   double likelihood = 159.18383162555278432;
   double temperature = 0.55492895730664349;
   double stepsize = 1.30247634458035511;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -345.31408110267068423;
-  grad_ll[1] = -52.78500981643620094;
-  grad_ll[2] = -321.34986122792827246;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -345.31408110267068423;
+  geometry->gradient_log_likelihood[1] = -52.78500981643620094;
+  geometry->gradient_log_likelihood[2] = -321.34986122792827246;
 
-  FI[0 * ldfi + 0] = 120031.24766841769451275;
-  FI[0 * ldfi + 1] = 8480.33618043858223245;
-  FI[0 * ldfi + 2] = 65268.20704054575617192;
-  FI[1 * ldfi + 0] = 8480.33618043858223245;
-  FI[1 * ldfi + 1] = 2929.52108642719394993;
-  FI[1 * ldfi + 2] = 5698.11766057413478848;
-  FI[2 * ldfi + 0] = 65268.20704054575617192;
-  FI[2 * ldfi + 1] = 5698.11766057413478848;
-  FI[2 * ldfi + 2] = 45790.60618204041384161;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 120031.24766841769451275;
+  geometry->FI[0 * geometry->ldfi + 1] = 8480.33618043858223245;
+  geometry->FI[0 * geometry->ldfi + 2] = 65268.20704054575617192;
+  geometry->FI[1 * geometry->ldfi + 0] = 8480.33618043858223245;
+  geometry->FI[1 * geometry->ldfi + 1] = 2929.52108642719394993;
+  geometry->FI[1 * geometry->ldfi + 2] = 5698.11766057413478848;
+  geometry->FI[2 * geometry->ldfi + 0] = 65268.20704054575617192;
+  geometry->FI[2 * geometry->ldfi + 1] = 5698.11766057413478848;
+  geometry->FI[2 * geometry->ldfi + 2] = 45790.60618204041384161;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10342,13 +10222,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala90() {
 static void test_ode_likelihood_fitzhugh_simp_mmala91() {
   // Input argument
   double params[] = { 0.21917963803533561, 0.17221785316412369, 2.96745853527136916 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10356,44 +10236,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala91() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.88821060565871335, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -1.08353473102005182, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -11.40229627825151226, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 214.67462155380849254, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -1.08353473102005182, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -11.40229627825151226, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 214.67462155380849254, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 130627.58002442463475745, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 11176.46999915764718025, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 69160.06357130748801865, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 11176.46999915764718025, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3395.81627945667423774, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 7107.43584599300356786, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 69160.06357130748801865, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 7107.43584599300356786, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46049.41803274469566531, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 130627.58002442463475745, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 11176.46999915764718025, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 69160.06357130748801865, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 11176.46999915764718025, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3395.81627945667423774, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 7107.43584599300356786, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 69160.06357130748801865, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 7107.43584599300356786, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46049.41803274469566531, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 1518
@@ -10403,41 +10279,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala91() {
   double likelihood = 157.88821060565871335;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -1.08353473102005182;
-  grad_ll[1] = -11.40229627825151226;
-  grad_ll[2] = 214.67462155380849254;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -1.08353473102005182;
+  geometry->gradient_log_likelihood[1] = -11.40229627825151226;
+  geometry->gradient_log_likelihood[2] = 214.67462155380849254;
 
-  FI[0 * ldfi + 0] = 130627.58002442463475745;
-  FI[0 * ldfi + 1] = 11176.46999915764718025;
-  FI[0 * ldfi + 2] = 69160.06357130748801865;
-  FI[1 * ldfi + 0] = 11176.46999915764718025;
-  FI[1 * ldfi + 1] = 3395.81627945667423774;
-  FI[1 * ldfi + 2] = 7107.43584599300356786;
-  FI[2 * ldfi + 0] = 69160.06357130748801865;
-  FI[2 * ldfi + 1] = 7107.43584599300356786;
-  FI[2 * ldfi + 2] = 46049.41803274469566531;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 130627.58002442463475745;
+  geometry->FI[0 * geometry->ldfi + 1] = 11176.46999915764718025;
+  geometry->FI[0 * geometry->ldfi + 2] = 69160.06357130748801865;
+  geometry->FI[1 * geometry->ldfi + 0] = 11176.46999915764718025;
+  geometry->FI[1 * geometry->ldfi + 1] = 3395.81627945667423774;
+  geometry->FI[1 * geometry->ldfi + 2] = 7107.43584599300356786;
+  geometry->FI[2 * geometry->ldfi + 0] = 69160.06357130748801865;
+  geometry->FI[2 * geometry->ldfi + 1] = 7107.43584599300356786;
+  geometry->FI[2 * geometry->ldfi + 2] = 46049.41803274469566531;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10464,13 +10343,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala91() {
 static void test_ode_likelihood_fitzhugh_simp_mmala92() {
   // Input argument
   double params[] = { 0.20297089528031931, 0.14663084951652330, 3.00435574094675450 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10478,44 +10357,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala92() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.62128302221458398, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -205.80820068672548473, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 2.01238665345615431, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -234.10601963788292323, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -205.80820068672548473, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 2.01238665345615431, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -234.10601963788292323, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 118988.93575662338116672, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 6003.67464758426740445, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65020.20006096248107497, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 6003.67464758426740445, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2590.70721094125383388, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 4065.48270167102373307, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65020.20006096248107497, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 4065.48270167102373307, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45934.87307166151731508, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 118988.93575662338116672, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 6003.67464758426740445, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65020.20006096248107497, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 6003.67464758426740445, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2590.70721094125383388, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 4065.48270167102373307, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65020.20006096248107497, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 4065.48270167102373307, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45934.87307166151731508, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 1079
@@ -10525,41 +10400,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala92() {
   double likelihood = 159.62128302221458398;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -205.80820068672548473;
-  grad_ll[1] = 2.01238665345615431;
-  grad_ll[2] = -234.10601963788292323;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -205.80820068672548473;
+  geometry->gradient_log_likelihood[1] = 2.01238665345615431;
+  geometry->gradient_log_likelihood[2] = -234.10601963788292323;
 
-  FI[0 * ldfi + 0] = 118988.93575662338116672;
-  FI[0 * ldfi + 1] = 6003.67464758426740445;
-  FI[0 * ldfi + 2] = 65020.20006096248107497;
-  FI[1 * ldfi + 0] = 6003.67464758426740445;
-  FI[1 * ldfi + 1] = 2590.70721094125383388;
-  FI[1 * ldfi + 2] = 4065.48270167102373307;
-  FI[2 * ldfi + 0] = 65020.20006096248107497;
-  FI[2 * ldfi + 1] = 4065.48270167102373307;
-  FI[2 * ldfi + 2] = 45934.87307166151731508;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 118988.93575662338116672;
+  geometry->FI[0 * geometry->ldfi + 1] = 6003.67464758426740445;
+  geometry->FI[0 * geometry->ldfi + 2] = 65020.20006096248107497;
+  geometry->FI[1 * geometry->ldfi + 0] = 6003.67464758426740445;
+  geometry->FI[1 * geometry->ldfi + 1] = 2590.70721094125383388;
+  geometry->FI[1 * geometry->ldfi + 2] = 4065.48270167102373307;
+  geometry->FI[2 * geometry->ldfi + 0] = 65020.20006096248107497;
+  geometry->FI[2 * geometry->ldfi + 1] = 4065.48270167102373307;
+  geometry->FI[2 * geometry->ldfi + 2] = 45934.87307166151731508;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10586,13 +10464,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala92() {
 static void test_ode_likelihood_fitzhugh_simp_mmala93() {
   // Input argument
   double params[] = { 0.20353550017355071, 0.19164847936690976, 2.99208435850367005 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10600,44 +10478,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala93() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.03747580028621655, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 94.06644414835602674, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -77.77507814738312675, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 2.34705216453969001, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 94.06644414835602674, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -77.77507814738312675, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 2.34705216453969001, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 121836.94437238620594144, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 13026.03318130439947709, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 65708.61926484227296896, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 13026.03318130439947709, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3867.96355638803606780, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 8639.27164203083339089, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 65708.61926484227296896, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 8639.27164203083339089, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45527.41834475069481414, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 121836.94437238620594144, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 13026.03318130439947709, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 65708.61926484227296896, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 13026.03318130439947709, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3867.96355638803606780, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 8639.27164203083339089, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 65708.61926484227296896, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 8639.27164203083339089, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45527.41834475069481414, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 10615
@@ -10647,41 +10521,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala93() {
   double likelihood = 159.03747580028621655;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 94.06644414835602674;
-  grad_ll[1] = -77.77507814738312675;
-  grad_ll[2] = 2.34705216453969001;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 94.06644414835602674;
+  geometry->gradient_log_likelihood[1] = -77.77507814738312675;
+  geometry->gradient_log_likelihood[2] = 2.34705216453969001;
 
-  FI[0 * ldfi + 0] = 121836.94437238620594144;
-  FI[0 * ldfi + 1] = 13026.03318130439947709;
-  FI[0 * ldfi + 2] = 65708.61926484227296896;
-  FI[1 * ldfi + 0] = 13026.03318130439947709;
-  FI[1 * ldfi + 1] = 3867.96355638803606780;
-  FI[1 * ldfi + 2] = 8639.27164203083339089;
-  FI[2 * ldfi + 0] = 65708.61926484227296896;
-  FI[2 * ldfi + 1] = 8639.27164203083339089;
-  FI[2 * ldfi + 2] = 45527.41834475069481414;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 121836.94437238620594144;
+  geometry->FI[0 * geometry->ldfi + 1] = 13026.03318130439947709;
+  geometry->FI[0 * geometry->ldfi + 2] = 65708.61926484227296896;
+  geometry->FI[1 * geometry->ldfi + 0] = 13026.03318130439947709;
+  geometry->FI[1 * geometry->ldfi + 1] = 3867.96355638803606780;
+  geometry->FI[1 * geometry->ldfi + 2] = 8639.27164203083339089;
+  geometry->FI[2 * geometry->ldfi + 0] = 65708.61926484227296896;
+  geometry->FI[2 * geometry->ldfi + 1] = 8639.27164203083339089;
+  geometry->FI[2 * geometry->ldfi + 2] = 45527.41834475069481414;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10708,13 +10585,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala93() {
 static void test_ode_likelihood_fitzhugh_simp_mmala94() {
   // Input argument
   double params[] = { 0.21238280728416628, 0.13284372267970573, 2.98840592617354073 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10722,44 +10599,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala94() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.68226128022794796, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -246.01961353888373196, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 46.20482358020394287, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -84.31654756283060692, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -246.01961353888373196, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 46.20482358020394287, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -84.31654756283060692, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 124023.72645367879886180, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4320.72014582387510018, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 67069.55392673202732112, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4320.72014582387510018, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2457.42495375295357007, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2850.00679720310472476, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 67069.55392673202732112, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2850.00679720310472476, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46273.04807945701759309, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 124023.72645367879886180, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4320.72014582387510018, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 67069.55392673202732112, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4320.72014582387510018, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2457.42495375295357007, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2850.00679720310472476, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 67069.55392673202732112, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2850.00679720310472476, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46273.04807945701759309, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 15582
@@ -10769,41 +10642,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala94() {
   double likelihood = 159.68226128022794796;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -246.01961353888373196;
-  grad_ll[1] = 46.20482358020394287;
-  grad_ll[2] = -84.31654756283060692;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -246.01961353888373196;
+  geometry->gradient_log_likelihood[1] = 46.20482358020394287;
+  geometry->gradient_log_likelihood[2] = -84.31654756283060692;
 
-  FI[0 * ldfi + 0] = 124023.72645367879886180;
-  FI[0 * ldfi + 1] = 4320.72014582387510018;
-  FI[0 * ldfi + 2] = 67069.55392673202732112;
-  FI[1 * ldfi + 0] = 4320.72014582387510018;
-  FI[1 * ldfi + 1] = 2457.42495375295357007;
-  FI[1 * ldfi + 2] = 2850.00679720310472476;
-  FI[2 * ldfi + 0] = 67069.55392673202732112;
-  FI[2 * ldfi + 1] = 2850.00679720310472476;
-  FI[2 * ldfi + 2] = 46273.04807945701759309;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 124023.72645367879886180;
+  geometry->FI[0 * geometry->ldfi + 1] = 4320.72014582387510018;
+  geometry->FI[0 * geometry->ldfi + 2] = 67069.55392673202732112;
+  geometry->FI[1 * geometry->ldfi + 0] = 4320.72014582387510018;
+  geometry->FI[1 * geometry->ldfi + 1] = 2457.42495375295357007;
+  geometry->FI[1 * geometry->ldfi + 2] = 2850.00679720310472476;
+  geometry->FI[2 * geometry->ldfi + 0] = 67069.55392673202732112;
+  geometry->FI[2 * geometry->ldfi + 1] = 2850.00679720310472476;
+  geometry->FI[2 * geometry->ldfi + 2] = 46273.04807945701759309;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10830,13 +10706,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala94() {
 static void test_ode_likelihood_fitzhugh_simp_mmala95() {
   // Input argument
   double params[] = { 0.19560563407155393, 0.13853795751913645, 3.00669675332415576 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10844,44 +10720,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala95() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.92275151110467846, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 569.37277723466934276, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 54.21480150575270329, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 166.31847288615364278, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 569.37277723466934276, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 54.21480150575270329, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 166.31847288615364278, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 113664.75185526689165272, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4304.26012459820231015, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 63048.03800953555764863, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4304.26012459820231015, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2421.23203922878019512, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3013.63426625138799864, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 63048.03800953555764863, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3013.63426625138799864, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45831.65796215079899412, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 113664.75185526689165272, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4304.26012459820231015, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 63048.03800953555764863, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4304.26012459820231015, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2421.23203922878019512, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3013.63426625138799864, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 63048.03800953555764863, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3013.63426625138799864, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45831.65796215079899412, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 18677
@@ -10891,41 +10763,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala95() {
   double likelihood = 157.92275151110467846;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 569.37277723466934276;
-  grad_ll[1] = 54.21480150575270329;
-  grad_ll[2] = 166.31847288615364278;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 569.37277723466934276;
+  geometry->gradient_log_likelihood[1] = 54.21480150575270329;
+  geometry->gradient_log_likelihood[2] = 166.31847288615364278;
 
-  FI[0 * ldfi + 0] = 113664.75185526689165272;
-  FI[0 * ldfi + 1] = 4304.26012459820231015;
-  FI[0 * ldfi + 2] = 63048.03800953555764863;
-  FI[1 * ldfi + 0] = 4304.26012459820231015;
-  FI[1 * ldfi + 1] = 2421.23203922878019512;
-  FI[1 * ldfi + 2] = 3013.63426625138799864;
-  FI[2 * ldfi + 0] = 63048.03800953555764863;
-  FI[2 * ldfi + 1] = 3013.63426625138799864;
-  FI[2 * ldfi + 2] = 45831.65796215079899412;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 113664.75185526689165272;
+  geometry->FI[0 * geometry->ldfi + 1] = 4304.26012459820231015;
+  geometry->FI[0 * geometry->ldfi + 2] = 63048.03800953555764863;
+  geometry->FI[1 * geometry->ldfi + 0] = 4304.26012459820231015;
+  geometry->FI[1 * geometry->ldfi + 1] = 2421.23203922878019512;
+  geometry->FI[1 * geometry->ldfi + 2] = 3013.63426625138799864;
+  geometry->FI[2 * geometry->ldfi + 0] = 63048.03800953555764863;
+  geometry->FI[2 * geometry->ldfi + 1] = 3013.63426625138799864;
+  geometry->FI[2 * geometry->ldfi + 2] = 45831.65796215079899412;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10952,13 +10827,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala95() {
 static void test_ode_likelihood_fitzhugh_simp_mmala96() {
   // Input argument
   double params[] = { 0.20109506246132688, 0.13380992011813439, 2.99872763986831004 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -10966,44 +10841,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala96() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.04200683278341444, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 458.59398102558469645, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 63.62374837329626587, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 190.78359886281430136, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 458.59398102558469645, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 63.62374837329626587, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 190.78359886281430136, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 116716.19540705546387471, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 3852.49554305215588101, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 64289.98201258561311988, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 3852.49554305215588101, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2400.26012642081059312, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 2650.63245171469907291, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 64289.98201258561311988, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 2650.63245171469907291, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45996.30199597292812541, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 116716.19540705546387471, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 3852.49554305215588101, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 64289.98201258561311988, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 3852.49554305215588101, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2400.26012642081059312, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 2650.63245171469907291, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 64289.98201258561311988, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 2650.63245171469907291, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45996.30199597292812541, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 2598
@@ -11013,41 +10884,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala96() {
   double likelihood = 159.04200683278341444;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 458.59398102558469645;
-  grad_ll[1] = 63.62374837329626587;
-  grad_ll[2] = 190.78359886281430136;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 458.59398102558469645;
+  geometry->gradient_log_likelihood[1] = 63.62374837329626587;
+  geometry->gradient_log_likelihood[2] = 190.78359886281430136;
 
-  FI[0 * ldfi + 0] = 116716.19540705546387471;
-  FI[0 * ldfi + 1] = 3852.49554305215588101;
-  FI[0 * ldfi + 2] = 64289.98201258561311988;
-  FI[1 * ldfi + 0] = 3852.49554305215588101;
-  FI[1 * ldfi + 1] = 2400.26012642081059312;
-  FI[1 * ldfi + 2] = 2650.63245171469907291;
-  FI[2 * ldfi + 0] = 64289.98201258561311988;
-  FI[2 * ldfi + 1] = 2650.63245171469907291;
-  FI[2 * ldfi + 2] = 45996.30199597292812541;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 116716.19540705546387471;
+  geometry->FI[0 * geometry->ldfi + 1] = 3852.49554305215588101;
+  geometry->FI[0 * geometry->ldfi + 2] = 64289.98201258561311988;
+  geometry->FI[1 * geometry->ldfi + 0] = 3852.49554305215588101;
+  geometry->FI[1 * geometry->ldfi + 1] = 2400.26012642081059312;
+  geometry->FI[1 * geometry->ldfi + 2] = 2650.63245171469907291;
+  geometry->FI[2 * geometry->ldfi + 0] = 64289.98201258561311988;
+  geometry->FI[2 * geometry->ldfi + 1] = 2650.63245171469907291;
+  geometry->FI[2 * geometry->ldfi + 2] = 45996.30199597292812541;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11074,13 +10948,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala96() {
 static void test_ode_likelihood_fitzhugh_simp_mmala97() {
   // Input argument
   double params[] = { 0.21309990731816281, 0.14012620911627793, 2.98378925940434936 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11088,44 +10962,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala97() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.94194297928538617, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -60.19864537441032581, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 38.74955775706543193, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 56.41464276334857431, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -60.19864537441032581, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 38.74955775706543193, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 56.41464276334857431, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 124737.83717513768351637, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 5491.20427470616232313, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 67290.98189970492967404, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 5491.20427470616232313, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2564.85224786590515578, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3606.03429165224633834, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 67290.98189970492967404, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3606.03429165224633834, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 46224.58920365734957159, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 124737.83717513768351637, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 5491.20427470616232313, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 67290.98189970492967404, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 5491.20427470616232313, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2564.85224786590515578, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3606.03429165224633834, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 67290.98189970492967404, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3606.03429165224633834, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 46224.58920365734957159, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 11374
@@ -11135,41 +11005,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala97() {
   double likelihood = 159.94194297928538617;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -60.19864537441032581;
-  grad_ll[1] = 38.74955775706543193;
-  grad_ll[2] = 56.41464276334857431;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -60.19864537441032581;
+  geometry->gradient_log_likelihood[1] = 38.74955775706543193;
+  geometry->gradient_log_likelihood[2] = 56.41464276334857431;
 
-  FI[0 * ldfi + 0] = 124737.83717513768351637;
-  FI[0 * ldfi + 1] = 5491.20427470616232313;
-  FI[0 * ldfi + 2] = 67290.98189970492967404;
-  FI[1 * ldfi + 0] = 5491.20427470616232313;
-  FI[1 * ldfi + 1] = 2564.85224786590515578;
-  FI[1 * ldfi + 2] = 3606.03429165224633834;
-  FI[2 * ldfi + 0] = 67290.98189970492967404;
-  FI[2 * ldfi + 1] = 3606.03429165224633834;
-  FI[2 * ldfi + 2] = 46224.58920365734957159;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 124737.83717513768351637;
+  geometry->FI[0 * geometry->ldfi + 1] = 5491.20427470616232313;
+  geometry->FI[0 * geometry->ldfi + 2] = 67290.98189970492967404;
+  geometry->FI[1 * geometry->ldfi + 0] = 5491.20427470616232313;
+  geometry->FI[1 * geometry->ldfi + 1] = 2564.85224786590515578;
+  geometry->FI[1 * geometry->ldfi + 2] = 3606.03429165224633834;
+  geometry->FI[2 * geometry->ldfi + 0] = 67290.98189970492967404;
+  geometry->FI[2 * geometry->ldfi + 1] = 3606.03429165224633834;
+  geometry->FI[2 * geometry->ldfi + 2] = 46224.58920365734957159;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11196,13 +11069,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala97() {
 static void test_ode_likelihood_fitzhugh_simp_mmala98() {
   // Input argument
   double params[] = { 0.20773937121915301, 0.18240782470335165, 2.98984039036181581 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11210,44 +11083,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala98() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.71424003940961711, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], -172.26845073712905787, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], -78.36090362611501803, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], -103.20557463886859750, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], -172.26845073712905787, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], -78.36090362611501803, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], -103.20557463886859750, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 124053.79830385677632876, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 11947.60446071250589739, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 66624.05175091302953660, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 11947.60446071250589739, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 3586.95077369012869895, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 7843.25910784340612736, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 66624.05175091302953660, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 7843.25910784340612736, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45716.74118541301140795, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 124053.79830385677632876, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 11947.60446071250589739, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 66624.05175091302953660, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 11947.60446071250589739, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 3586.95077369012869895, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 7843.25910784340612736, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 66624.05175091302953660, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 7843.25910784340612736, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45716.74118541301140795, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 9385
@@ -11257,41 +11126,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala98() {
   double likelihood = 159.71424003940961711;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = -172.26845073712905787;
-  grad_ll[1] = -78.36090362611501803;
-  grad_ll[2] = -103.20557463886859750;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = -172.26845073712905787;
+  geometry->gradient_log_likelihood[1] = -78.36090362611501803;
+  geometry->gradient_log_likelihood[2] = -103.20557463886859750;
 
-  FI[0 * ldfi + 0] = 124053.79830385677632876;
-  FI[0 * ldfi + 1] = 11947.60446071250589739;
-  FI[0 * ldfi + 2] = 66624.05175091302953660;
-  FI[1 * ldfi + 0] = 11947.60446071250589739;
-  FI[1 * ldfi + 1] = 3586.95077369012869895;
-  FI[1 * ldfi + 2] = 7843.25910784340612736;
-  FI[2 * ldfi + 0] = 66624.05175091302953660;
-  FI[2 * ldfi + 1] = 7843.25910784340612736;
-  FI[2 * ldfi + 2] = 45716.74118541301140795;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 124053.79830385677632876;
+  geometry->FI[0 * geometry->ldfi + 1] = 11947.60446071250589739;
+  geometry->FI[0 * geometry->ldfi + 2] = 66624.05175091302953660;
+  geometry->FI[1 * geometry->ldfi + 0] = 11947.60446071250589739;
+  geometry->FI[1 * geometry->ldfi + 1] = 3586.95077369012869895;
+  geometry->FI[1 * geometry->ldfi + 2] = 7843.25910784340612736;
+  geometry->FI[2 * geometry->ldfi + 0] = 66624.05175091302953660;
+  geometry->FI[2 * geometry->ldfi + 1] = 7843.25910784340612736;
+  geometry->FI[2 * geometry->ldfi + 2] = 45716.74118541301140795;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11318,13 +11190,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala98() {
 static void test_ode_likelihood_fitzhugh_simp_mmala99() {
   // Input argument
   double params[] = { 0.20050418516664048, 0.14527855229055522, 3.00085566193014497 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11332,44 +11204,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala99() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.68090574680837790, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 333.94176600531193344, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 34.70059302182787775, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 93.67354151082952285, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 333.94176600531193344, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 34.70059302182787775, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 93.67354151082952285, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 117047.86330300607369281, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 5581.59181188911679783, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 64321.94419295326224528, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 5581.59181188911679783, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2551.80001488529660492, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3823.16593788290037992, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 64321.94419295326224528, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3823.16593788290037992, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45895.40815867365745362, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 117047.86330300607369281, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 5581.59181188911679783, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 64321.94419295326224528, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 5581.59181188911679783, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2551.80001488529660492, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3823.16593788290037992, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 64321.94419295326224528, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3823.16593788290037992, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45895.40815867365745362, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 238
@@ -11379,41 +11247,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala99() {
   double likelihood = 159.68090574680837790;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 333.94176600531193344;
-  grad_ll[1] = 34.70059302182787775;
-  grad_ll[2] = 93.67354151082952285;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 333.94176600531193344;
+  geometry->gradient_log_likelihood[1] = 34.70059302182787775;
+  geometry->gradient_log_likelihood[2] = 93.67354151082952285;
 
-  FI[0 * ldfi + 0] = 117047.86330300607369281;
-  FI[0 * ldfi + 1] = 5581.59181188911679783;
-  FI[0 * ldfi + 2] = 64321.94419295326224528;
-  FI[1 * ldfi + 0] = 5581.59181188911679783;
-  FI[1 * ldfi + 1] = 2551.80001488529660492;
-  FI[1 * ldfi + 2] = 3823.16593788290037992;
-  FI[2 * ldfi + 0] = 64321.94419295326224528;
-  FI[2 * ldfi + 1] = 3823.16593788290037992;
-  FI[2 * ldfi + 2] = 45895.40815867365745362;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 117047.86330300607369281;
+  geometry->FI[0 * geometry->ldfi + 1] = 5581.59181188911679783;
+  geometry->FI[0 * geometry->ldfi + 2] = 64321.94419295326224528;
+  geometry->FI[1 * geometry->ldfi + 0] = 5581.59181188911679783;
+  geometry->FI[1 * geometry->ldfi + 1] = 2551.80001488529660492;
+  geometry->FI[1 * geometry->ldfi + 2] = 3823.16593788290037992;
+  geometry->FI[2 * geometry->ldfi + 0] = 64321.94419295326224528;
+  geometry->FI[2 * geometry->ldfi + 1] = 3823.16593788290037992;
+  geometry->FI[2 * geometry->ldfi + 2] = 45895.40815867365745362;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11440,13 +11311,13 @@ static void test_ode_proposal_fitzhugh_simp_mmala99() {
 static void test_ode_likelihood_fitzhugh_simp_mmala100() {
   // Input argument
   double params[] = { 0.19364349023846725, 0.14113925065681751, 3.01110462454210337 };
+  size_t block[] = { 0, 1, 2 };
   // Output arguments
   double likelihood;
-  double * serdata;
-  size_t size;
+  gmcmc_geometry_simp_mmala * geometry;
 
   // Call test function
-  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, &likelihood, (void **)&serdata, &size);
+  int error = gmcmc_ode_likelihood_simp_mmala(data, model, params, 3, block, &likelihood, (void **)&geometry);
 
   // Check return value
   CU_ASSERT(error == 0);
@@ -11454,44 +11325,40 @@ static void test_ode_likelihood_fitzhugh_simp_mmala100() {
   // Check log likelihood
   CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.54512788072742069, 1.0e-06);
 
-  // Check serialised data
-  CU_ASSERT_FATAL(serdata != NULL);
-  const size_t ldfi = (3u + 1u) & ~1u;
-  CU_ASSERT_EQUAL(size, (3 + 3) * ldfi * sizeof(double));
-
-  // Unpack serialised data
-  const double * grad_ll = &serdata[0];
-  const double * grad_log_prior = &grad_ll[ldfi];
-  const double * FI = &grad_log_prior[ldfi];
-  const double * hessian_log_prior = &FI[3 * ldfi];
+  // Check geometry
+  CU_ASSERT_FATAL(geometry != NULL);
 
   // Check gradient log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[0], 503.99358480012119799, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[1], 43.77304169833136882, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_ll[2], 82.13342987589982158, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[0], 503.99358480012119799, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[1], 43.77304169833136882, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_likelihood[2], 82.13342987589982158, 1.0e-06);
 
   // Check gradient log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(grad_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->gradient_log_prior[2], 0.00000000000000000, 1.0e-06);
 
   // Check fisher information
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 0], 112712.02739177504554391, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 1], 4610.32006266670396144, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[0 * ldfi + 2], 62636.01614012375648599, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 0], 4610.32006266670396144, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 1], 2441.46951573326077778, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[1 * ldfi + 2], 3244.40293247949421129, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 0], 62636.01614012375648599, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 1], 3244.40293247949421129, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(FI[2 * ldfi + 2], 45762.00810670810460579, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 0], 112712.02739177504554391, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 1], 4610.32006266670396144, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[0 * geometry->ldfi + 2], 62636.01614012375648599, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 0], 4610.32006266670396144, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 1], 2441.46951573326077778, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[1 * geometry->ldfi + 2], 3244.40293247949421129, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 0], 62636.01614012375648599, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 1], 3244.40293247949421129, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->FI[2 * geometry->ldfi + 2], 45762.00810670810460579, 1.0e-06);
 
   // Check hessian log prior
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[0], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[1], 0.00000000000000000, 1.0e-06);
+  CU_ASSERT_DOUBLE_EQUAL_REL(geometry->hessian_log_prior[2], 0.00000000000000000, 1.0e-06);
 
-  free(serdata);
+  free(geometry->gradient_log_likelihood);
+  free(geometry->gradient_log_prior);
+  free(geometry->hessian_log_prior);
+  free(geometry->FI);
+  free(geometry);
 }
 
 // Sample number 6740
@@ -11501,41 +11368,44 @@ static void test_ode_proposal_fitzhugh_simp_mmala100() {
   double likelihood = 157.54512788072742069;
   double temperature = 1.00000000000000000;
   double stepsize = 1.35674619227120341;
-  const size_t ldfi = (3 + 1u) & ~1u;
-  double serdata[(3 + 3) * ldfi * sizeof(double)];
-  double * grad_ll = &serdata[0];
-  double * grad_log_prior = &grad_ll[ldfi];
-  double * FI = &grad_log_prior[ldfi];
-  double * hessian_log_prior = &FI[3 * ldfi];
 
-  grad_ll[0] = 503.99358480012119799;
-  grad_ll[1] = 43.77304169833136882;
-  grad_ll[2] = 82.13342987589982158;
+  gmcmc_geometry_simp_mmala * geometry;
+  CU_ASSERT_FATAL((geometry = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) != NULL);
+  CU_ASSERT_FATAL((geometry->gradient_log_likelihood = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->gradient_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->hessian_log_prior = malloc(3 * sizeof(double))) != NULL &&
+                  (geometry->FI = malloc((geometry->ldfi = (3 + 1u) & ~1u) * 3 * sizeof(double))) != NULL);
+  size_t block[] = { 0, 1, 2 };
 
-  grad_log_prior[0] = 0.00000000000000000;
-  grad_log_prior[1] = 0.00000000000000000;
-  grad_log_prior[2] = 0.00000000000000000;
+  geometry->gradient_log_likelihood[0] = 503.99358480012119799;
+  geometry->gradient_log_likelihood[1] = 43.77304169833136882;
+  geometry->gradient_log_likelihood[2] = 82.13342987589982158;
 
-  FI[0 * ldfi + 0] = 112712.02739177504554391;
-  FI[0 * ldfi + 1] = 4610.32006266670396144;
-  FI[0 * ldfi + 2] = 62636.01614012375648599;
-  FI[1 * ldfi + 0] = 4610.32006266670396144;
-  FI[1 * ldfi + 1] = 2441.46951573326077778;
-  FI[1 * ldfi + 2] = 3244.40293247949421129;
-  FI[2 * ldfi + 0] = 62636.01614012375648599;
-  FI[2 * ldfi + 1] = 3244.40293247949421129;
-  FI[2 * ldfi + 2] = 45762.00810670810460579;
+  geometry->gradient_log_prior[0] = 0.00000000000000000;
+  geometry->gradient_log_prior[1] = 0.00000000000000000;
+  geometry->gradient_log_prior[2] = 0.00000000000000000;
 
-  hessian_log_prior[0] = 0.00000000000000000;
-  hessian_log_prior[1] = 0.00000000000000000;
-  hessian_log_prior[2] = 0.00000000000000000;
+  geometry->FI[0 * geometry->ldfi + 0] = 112712.02739177504554391;
+  geometry->FI[0 * geometry->ldfi + 1] = 4610.32006266670396144;
+  geometry->FI[0 * geometry->ldfi + 2] = 62636.01614012375648599;
+  geometry->FI[1 * geometry->ldfi + 0] = 4610.32006266670396144;
+  geometry->FI[1 * geometry->ldfi + 1] = 2441.46951573326077778;
+  geometry->FI[1 * geometry->ldfi + 2] = 3244.40293247949421129;
+  geometry->FI[2 * geometry->ldfi + 0] = 62636.01614012375648599;
+  geometry->FI[2 * geometry->ldfi + 1] = 3244.40293247949421129;
+  geometry->FI[2 * geometry->ldfi + 2] = 45762.00810670810460579;
 
-  // Output arguments
+  geometry->hessian_log_prior[0] = 0.00000000000000000;
+  geometry->hessian_log_prior[1] = 0.00000000000000000;
+  geometry->hessian_log_prior[2] = 0.00000000000000000;
+
+ // Output arguments
   size_t ldc = (3 + 1u) & ~1u;
-  double mean[3], covariance[ldc * 3];
+  double mean[3];
+  double covariance[3 * ldc];
 
   // Call test function
-  int error = gmcmc_proposal_simp_mmala(3, params, likelihood, temperature, stepsize, serdata, mean, covariance, ldc);
+  int error = gmcmc_proposal_simp_mmala(3, block, params, likelihood, temperature, stepsize, geometry, mean, covariance, ldc);
 
   // Check return value
   CU_ASSERT(error == 0);

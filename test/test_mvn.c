@@ -49,6 +49,7 @@ static void test_mvn_sample0() {
                       9.262621609097568, 11.603005022466061, -1.117456379707958, 10.081095682477658,
                      -4.625091506787965, -1.117456379707958,  4.506432405029324, -2.394987833402893,
                      10.644757941358025, 10.081095682477658, -2.394987833402893, 11.378597393300055 };
+  size_t block[] = { 0, 1, 2, 3 };
 
   // Seed the RNG
   gmcmc_prng64_seed(rng, 3421);
@@ -59,7 +60,7 @@ static void test_mvn_sample0() {
   int error;
   for (size_t i = 0; i < N; i++) {
     // Generate sample
-    if ((error = gmcmc_mvn_sample(4, mu, sigma, 4, rng, &X[i * ldx])) != 0)
+    if ((error = gmcmc_mvn_sample(4, mu, sigma, 4, rng, block, &X[i * ldx])) != 0)
       GMCMC_ERROR_VOID("Failed to create sample", error);
 
     // Calculate mean

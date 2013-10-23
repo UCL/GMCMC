@@ -4,6 +4,7 @@
 #include <gmcmc/gmcmc_errno.h>
 #include <gmcmc/gmcmc_ode.h>
 #include <gmcmc/gmcmc_proposal.h>
+#include <gmcmc/gmcmc_geometry.h>
 
 #include <stdlib.h>
 

@@ -1,6 +1,6 @@
 #include <gmcmc/gmcmc_ode.h>
-#include <gmcmc/gmcmc_geometry.h>
 #include <gmcmc/gmcmc_errno.h>
+#include <gmcmc/gmcmc_geometry.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -33,24 +33,26 @@ static inline double sum(size_t n, const double * x) {
  *
  * @param [in]  dataset     dataset
  * @param [in]  model       model to evaluate
- * @param [in]  n           number of parameters in the current block
- * @param [in]  block       indices of the parameters in the current block
  * @param [in]  params      current parameter values to evaluate the model
+ * @param [in]  n           number of parameters in the current block
+ * @param [in]  block       indices of the parameters in the current block (may
+ *                            be NULL if there is no blocking)
  * @param [out] likelihood  likelihood value
  * @param [out] geometry    geometry for the current parameter block (may be
  *                            NULL if no geometry is required by the current
  *                            stage of the algorithm)
  *
  * @return 0 on success,
- *         greater than zero on fatal error,
- *         less than zero on non-fatal error.
+ *         GMCMC_ENOMEM if there is not enough memory to allocate temporary
+ *                        variables,
+ *         GMCMC_ELINAL if there was an unrecoverable error in an external
+ *                        linear algebra routine.
  */
 static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * model,
-                                     size_t n, const size_t * block, const double * params,
-                                     double * likelihood, void ** geometry) {
+                             const double * params, size_t n, const size_t * block,
+                             double * likelihood, void ** geometry) {
   *likelihood = -INFINITY;
 
-  // This is the number of parameters in the model used to calculate the log likelihood
   const size_t num_params = gmcmc_model_get_num_params(model);
 
   // Get a pointer to the ODE model-specific data
@@ -72,41 +74,36 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
   if ((simdata = malloc(lds * num_species * sizeof(double))) == NULL)
     GMCMC_ERROR("Failed to allocate simulated data", GMCMC_ENOMEM);
 
-  // Allocate sensitivities wrt parameters in the current block
+  // Allocate sensitivities for the parameters in the current block
   double * sensitivities;
   if ((sensitivities = malloc(lds * num_species * n * sizeof(double))) == NULL) {
     free(simdata);
     GMCMC_ERROR("Failed to allocate sensitivities", GMCMC_ENOMEM);
   }
 
-  // Get the initial conditions from the model
+  // Copy sensitivity initial conditions into sensitivities
   const double * ics = gmcmc_ode_model_get_ics(ode_model);
   if (ics == NULL) {
     // Initial conditions are being inferred as part of the parameter vector
     const size_t num_real_params = num_params - num_species;
-    ics = &params[num_params - num_species];
+    ics = &params[num_real_params];
 
-    // Initialise the sensitivities
-    for (size_t j = 0; j < n; j++) {
-      if (block[j] < num_real_params)
-        sensitivities[block[j] * lds] = 0.0;
-      else
-        sensitivities[];
-    }
-    for (size_t j = 0; j < n * num_species; j++) {
-      if (block[j]
-      sensitivities[j * lds] = 0.0;
-    }
-    double * sensitivities_ics = &sensitivities[num_real_params * num_species * lds];
-    for (size_t j = 0; j < num_species; j++) {
-      for (size_t i = 0; i < num_species; i++)
-        sensitivities_ics[(j * num_species + i) * lds] = (i == j) ? 1.0 : 0.0;
+    // For each parameter (or initial condition) in the block
+    for (size_t i = 0; i < n; i++) {
+      if (block[i] < num_real_params) {
+        // parameter in block is a real parameter
+        for (size_t j = 0; j < num_species; j++)
+          sensitivities[(i * num_species + j) * lds] = 0.0;
+      }
+      else {
+        // parameter in block is an initial condition
+        for (size_t j = 0; j < num_species; j++)
+          sensitivities[(i * num_species + j) * lds] = (block[i] == j) ? 1.0 : 0.0;
+      }
     }
   }
   else {
-    // Initial conditions are fixed in model
-
-    // Initialise sensitivities of initial conditions
+    // Initial conditions are fixed
     for (size_t j = 0; j < n * num_species; j++)
       sensitivities[j * lds] = 0.0;
   }
@@ -121,8 +118,8 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
   int error;
   if ((error = cvodes_solve(gmcmc_ode_model_get_rhs(ode_model),
                             gmcmc_ode_model_get_rhs_sens(ode_model),
-                            num_timepoints, num_species, num_params,
-                            timepoints, params, &options,
+                            num_timepoints, num_species, num_params, n,
+                            timepoints, params, block, &options,
                             simdata, sensitivities, lds)) != 0) {
     free(sensitivities);
     free(simdata);
@@ -159,31 +156,32 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
 
   free(ll);
 
+  // Calculate the geometry only if required
   if (geometry != NULL) {
-    // Calculate the gradient of the log-likelihood using the parameters in the current block, if set
+    // Calculate the gradient of the log-likelihood
     gmcmc_geometry_simp_mmala * g;
     if ((*geometry = g = calloc(1, sizeof(gmcmc_geometry_simp_mmala))) == NULL) {
-      free(sensitivities);
       free(simdata);
+      free(sensitivities);
       GMCMC_ERROR("Failed to allocate gradient structure", GMCMC_ENOMEM);
     }
-    if ((g->gradient_log_likelihood = malloc(n * sizeof(double))) == NULL ||
-        (g->gradient_log_prior = malloc(n * sizeof(double))) == NULL ||
+    if ((g->gradient_log_prior = malloc(n * sizeof(double))) == NULL ||
+        (g->gradient_log_likelihood = malloc(n * sizeof(double))) == NULL ||
         (g->hessian_log_prior = malloc(n * sizeof(double))) == NULL ||
         (g->FI = malloc((g->ldfi = (n + 1u) & ~1u) * n * sizeof(double))) == NULL) {
-      free(g->FI);
-      free(g->hessian_log_prior);
       free(g->gradient_log_prior);
       free(g->gradient_log_likelihood);
+      free(g->hessian_log_prior);
+      free(g->FI);
       free(g);
-      free(sensitivities);
       free(simdata);
+      free(sensitivities);
       GMCMC_ERROR("Failed to allocate gradient vectors", GMCMC_ENOMEM);
     }
 
     // Calculate gradients for each of the parameters in the block i.e. d(LL)/d(Parameter)
     for (size_t j = 0; j < n; j++) {
-      const double * sens_j; = &sensitivities[j * num_species * lds];      // Sensitivities of parameter j
+      const double * sens_j = &sensitivities[j * num_species * lds];      // Sensitivities of parameter block[j]
 
       // Calculate the gradient of the log-likelihood
       for (size_t i = 0; i < num_observed; i++) {
@@ -192,11 +190,11 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
       }
 
       // Calculate gradient of the log prior
-      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
-      g->gradient_log_prior[j] = gmcmc_distribution_log_pdf_1st_order(prior, params[j]);
+      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, block[j]);
+      g->gradient_log_prior[j] = gmcmc_distribution_log_pdf_1st_order(prior, params[block[j]]);
 
       // Calculate the Hessian of the log prior
-      g->hessian_log_prior[j] = gmcmc_distribution_log_pdf_2nd_order(prior, params[j]);
+      g->hessian_log_prior[j] = gmcmc_distribution_log_pdf_2nd_order(prior, params[block[j]]);
 
       // Calculate metric tensor
       for (size_t i = j; i < n; i++) {
