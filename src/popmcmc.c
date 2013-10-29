@@ -17,13 +17,14 @@
  * It is private to this file.
  */
 typedef struct {
+  uint32_t num_params;          /**< Number of parameters */
+  uint32_t num_blocks;          /**< Number of blocks */
   double temperature;           /**< Chain temperature */
   double * stepsize;            /**< Parameter step size for each block */
   uint64_t * accepted_mutation; /**< Number of samples accepted for each block */
   uint64_t * attempted_mutation;/**< Number of total sample proposals for each block */
   uint64_t accepted_exchange;   /**< Number of chain swaps accepted */
   uint64_t attempted_exchange;  /**< Number of chain swaps proposed */
-  uint32_t n;                   /**< Number of parameters */
   double * params;              /**< Parameter vector */
   double * log_prior;           /**< Log prior vector */
   double log_likelihood;        /**< Log likelihood value */
@@ -96,143 +97,138 @@ static inline void gmcmc_log_prior(const gmcmc_model * model, size_t n,
 }
 
 /**
- * Creates a new chain object.
+ * Allocates a new chain object.  Memory is allocated for the parameters, log
+ * prior, block stepsizes and block attempted mutation and accepted mutation
+ * counters.  All fields are initialised except the parameters, log prior and
+ * log likelihood.
  *
- * @param [out] chain        a pointer to the chain to create
- * @param [in]  model        the model to create the chain for
- * @param [in]  data         the dataset
+ * @param [out] chain        a pointer to the chain to allocate
  * @param [in]  temperature  the temperature for the chain [0..1]
- * @param [in]  rng          a random number generator to initialise the chain
+ * @param [in]  model        the model to create the chain for
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to create a new chain
  */
-static inline int gmcmc_chain_create(gmcmc_chain ** chain, const gmcmc_model * model,
-                                     const void * data, double temperature,
-                                     gmcmc_likelihood_function likelihood,
-                                     const gmcmc_prng64 * rng) {
+static inline int gmcmc_chain_alloc(gmcmc_chain ** chain, double temperature,
+                                    const gmcmc_model * model) {
   // Allocate memory for chain structure
-  if ((*chain = calloc(1, sizeof(gmcmc_chain))) == NULL)
+  if ((*chain = calloc(1, sizeof(gmcmc_chain))) == NULL)        // Initialise all pointers to NULL and fields to zero
     GMCMC_ERROR("Unable to allocate memory for chain", GMCMC_ENOMEM);
 
-  // Allocate memory for chain parameter and log prior vectors
-  const size_t num_params = gmcmc_model_get_num_params(model);
-  if (((*chain)->params = malloc(num_params * sizeof(double))) == NULL) {
-    free(*chain);
-    GMCMC_ERROR("Unable to allocate memory for chain parameters", GMCMC_ENOMEM);
-  }
-  if (((*chain)->log_prior = malloc(num_params * sizeof(double))) == NULL) {
-    free((*chain)->params);
-    free(*chain);
-    GMCMC_ERROR("Unable to allocate memory for chain log prior", GMCMC_ENOMEM);
-  }
-
-  // Set up starting parameters
-  (*chain)->n = num_params;
-  const double * initial_params = gmcmc_model_get_params(model);
-  if (initial_params == NULL) {
-    // Randomly sample from prior
-    for (size_t j = 0; j < num_params; j++) {
-      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
-      (*chain)->params[j] = gmcmc_distribution_sample(prior, rng);
-    }
-  }
-  else {
-    // Use given parameters
-    memcpy((*chain)->params, initial_params, num_params * sizeof(double));
-  }
+  // Number of parameters and blocks
+  (*chain)->num_params = gmcmc_model_get_num_params(model);
+  (*chain)->num_blocks = gmcmc_model_get_num_blocks(model);
 
   // Set up chain temperature
   (*chain)->temperature = temperature;
 
   // Set up starting parameter stepsizes for each block
-  const size_t num_blocks = gmcmc_model_get_num_blocks(model);
-  if (((*chain)->stepsize = malloc(num_blocks * sizeof(double))) == NULL) {
-    free((*chain)->log_prior);
-    free((*chain)->params);
+  if (((*chain)->stepsize = malloc((*chain)->num_blocks * sizeof(double))) == NULL) {
     free(*chain);
     GMCMC_ERROR("Unable to allocate memory for block stepsizes", GMCMC_ENOMEM);
   }
   double stepsize = gmcmc_model_get_stepsize(model);
-  for (size_t i = 0; i < num_blocks; i++)
+  for (size_t i = 0; i < (*chain)->num_blocks; i++)
     (*chain)->stepsize[i] = stepsize;
 
-  // Set up proposal counters for each block
-  if (((*chain)->attempted_mutation = calloc(num_blocks, sizeof(size_t))) == NULL ||
-      ((*chain)->accepted_mutation = calloc(num_blocks, sizeof(size_t))) == NULL) {
+  // Set up proposal counters for each block (calloc initialises them all to zero)
+  if (((*chain)->attempted_mutation = calloc((*chain)->num_blocks, sizeof(uint64_t))) == NULL ||
+      ((*chain)->accepted_mutation = calloc((*chain)->num_blocks, sizeof(uint64_t))) == NULL) {
     free((*chain)->accepted_mutation);
-    free((*chain)->accepted_mutation);
+    free((*chain)->attempted_mutation);
     free((*chain)->stepsize);
-    free((*chain)->log_prior);
-    free((*chain)->params);
     free(*chain);
     GMCMC_ERROR("Unable to allocate memory for block acceptance counters", GMCMC_ENOMEM);
   }
 
-  // Evaluate model at initial parameters to get log prior and likelihood
-
-  // prior = p(M,\theta,...)
-  gmcmc_log_prior(model, num_params, (*chain)->params, NULL, (*chain)->log_prior);
-  double sum_log_prior = sum(num_params, (*chain)->log_prior);
-  if (isinf(sum_log_prior)) {
-    // If the log prior cannot be evaluated it means that the initial parameter
-    // values are incorrect (or that there is a malformed prior distribution
-    // generating values outwith its range).
+  // Allocate memory for chain parameter and log prior vectors but leave them uninitialised
+  if (((*chain)->params = malloc((*chain)->num_params * sizeof(double))) == NULL) {
     free((*chain)->accepted_mutation);
-    free((*chain)->accepted_mutation);
+    free((*chain)->attempted_mutation);
     free((*chain)->stepsize);
-    free((*chain)->params);
-    free((*chain)->log_prior);
     free(*chain);
-    GMCMC_ERROR("Error evaluating log prior for initial parameter values", GMCMC_EINVAL);
+    GMCMC_ERROR("Unable to allocate memory for chain parameters", GMCMC_ENOMEM);
   }
-
-  // likelihood = p(D|M,\theta,...)
-  int error;
-  if ((error = likelihood(data, model, (*chain)->params, num_params, NULL,
-                          &(*chain)->log_likelihood, NULL)) != 0) {
-    // Attempt to evaluate the likelihood of the initial parameters 5 more times before
-    // giving up
-    int i = 0;
-    do {
-      // Sample new values directly from the prior
-      for (size_t k = 0; k < num_params; k++) {
-        const gmcmc_distribution * prior = gmcmc_model_get_prior(model, k);
-        (*chain)->params[k] = gmcmc_distribution_sample(prior, rng);
-      }
-
-      // Evaluate model to get log prior and likelihood
-      // p(M,\theta,...)
-      gmcmc_log_prior(model, num_params, (*chain)->params, NULL, (*chain)->log_prior);
-
-      // p(D|M,\theta,...)
-      error = likelihood(data, model, (*chain)->params, num_params, NULL,
-                         &(*chain)->log_likelihood, NULL);
-    } while (error != 0 && ++i < 5);
-  }
-
-  if (error != 0) {
+  if (((*chain)->log_prior = malloc((*chain)->num_params * sizeof(double))) == NULL) {
+    free((*chain)->params);
     free((*chain)->accepted_mutation);
-    free((*chain)->accepted_mutation);
+    free((*chain)->attempted_mutation);
     free((*chain)->stepsize);
-    free((*chain)->params);
-    free((*chain)->log_prior);
     free(*chain);
-    GMCMC_ERROR("Error evaluating likelihood for initial parameter values", GMCMC_EINVAL);
+    GMCMC_ERROR("Unable to allocate memory for chain log prior", GMCMC_ENOMEM);
   }
 
   return 0;
 }
 
-static inline void gmcmc_chain_destroy(gmcmc_chain * chain) {
-  if (chain == NULL)
-    return;
-  free(chain->accepted_mutation);
-  free(chain->accepted_mutation);
-  free(chain->stepsize);
-  free(chain->params);
-  free(chain->log_prior);
-  free(chain);
+static inline int gmcmc_chain_init(gmcmc_chain * chain, const gmcmc_model * model,
+                                   const void * data, gmcmc_likelihood_function likelihood,
+                                   const gmcmc_prng64 * rng) {
+  // Set up starting parameters
+  const double * params = gmcmc_model_get_params(model);
+  if (params == NULL) {
+    // Randomly sample from prior
+    for (size_t j = 0; j < chain->num_params; j++) {
+      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
+      chain->params[j] = gmcmc_distribution_sample(prior, rng);
+    }
+  }
+  else {
+    // Use given parameters
+    memcpy(chain->params, params, chain->num_params * sizeof(double));
+  }
+
+  // Evaluate model at initial parameters to get log prior and likelihood
+
+  // prior = p(M,\theta,...)
+  gmcmc_log_prior(model, chain->num_params, chain->params, NULL, chain->log_prior);
+  double sum_log_prior = sum(chain->num_params, chain->log_prior);
+  if (isinf(sum_log_prior)) {
+    // If the log prior cannot be evaluated it means that the initial parameter
+    // values are incorrect (or that there is a malformed prior distribution
+    // generating values outwith its range).
+    GMCMC_ERROR("Error evaluating log prior for initial parameter values", GMCMC_EINVAL);
+  }
+
+  // likelihood = p(D|M,\theta,...)
+  int error;
+  if ((error = likelihood(data, model, chain->params, chain->num_params, NULL,
+                          &chain->log_likelihood, NULL)) != 0) {
+    // Attempt to evaluate the likelihood of the initial parameters 5 more times before
+    // giving up
+    int i = 0;
+    do {
+      // Sample new values directly from the prior
+      for (size_t j = 0; j < chain->num_params; j++) {
+        const gmcmc_distribution * prior = gmcmc_model_get_prior(model, j);
+        chain->params[j] = gmcmc_distribution_sample(prior, rng);
+      }
+
+      // Evaluate model to get log prior and likelihood
+      // p(M,\theta,...)
+      gmcmc_log_prior(model, chain->num_params, chain->params, NULL, chain->log_prior);
+
+      // p(D|M,\theta,...)
+      error = likelihood(data, model, chain->params, chain->num_params, NULL,
+                         &chain->log_likelihood, NULL);
+    } while (error != 0 && ++i < 5);
+  }
+
+  if (error != 0)
+    GMCMC_ERROR("Error evaluating likelihood for initial parameter values", GMCMC_EINVAL);
+
+  return 0;
+}
+
+static inline void gmcmc_chain_free(gmcmc_chain * chain) {
+  if (chain != NULL) {
+    free(chain->attempted_mutation);
+    free(chain->accepted_mutation);
+    free(chain->stepsize);
+    free(chain->params);
+    free(chain->log_prior);
+    free(chain);
+  }
 }
 
 /**
@@ -285,13 +281,12 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
 
   int error;
 
-  // Increment counter
-  chain->attempted_mutation++;
-
   const size_t num_params = gmcmc_model_get_num_params(model);
 
   // Check if sampling from prior
   if (chain->temperature == 0.0) {
+
+    chain->attempted_mutation[0]++;
 
     // Update all the parameters at once
     const size_t num_params = gmcmc_model_get_num_params(model);
@@ -332,13 +327,15 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
     chain->log_prior = log_prior;
     chain->log_likelihood = log_likelihood;
 
-    chain->accepted_mutation++;
+    chain->accepted_mutation[0]++;
   }
   else {
     const size_t num_blocks = gmcmc_model_get_num_blocks(model);
     const size_t * blocks = gmcmc_model_get_blocks(model);
     for (size_t i = 0; i < num_blocks; i++) {
       const size_t block_size = gmcmc_model_get_block_size(model, i);
+
+      chain->attempted_mutation[i]++;
 
       // Allocate temporaries for proposal mean and covariance
       double * mean = NULL, * covariance = NULL;
@@ -487,7 +484,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
         free(chain->log_prior);
         chain->log_prior = log_prior;
         chain->log_likelihood = log_likelihood;
-        chain->accepted_mutation++;        // accept proposal
+        chain->accepted_mutation[i]++;        // accept proposal
       }
       else {
         // Proposed parameters rejected

@@ -21,7 +21,7 @@ void acceptance_monitor(const gmcmc_popmcmc_options * options, const gmcmc_model
 
       fputs("Parameter stepsizes:\n", stderr);
       for (size_t k = 0; k < num_blocks; k++)
-        fprintf(stderr, "%15.6f", stepsizes[j * num_blocks + i]);
+        fprintf(stderr, "%15.6f", stepsizes[j * num_blocks + k]);
       fputs("\n\n", stderr);
 
       // Display exchange rate

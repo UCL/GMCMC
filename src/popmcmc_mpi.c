@@ -1,5 +1,5 @@
 static int gmcmc_chain_mpi_send(const gmcmc_chain *, int, int, MPI_Comm);
-static int gmcmc_chain_mpi_recv(gmcmc_chain **, int, int, MPI_Comm);
+static int gmcmc_chain_mpi_recv(gmcmc_chain *, int, int, MPI_Comm);
 
 /**
  * Performs a population MCMC simulation in parallel using MPI.
@@ -29,59 +29,102 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
    * Initialise chains
    */
 
-  // Create an array big enough to hold all the chains in the simulation
-  const size_t num_chains = options->num_temperatures;
-  gmcmc_chain ** chains;
-  if ((chains = calloc(num_chains, sizeof(gmcmc_chain *))) == NULL)     // Use calloc so they're all initialised to NULL
-    GMCMC_ERROR("Unable to allocate chains", GMCMC_ENOMEM);
-
-  // Initialise only the chains needed on each node
-  for (size_t j = rank; j < num_chains; j += size) {
-    if ((error = gmcmc_chain_create(&chains[j], model, data, options->temperatures[j], likelihood, rng)) != 0) {
-      // Destroy any chains already created
-      for (size_t k = rank; k < j; k += size)
-        gmcmc_chain_destroy(chains[k]);
-      free(chains);
-      GMCMC_ERROR("Unable to initialise chains", error);
-    }
-  }
-
-  // Allocate arrays to store the acceptance ratios for all blocks in each temperature
+  const size_t num_chains = options->num_temperatures;  // Number of chains in the simulation
+  const size_t num_local_chains = (num_chains / size) + ((unsigned int)rank < num_chains % size);     // Number of chains on each slave node
   const size_t num_blocks = gmcmc_model_get_num_blocks(model);
-  double * mutations = NULL, * stepsizes = NULL, * exchanges = NULL;
-  if ((mutations = malloc(num_chains * num_blocks * sizeof(double))) == NULL ||
-      (stepsizes = malloc(num_chains * num_blocks * sizeof(double))) == NULL ||
-      (exchanges = malloc(num_chains * sizeof(double))) == NULL) {
-    for (size_t k = 0; k < num_chains; k++)
-      gmcmc_chain_destroy(chains[k]);
-    free(chains);
-    GMCMC_ERROR("Failed to allocate memory for acceptance ratios", GMCMC_ENOMEM);
-  }
 
-  // Burn-in loop
-  for (size_t i = 0; i < options->num_burn_in_samples; i++) {
-    // Update each chain in the population in parallel
-    for (size_t j = rank; j < num_chains; j += size) {
-      if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
-        for (size_t k = 0; k < num_chains; k++)
-          gmcmc_chain_destroy(chains[k]);
+  gmcmc_chain ** chains;
+  double * mutations = NULL, * stepsizes = NULL, * exchanges = NULL;
+  if (rank == 0) {
+    // Create an array big enough to hold all the chains in the simulation
+    if ((chains = malloc(num_chains * sizeof(gmcmc_chain *))) == NULL)
+      GMCMC_ERROR("Unable to allocate chains array", GMCMC_ENOMEM);
+
+    for (size_t j = 0; j < num_chains; j++) {
+      // Allocate each chain
+      if ((error = gmcmc_chain_alloc(&chains[j], options->temperatures[j], model)) != 0) {
+        // Destroy any chains already created
+        for (size_t k = 0; k < j; k++)
+          gmcmc_chain_free(chains[j]);
         free(chains);
-        free(mutations);
-        free(exchanges);
-        free(stepsizes);
-        GMCMC_ERROR("Error updating chains", error);
+        GMCMC_ERROR("Unable to allocate chain", GMCMC_ENOMEM);
+      }
+
+      // Only initialise the chains this node is responsible for updating
+      if (j % size == 0) {
+        if ((error = gmcmc_chain_init(chains[j], model, data, likelihood, rng)) != 0) {
+          // Destroy any chains already created
+          for (size_t k = 0; k < j; k++)
+            gmcmc_chain_free(chains[j]);
+          free(chains);
+          GMCMC_ERROR("Failed to initialise chain", GMCMC_ENOMEM);
+        }
       }
     }
 
-    // Copy all the chains onto node 0
+    if ((mutations = malloc(num_chains * num_blocks * sizeof(double))) == NULL ||
+        (stepsizes = malloc(num_chains * num_blocks * sizeof(double))) == NULL ||
+        (exchanges = malloc(num_chains * sizeof(double))) == NULL) {
+      for (size_t k = 0; k < num_chains; k++)
+        gmcmc_chain_free(chains[k]);
+      free(chains);
+      GMCMC_ERROR("Failed to allocate memory for acceptance ratios", GMCMC_ENOMEM);
+    }
+  }
+  else {
+    // Create an array only for the chains on each node
+    if ((chains = malloc(num_local_chains * sizeof(gmcmc_chain *))) == NULL)
+      GMCMC_ERROR("Unable to allocate chains array", GMCMC_ENOMEM);
+
+    for (size_t i = rank, j = 0; j < num_local_chains; j++, i += size) {
+      // Allocate each chain
+      if ((error = gmcmc_chain_alloc(&chains[j], options->temperatures[i], model)) != 0) {
+        // Destroy any chains already created
+        for (size_t k = 0; k < j; k++)
+          gmcmc_chain_free(chains[j]);
+        free(chains);
+        GMCMC_ERROR("Unable to allocate chain", GMCMC_ENOMEM);
+      }
+
+      // Only initialise the chains this node is responsible for updating
+      if ((error = gmcmc_chain_init(chains[j], model, data, likelihood, rng)) != 0) {
+        // Destroy any chains already created
+        for (size_t k = 0; k < j; k++)
+          gmcmc_chain_free(chains[j]);
+        free(chains);
+        GMCMC_ERROR("Failed to initialise chain", GMCMC_ENOMEM);
+      }
+    }
+  }
+
+
+  /*
+   * Burn-in loop
+   */
+  for (size_t i = 0; i < options->num_burn_in_samples; i++) {
+    // On the master process
     if (rank == 0) {
-      // Loop through all the chains
+      // Update each chain
+      for (size_t j = 0; j < num_chains; j += size) {
+        if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
+          for (size_t k = 0; k < num_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          free(mutations);
+          free(exchanges);
+          free(stepsizes);
+          GMCMC_ERROR("Error updating chains", error);
+        }
+      }
+
+      // Receive all chains from other processes
       for (size_t j = 0; j < num_chains; j++) {
-        if (j % size != (unsigned int)rank) { // If the chain is not already on this node
-          // Receive it from another node (if it is NULL it will be allocated)
-          if ((error = gmcmc_chain_mpi_recv(&chains[j], j % size, j, MPI_COMM_WORLD)) != 0) {
+        // If the chain is not already on this node
+        if (j % size != (unsigned int)rank) {
+          // Receive it from the other node
+          if ((error = gmcmc_chain_mpi_recv(chains[j], j % size, j, MPI_COMM_WORLD)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
+              gmcmc_chain_free(chains[k]);
             free(chains);
             free(mutations);
             free(exchanges);
@@ -90,30 +133,11 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           }
         }
       }
-    }
-    else {
-      // Loop through all the chains that are on this node
-      for (size_t j = rank; j < num_chains; j += size) {
-        // Send the chain to node 0
-        if ((error = gmcmc_chain_mpi_send(chains[j], 0, j, MPI_COMM_WORLD)) != 0) {
-          for (size_t k = 0; k < num_chains; k++)
-            gmcmc_chain_destroy(chains[k]);
-          free(chains);
-          free(mutations);
-          free(exchanges);
-          free(stepsizes);
-          GMCMC_ERROR("Error sending chains", error);
-        }
-      }
-    }
 
-
-    // Do the serial exchange and step size adjustment (and callbacks) on node 0
-    if (rank == 0) {
       // Exchange chains between temperatures
       if ((error = gmcmc_chain_exchange(chains, num_chains, rng)) != 0) {
         for (size_t k = 0; k < num_chains; k++)
-          gmcmc_chain_destroy(chains[k]);
+          gmcmc_chain_free(chains[k]);
         free(chains);
         free(mutations);
         free(exchanges);
@@ -126,27 +150,27 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         double lower_stepsize, upper_stepsize;
         gmcmc_model_get_stepsize_bounds(model, &lower_stepsize, &upper_stepsize);
 
-        // For each population
+        // For each chain in the population
         for (size_t j = 0; j < num_chains; j++) {
-          // For each block in the population
-          for (size_t i = 0; i < num_blocks; i++) {
+          // For each block in the chain
+          for (size_t k = 0; k < num_blocks; k++) {
             // Adjust proposal width for parameter value inference
-            mutations[j * num_blocks + i] = chains[j]->accepted_mutation[i] /
-                                            (double)chains[j]->attempted_mutation[i];
+            mutations[j * num_blocks + k] = chains[j]->accepted_mutation[k] /
+                                            (double)chains[j]->attempted_mutation[k];
 
             // Don't update chain 0 unless it is the only chain
             if (j > 0 || options->num_temperatures == 1) {
-              if (mutations[j * num_blocks + i] < options->lower_acceptance_rate)
-                chains[j]->stepsize[i] = fmax(chains[j]->stepsize[i] * 0.8, lower_stepsize);
-              else if (mutations[j * num_blocks + i] > options->upper_acceptance_rate)
-                chains[j]->stepsize[i] = fmin(chains[j]->stepsize[i] * 1.2, upper_stepsize);
+              if (mutations[j * num_blocks + k] < options->lower_acceptance_rate)
+                chains[j]->stepsize[k] = fmax(chains[j]->stepsize[k] * 0.8, lower_stepsize);
+              else if (mutations[j * num_blocks + k] > options->upper_acceptance_rate)
+                chains[j]->stepsize[k] = fmin(chains[j]->stepsize[k] * 1.2, upper_stepsize);
             }
-            stepsizes[j * num_blocks + i] = chains[j]->stepsize[i];
+            stepsizes[j * num_blocks + k] = chains[j]->stepsize[k];
 
 
             // Reset counters
-            chains[j]->accepted_mutation[i] = 0;
-            chains[j]->attempted_mutation[i] = 0;
+            chains[j]->accepted_mutation[k] = 0;
+            chains[j]->attempted_mutation[k] = 0;
           }
 
           exchanges[j] = chains[j]->accepted_exchange /
@@ -165,7 +189,7 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
                                       chains[j]->params, chains[j]->log_prior,
                                       chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
+              gmcmc_chain_free(chains[k]);
             free(chains);
             free(mutations);
             free(exchanges);
@@ -174,17 +198,15 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           }
         }
       }
-    }
 
-    // Copy chains back onto other nodes
-    if (rank == 0) {
-      // Loop through all the chains
+      // Copy chains back onto other nodes
       for (size_t j = 0; j < num_chains; j++) {
-        if (j % size != (unsigned int)rank) { // If the chain is not already on this node
-          // Send it to another node
+        // If chain does not belong on this node
+        if (j % size != (unsigned int)rank) {
+          // Send it to the other node
           if ((error = gmcmc_chain_mpi_send(chains[j], j % size, j, MPI_COMM_WORLD)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
+              gmcmc_chain_free(chains[k]);
             free(chains);
             free(mutations);
             free(exchanges);
@@ -193,50 +215,69 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           }
         }
       }
-    }
+    }   // rank == 0
     else {
-      // Loop through all the chains that are on this node
-      for (size_t j = rank; j < num_chains; j += size) {
-        // Receive the chain from node 0
-        if ((error = gmcmc_chain_mpi_recv(&chains[j], 0, j, MPI_COMM_WORLD)) != 0) {
-            for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
-            free(chains);
-            free(mutations);
-            free(exchanges);
-            free(stepsizes);
-            GMCMC_ERROR("Error receiving chains", error);
+      // Update each chain in the population in parallel
+      for (size_t j = 0; j < num_local_chains; j++) {
+        if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
+          for (size_t k = 0; k < num_local_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          GMCMC_ERROR("Error updating chains", error);
         }
       }
-    }
+
+      // Send the chains to process 0 to exchange them and adapt the step sizes
+      int tag = rank;
+      for (size_t j = 0; j < num_local_chains; j++, tag += size) {
+        if ((error = gmcmc_chain_mpi_send(chains[j], 0, tag, MPI_COMM_WORLD)) != 0) {
+          for (size_t k = 0; k < num_local_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          GMCMC_ERROR("Error sending chains", error);
+        }
+      }
+
+      // Receive the chains back from node 0
+      tag = rank;
+      for (size_t j = 0; j < num_local_chains; j++, tag += size) {
+        if ((error = gmcmc_chain_mpi_recv(chains[j], 0, tag, MPI_COMM_WORLD)) != 0) {
+          for (size_t k = 0; k < num_local_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          GMCMC_ERROR("Error receiving chains", error);
+        }
+      }
+    }   // rank != 0
 
 
   }     // burn-in
 
   // Posterior
   for (size_t i = 0; i < options->num_posterior_samples; i++) {
-    // Update each chain in the population in parallel
-    for (size_t j = rank; j < num_chains; j += size) {
-      if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
-        for (size_t k = 0; k < num_chains; k++)
-          gmcmc_chain_destroy(chains[k]);
-        free(chains);
-        free(mutations);
-        free(exchanges);
-        free(stepsizes);
-        GMCMC_ERROR("Error updating chains", error);
-      }
-    }
-
-    // Copy all the chains onto node 0
+    // On the master process
     if (rank == 0) {
-      // Loop through all the chains
+      // Update each chain
+      for (size_t j = 0; j < num_chains; j += size) {
+        if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
+          for (size_t k = 0; k < num_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          free(mutations);
+          free(exchanges);
+          free(stepsizes);
+          GMCMC_ERROR("Error updating chains", error);
+        }
+      }
+
+      // Receive all chains from other processes
       for (size_t j = 0; j < num_chains; j++) {
-        if (j % size != (unsigned int)rank) { // If the chain is not already on this node
-          // Receive it from another node (if it is NULL it will be allocated)
-          if ((error = gmcmc_chain_mpi_recv(&chains[j], j % size, j, MPI_COMM_WORLD)) != 0) {
+        // If the chain is not already on this node
+        if (j % size != (unsigned int)rank) {
+          // Receive it from the other node
+          if ((error = gmcmc_chain_mpi_recv(chains[j], j % size, j, MPI_COMM_WORLD)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
+              gmcmc_chain_free(chains[k]);
             free(chains);
             free(mutations);
             free(exchanges);
@@ -245,29 +286,11 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           }
         }
       }
-    }
-    else {
-      // Loop through all the chains that are on this node
-      for (size_t j = rank; j < num_chains; j += size) {
-        // Send the chain to node 0
-        if ((error = gmcmc_chain_mpi_send(chains[j], 0, j, MPI_COMM_WORLD)) != 0) {
-            for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
-            free(chains);
-            free(mutations);
-            free(exchanges);
-            free(stepsizes);
-            GMCMC_ERROR("Error sending chains", error);
-        }
-      }
-    }
 
-
-    if (rank == 0) {
       // Exchange chains between temperatures
       if ((error = gmcmc_chain_exchange(chains, num_chains, rng)) != 0) {
         for (size_t k = 0; k < num_chains; k++)
-          gmcmc_chain_destroy(chains[k]);
+          gmcmc_chain_free(chains[k]);
         free(chains);
         free(mutations);
         free(exchanges);
@@ -275,16 +298,25 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         GMCMC_ERROR("Error exchanging chains", error);
       }
 
-      // Report acceptance ratios
+      // Adjust parameter proposal widths
       if (i % options->adapt_rate == 0) {
-        // For each population
+        double lower_stepsize, upper_stepsize;
+        gmcmc_model_get_stepsize_bounds(model, &lower_stepsize, &upper_stepsize);
+
+        // For each chain in the population
         for (size_t j = 0; j < num_chains; j++) {
-          // For each block
-          for (size_t i = 0; i < num_blocks; i++) {
+          // For each block in the chain
+          for (size_t k = 0; k < num_blocks; k++) {
             // Adjust proposal width for parameter value inference
-            mutations[j * num_blocks + i] = chains[j]->accepted_mutation[i] /
-                                            (double)chains[j]->attempted_mutation[i];
-            stepsizes[j * num_blocks + i] = chains[j]->stepsize[i];
+            mutations[j * num_blocks + k] = chains[j]->accepted_mutation[k] /
+                                            (double)chains[j]->attempted_mutation[k];
+
+            stepsizes[j * num_blocks + k] = chains[j]->stepsize[k];
+
+
+            // Reset counters
+            chains[j]->accepted_mutation[k] = 0;
+            chains[j]->attempted_mutation[k] = 0;
           }
 
           exchanges[j] = chains[j]->accepted_exchange /
@@ -292,18 +324,18 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
         }
 
         if (options->acceptance != NULL)
-          options->acceptance(options, model, i + options->num_burn_in_samples, mutations,
+          options->acceptance(options, model, options->num_burn_in_samples + i, mutations,
                               exchanges, stepsizes);
       }
 
-      // Write current sample to file
+      // Write current samples to file
       if (options->write != NULL) {
         for (size_t j = 0; j < num_chains; j++) {
-          if ((error = options->write(options, model, i + options->num_burn_in_samples, j,
+          if ((error = options->write(options, model, options->num_burn_in_samples + i, j,
                                       chains[j]->params, chains[j]->log_prior,
                                       chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
+              gmcmc_chain_free(chains[k]);
             free(chains);
             free(mutations);
             free(exchanges);
@@ -312,17 +344,15 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           }
         }
       }
-    }
 
-    // Copy chains back onto other nodes
-    if (rank == 0) {
-      // Loop through all the chains
+      // Copy chains back onto other nodes
       for (size_t j = 0; j < num_chains; j++) {
-        if (j % size != (unsigned int)rank) { // If the chain is not already on this node
-          // Send it to another node
+        // If chain does not belong on this node
+        if (j % size != (unsigned int)rank) {
+          // Send it to the other node
           if ((error = gmcmc_chain_mpi_send(chains[j], j % size, j, MPI_COMM_WORLD)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
+              gmcmc_chain_free(chains[k]);
             free(chains);
             free(mutations);
             free(exchanges);
@@ -331,32 +361,57 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
           }
         }
       }
-    }
+    }   // rank == 0
     else {
-      // Loop through all the chains that are on this node
-      for (size_t j = rank; j < num_chains; j += size) {
-        // Receive the chain from node 0
-        if ((error = gmcmc_chain_mpi_recv(&chains[j], 0, j, MPI_COMM_WORLD)) != 0) {
-            for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_destroy(chains[k]);
-            free(chains);
-            free(mutations);
-            free(exchanges);
-            free(stepsizes);
-            GMCMC_ERROR("Error receiving chains", error);
+      // Update each chain in the population in parallel
+      for (size_t j = 0; j < num_local_chains; j++) {
+        if ((error = gmcmc_chain_update(chains[j], model, data, likelihood, proposal, rng)) != 0) {
+          for (size_t k = 0; k < num_local_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          GMCMC_ERROR("Error updating chains", error);
         }
       }
-    }
+
+      // Send the chains to process 0 to exchange them and adapt the step sizes
+      int tag = rank;
+      for (size_t j = 0; j < num_local_chains; j++, tag += size) {
+        if ((error = gmcmc_chain_mpi_send(chains[j], 0, tag, MPI_COMM_WORLD)) != 0) {
+          for (size_t k = 0; k < num_local_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          GMCMC_ERROR("Error sending chains", error);
+        }
+      }
+
+      // Receive the chains back from node 0
+      tag = rank;
+      for (size_t j = 0; j < num_local_chains; j++, tag += size) {
+        if ((error = gmcmc_chain_mpi_recv(chains[j], 0, tag, MPI_COMM_WORLD)) != 0) {
+          for (size_t k = 0; k < num_local_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          GMCMC_ERROR("Error receiving chains", error);
+        }
+      }
+    }   // rank != 0
+
 
   }     // Posterior loop
 
   // Clean up
-  for (size_t j = 0; j < num_chains; j++)
-    gmcmc_chain_destroy(chains[j]);
+  if (rank == 0) {
+    free(mutations);
+    free(exchanges);
+    free(stepsizes);
+    for (size_t j = 0; j < num_chains; j++)
+      gmcmc_chain_free(chains[j]);
+  }
+  else {
+    for (size_t j = 0; j < num_local_chains; j++)
+      gmcmc_chain_free(chains[j]);
+  }
   free(chains);
-  free(mutations);
-  free(exchanges);
-  free(stepsizes);
 
   return 0;
 }
@@ -375,31 +430,20 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
 static int gmcmc_chain_mpi_send(const gmcmc_chain * chain, int dest, int tag, MPI_Comm comm) {
   // Send every field of the chain struct in the same order as they are received
   int error;
-  if ((error = MPI_Send((void *)&chain->temperature, 1, MPI_DOUBLE, dest, tag, comm)) != 0)
-    GMCMC_ERROR("Error sending chain temperature", GMCMC_EIPC);
 
-  if ((error = MPI_Send((void *)&chain->stepsize, 1, MPI_DOUBLE, dest, tag, comm)) != 0)
+  if ((error = MPI_Send(chain->stepsize, chain->num_blocks, MPI_DOUBLE, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending chain step size", GMCMC_EIPC);
 
-  if ((error = MPI_Send((void *)&chain->accepted_mutation, 1, MPI_UINT64_T, dest, tag, comm)) != 0)
+  if ((error = MPI_Send(chain->accepted_mutation, chain->num_blocks, MPI_UINT64_T, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending accepted mutation", GMCMC_EIPC);
 
-  if ((error = MPI_Send((void *)&chain->attempted_mutation, 1, MPI_UINT64_T, dest, tag, comm)) != 0)
+  if ((error = MPI_Send(chain->attempted_mutation, chain->num_blocks, MPI_UINT64_T, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending attempted mutation", GMCMC_EIPC);
 
-  if ((error = MPI_Send((void *)&chain->accepted_exchange, 1, MPI_UINT64_T, dest, tag, comm)) != 0)
-    GMCMC_ERROR("Error sending accepted exchange", GMCMC_EIPC);
-
-  if ((error = MPI_Send((void *)&chain->attempted_exchange, 1, MPI_UINT64_T, dest, tag, comm)) != 0)
-    GMCMC_ERROR("Error sending attempted exchange", GMCMC_EIPC);
-
-  if ((error = MPI_Send((void *)&chain->n, 1, MPI_UINT32_T, dest, tag, comm)) != 0)
-    GMCMC_ERROR("Error sending number of parameters", GMCMC_EIPC);
-
-  if ((error = MPI_Send(chain->params, chain->n, MPI_DOUBLE, dest, tag, comm)) != 0)
+  if ((error = MPI_Send(chain->params, chain->num_params, MPI_DOUBLE, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending parameter values", GMCMC_EIPC);
 
-  if ((error = MPI_Send(chain->log_prior, chain->n, MPI_DOUBLE, dest, tag, comm)) != 0)
+  if ((error = MPI_Send(chain->log_prior, chain->num_params, MPI_DOUBLE, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending log prior", GMCMC_EIPC);
 
   if ((error = MPI_Send((void *)&chain->log_likelihood, 1, MPI_DOUBLE, dest, tag, comm)) != 0)
@@ -411,66 +455,36 @@ static int gmcmc_chain_mpi_send(const gmcmc_chain * chain, int dest, int tag, MP
 /**
  * Receives a chain over MPI.
  *
- * @param [in] chain   a pointer to the chain to copy into.  If it is NULL it
- *                       will be allocated
+ * @param [in] chain   a pointer to the chain to copy into
  * @param [in] source  the rank of the node to copy the chain from
  * @param [in] tag     the index of the chain
  * @param [in] comm    the MPI communicator
  *
  * @return 0 on success,
- *         GMCMC_ENOMEM if the chain (or parts of it) needed to be (re)allocated
+ *         GMCMC_ENOMEM if the chain (or parts of it) needed to be allocated
  *                        and it failed,
  *         GMCMC_EIPC   if parts of the chain could not be received.
  */
-static int gmcmc_chain_mpi_recv(gmcmc_chain ** chain, int source, int tag, MPI_Comm comm) {
-  if (*chain == NULL) {
-    if ((*chain = calloc(1, sizeof(gmcmc_chain))) == NULL)      // calloc to initialise pointers to NULL
-      GMCMC_ERROR("Failed to allocate chain", GMCMC_ENOMEM);
-  }
-
+static int gmcmc_chain_mpi_recv(gmcmc_chain * chain, int source, int tag, MPI_Comm comm) {
   // Receive every field of the chain struct in the same order as they are sent
   int error;
-  if ((error = MPI_Recv(&(*chain)->temperature, 1, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
-    GMCMC_ERROR("Error receiving chain temperature", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&(*chain)->stepsize, 1, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(chain->stepsize, chain->num_blocks, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving chain step size", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&(*chain)->accepted_mutation, 1, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(&chain->accepted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving accepted mutation", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&(*chain)->attempted_mutation, 1, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(&chain->attempted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving attempted mutation", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&(*chain)->accepted_exchange, 1, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
-    GMCMC_ERROR("Error receiving accepted exchange", GMCMC_EIPC);
-
-  if ((error = MPI_Recv(&(*chain)->attempted_exchange, 1, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
-    GMCMC_ERROR("Error receiving attempted exchange", GMCMC_EIPC);
-
-  uint32_t n;
-  if ((error = MPI_Recv(&n, 1, MPI_UINT32_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
-    GMCMC_ERROR("Error receiving number of parameters", GMCMC_EIPC);
-
-  // If the parameter vector needs to be resized or allocated
-  if (n != (*chain)->n || (*chain)->params == NULL || (*chain)->log_prior == NULL) {
-    free((*chain)->params);
-    free((*chain)->log_prior);
-
-    (*chain)->n = n;
-    if (((*chain)->params = malloc(n * sizeof(double))) == NULL)
-      GMCMC_ERROR("Failed to allocate chain parameters", GMCMC_ENOMEM);
-    if (((*chain)->log_prior = malloc(n * sizeof(double))) == NULL)
-      GMCMC_ERROR("Failed to allocate chain log prior", GMCMC_ENOMEM);
-  }
-
-  if ((error = MPI_Recv((*chain)->params, n, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(chain->params, chain->num_params, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving parameter values", GMCMC_EIPC);
 
-  if ((error = MPI_Recv((*chain)->log_prior, n, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(chain->log_prior, chain->num_params, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving log prior", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&(*chain)->log_likelihood, 1, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(&chain->log_likelihood, 1, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving log likelihood", GMCMC_EIPC);
 
   return 0;
