@@ -472,10 +472,10 @@ static int gmcmc_chain_mpi_recv(gmcmc_chain * chain, int source, int tag, MPI_Co
   if ((error = MPI_Recv(chain->stepsize, chain->num_blocks, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving chain step size", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&chain->accepted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(chain->accepted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving accepted mutation", GMCMC_EIPC);
 
-  if ((error = MPI_Recv(&chain->attempted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+  if ((error = MPI_Recv(chain->attempted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving attempted mutation", GMCMC_EIPC);
 
   if ((error = MPI_Recv(chain->params, chain->num_params, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
