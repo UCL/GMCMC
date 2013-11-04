@@ -27,11 +27,11 @@
  */
 static int proposal_simp_mmala(size_t n, const size_t * blocks, const double * params,
                                double likelihood, double temperature,
-                               double stepsize, const void * geometry,
+                               double stepsize, void * geometry,
                                double * mean, double * covariance, size_t ldc) {
   (void)likelihood;     // Unused
 
-  const gmcmc_geometry_simp_mmala * g = (const gmcmc_geometry_simp_mmala *)geometry;
+  gmcmc_geometry_simp_mmala * g = (gmcmc_geometry_simp_mmala *)geometry;
 
   // Calculate posterior gradient and metric tensor
   size_t ldg = (n + 1u) & ~1u;
@@ -83,8 +83,16 @@ static int proposal_simp_mmala(size_t n, const size_t * blocks, const double * p
   cblas_dtrsm(CblasColMajor, CblasLeft, CblasLower, CblasNoTrans, CblasNonUnit, n, n, 1.0, G, ldg, covariance, ldc);
   cblas_dtrsm(CblasColMajor, CblasLeft, CblasLower, CblasTrans, CblasNonUnit, n, n, 1.0, G, ldg, covariance, ldc);
 
+  // Free temporary variables
   free(gradient);
   free(G);
+
+  // Free geometry info
+  free(g->gradient_log_prior);
+  free(g->gradient_log_likelihood);
+  free(g->hessian_log_prior);
+  free(g->FI);
+  free(g);
 
   return 0;
 }

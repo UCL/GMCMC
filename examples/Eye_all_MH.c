@@ -126,7 +126,7 @@ int main(int argc, char * argv[]) {
 
   // Set up priors for each of the parameters
   gmcmc_distribution ** priors;
-  if ((priors = malloc(6 * sizeof(gmcmc_distribution *))) == NULL) {
+  if ((priors = malloc(7 * sizeof(gmcmc_distribution *))) == NULL) {
     fputs("Failed to allocate space for priors\n", stderr);
     free(temperatures);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");

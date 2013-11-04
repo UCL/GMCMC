@@ -24,7 +24,7 @@
  */
 static int proposal_mh(size_t n, const size_t * blocks, const double * params,
                        double likelihood, double temperature, double stepsize,
-                       const void * geometry,
+                       void * geometry,
                        double * mean, double * covariance, size_t ldc) {
   (void)likelihood;
   (void)geometry;

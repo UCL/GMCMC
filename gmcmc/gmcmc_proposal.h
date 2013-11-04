@@ -25,7 +25,7 @@
  *         less than zero on non-fatal error.
  */
 typedef int (*gmcmc_proposal_function)(size_t, const size_t *, const double *,
-                                       double, double, double, const void *,
+                                       double, double, double, void *,
                                        double *, double *, size_t);
 
 /**

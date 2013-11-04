@@ -211,11 +211,21 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
       GMCMC_ERROR("Failed to close burn in sample file", GMCMC_EIO);
     }
 
+    // Increment the number of samples written
     written += k;
     k = 0;
 
+    // If all the burn-in samples have been written to file reset the count to zero for the posterior samples
     if (i == options->num_burn_in_samples - 1)
       written = 0;
+
+    // If all the posterior samples have been written to file, reset all the static variables to avoid memory leaks
+    if (i == options->num_burn_in_samples + options->num_posterior_samples - 1) {
+      mxDestroyArray(samples);
+      samples = NULL;
+      k = 0;
+      written = 0;
+    }
   }
 
   return 0;
