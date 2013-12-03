@@ -2,13 +2,15 @@ include make.inc
 PREFIX ?= /usr
 CPPFLAGS = -I. -I.. $(MPI_CPPFLAGS)
 LDFLAGS = -L. $(MPI_LDFLAGS)
-LDLIBS = -lgmcmc -lgmcmc_matlab $(MPI_LDLIBS)
+# LDLIBS = -lgmcmc -lgmcmc_matlab $(MPI_LDLIBS) -lm
+LDLIBS = -lgmcmc -lgmcmc_hdf5 $(MPI_LDLIBS) -lm
 
 VPATH = . examples gmcmc
 
 .PHONY: all examples test clean install
 
-LIBS = libgmcmc.so libgmcmc_matlab.so
+# LIBS = libgmcmc.so libgmcmc_matlab.so
+LIBS = libgmcmc.so libgmcmc_hdf5.so
 
 ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
 
@@ -39,8 +41,8 @@ install: $(LIBS) $(ION_examples) $(ODE_examples) $(EYE_examples)
 libgmcmc.so:
 	cd src && $(MAKE) ../libgmcmc.so
 
-libgmcmc_matlab.so: libgmcmc.so
-	cd src/matlab && $(MAKE) ../../libgmcmc_matlab.so
+libgmcmc_hdf5.so: libgmcmc.so
+	cd src/hdf5 && $(MAKE) ../../libgmcmc_hdf5.so
 
 examples/common.o: common.h gmcmc_popmcmc.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h
 $(addprefix examples/,$(addsuffix .o,$(ION_examples))): gmcmc_ion.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h common.h

@@ -38,12 +38,14 @@ static void destroy(void * data) {
  * @return a pointer to the timepoints or NULL if the mxArray contains no real
  *           data.
  */
-static const double * timepoints(const void * data) {
+static const double * timepoints(const void * data, size_t i) {
   const matlab_dataset * m = (const matlab_dataset *)data;
+  if (i >= mxGetN(m->timepoints))
+    GMCMC_ERROR_VAL("index is out of range", GMCMC_EINVAL, NULL);
   double * ts = mxGetPr(m->timepoints);
   if (ts == NULL)
     GMCMC_ERROR_VAL("timepoints contains no real data", GMCMC_EIO, NULL);
-  return ts;
+  return &ts[i * mxGetM(m->timepoints)];
 }
 
 /**
@@ -103,10 +105,15 @@ static size_t n(const void * data) {
   return mxGetN(m->data);
 }
 
+static size_t k(const void * data) {
+  const matlab_dataset * m = (const matlab_dataset *)data;
+  return mxGetM(m->data);
+}
+
 /**
  * ODE Matlab dataset type.
  */
-static const gmcmc_ode_dataset_type type = { destroy, m, n, timepoints, data,
+static const gmcmc_ode_dataset_type type = { destroy, m, n, k, timepoints, data,
                                              noisecov };
 
 /**

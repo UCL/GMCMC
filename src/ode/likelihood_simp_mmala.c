@@ -66,7 +66,7 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
 
   // Get the timepoints
   const size_t num_timepoints = gmcmc_ode_dataset_num_timepoints(ode_dataset);
-  const double * timepoints = gmcmc_ode_dataset_timepoints(ode_dataset);
+  const double * timepoints = gmcmc_ode_dataset_timepoints(ode_dataset, 0);     // Assume all timepoints are the same (for now)
 
   // Allocate simulated data
   double * simdata;

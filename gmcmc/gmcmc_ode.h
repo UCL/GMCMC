@@ -26,12 +26,13 @@ typedef struct gmcmc_ode_model gmcmc_ode_model;
  * ODE dataset type.
  */
 typedef struct {
-  void (*destroy)(void *);                      /** Destructor function */
-  size_t (*num_timepoints)(const void *);       /** Returns the number of timepoints in the dataset */
-  size_t (*num_series)(const void *);           /** Returns the number of data series in the dataset */
-  const double * (*timepoints)(const void *);   /** Returns a pointer to the timepoints */
-  const double * (*data)(const void *, size_t); /** Returns a pointer to a data series */
-  double (*noisecov)(const void *, size_t);     /** Returns the noise covariance for the series */
+  void (*destroy)(void *);                              /** Destructor function */
+  size_t (*num_timepoints)(const void *);               /** Returns the number of timepoints in the dataset */
+  size_t (*num_time_series)(const void *);              /** Returns the number of time series in the dataset */
+  size_t (*num_data_series)(const void *);              /** Returns the number of data series in the dataset */
+  const double * (*timepoints)(const void *, size_t);   /** Returns a pointer to a timepoints series */
+  const double * (*data)(const void *, size_t);         /** Returns a pointer to a data series */
+  double (*noisecov)(const void *, size_t);             /** Returns the noise covariance for the series */
 } gmcmc_ode_dataset_type;
 
 /**
@@ -215,6 +216,18 @@ static inline size_t gmcmc_ode_dataset_num_timepoints(const gmcmc_ode_dataset * 
 }
 
 /**
+ * Gets the number of time series in an ODE dataset.  Each series has the same
+ * length as the timepoints.
+ *
+ * @param [in] dataset  the ODE dataset
+ *
+ * @return the number of time series in the dataset.
+ */
+static inline size_t gmcmc_ode_dataset_get_num_time_series(const gmcmc_ode_dataset * dataset) {
+  return dataset->type->num_time_series(dataset->data);
+}
+
+/**
  * Gets the number of data series in an ODE dataset.  Each series has the same
  * length as the timepoints.
  *
@@ -222,19 +235,20 @@ static inline size_t gmcmc_ode_dataset_num_timepoints(const gmcmc_ode_dataset * 
  *
  * @return the number of data series in the dataset.
  */
-static inline size_t gmcmc_ode_dataset_get_num_series(const gmcmc_ode_dataset * dataset) {
-  return dataset->type->num_series(dataset->data);
+static inline size_t gmcmc_ode_dataset_get_num_data_series(const gmcmc_ode_dataset * dataset) {
+  return dataset->type->num_data_series(dataset->data);
 }
 
 /**
  * Gets the timepoints from an ODE dataset.
  *
  * @param [in] dataset  the dataset
+ * @param [in] i        the index of the time series
  *
- * @return the timepoints.
+ * @return the timepoints, or NULL if i is out of range.
  */
-static inline const double * gmcmc_ode_dataset_timepoints(const gmcmc_ode_dataset * dataset) {
-  return dataset->type->timepoints(dataset->data);
+static inline const double * gmcmc_ode_dataset_timepoints(const gmcmc_ode_dataset * dataset, size_t i) {
+  return dataset->type->timepoints(dataset->data, i);
 }
 
 /**
@@ -280,5 +294,25 @@ static inline double gmcmc_ode_dataset_noisecov(const gmcmc_ode_dataset * datase
  *         GMCMC_EIO    if there is an input/output error.
  */
 int gmcmc_ode_dataset_load_matlab(gmcmc_ode_dataset **, const char *);
+
+/**
+ * Loads an ODE dataset from a Matlab file.  The file must contain a
+ * real-valued column vector named "TimePoints" containing strictly increasing
+ * timepoints, a matrix of data points named "Data" and a column vector of noise
+ * covariances names "NoiseVariance".
+ * The length of the timepoints vector must match the length of the noise
+ * covariances and the number of rows in the data.
+ * The noise covariances will be available via gmcmc_dataset_get_auxdata.
+ *
+ * @param [out] dataset     the dataset object to load data into
+ * @param [in]  filename    the name of the Matlab .mat file containing the data
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the dataset or
+ *                        data vectors,
+ *         GMCMC_EINVAL if the Matlab file does not contain valid ODE data,
+ *         GMCMC_EIO    if there is an input/output error.
+ */
+int gmcmc_ode_dataset_load_hdf5(gmcmc_ode_dataset **, const char *);
 
 #endif /* GMCMC_ODE_H */

@@ -16,9 +16,10 @@ VPATH = . ../gmcmc
 
 .PHONY: all clean
 
-all: ../libgmcmc.so ../libgmcmc_matlab.so
+all: ../libgmcmc.so ../libgmcmc_matlab.so ../libgmcmc_hdf5.so
 
 clean:
+	cd hdf5 && $(MAKE) clean
 	cd matlab && $(MAKE) clean
 	rm -f $(OBJS) ../libgmcmc.so
 
@@ -27,6 +28,9 @@ clean:
 
 ../libgmcmc_matlab.so: ../libgmcmc.so
 	cd matlab && $(MAKE)
+
+../libgmcmc_hdf5.so: ../libgmcmc.so
+	cd hdf5 && $(MAKE)
 
 # Error handling
 errno.o: gmcmc_errno.h
@@ -77,4 +81,4 @@ eye/likelihood_mh.o: mvn.c distribution/randn.c eye/stochastic_eye_sim.c gmcmc_e
 eye/model.o: gmcmc_eye.h gmcmc_likelihood.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_errno.h
 
 # Sampling algorithms
-popmcmc.o: mvn.c distribution/randn.c permute.c popmcmc_mpi.c gmcmc_popmcmc.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h
+popmcmc.o: mvn.c distribution/randn.c permute.c popmcmc_seq.c popmcmc_mpi.c gmcmc_popmcmc.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h

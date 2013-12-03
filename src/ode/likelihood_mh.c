@@ -70,7 +70,7 @@ static int ode_likelihood_mh(const void * dataset, const gmcmc_model * model,
 
   // Get the timepoints
   const size_t num_timepoints = gmcmc_ode_dataset_num_timepoints(ode_dataset);
-  const double * timepoints = gmcmc_ode_dataset_timepoints(ode_dataset);
+  const double * timepoints = gmcmc_ode_dataset_timepoints(ode_dataset, 0);     // Assume all timepoints are the same (for now)
 
   // Get initial conditions
   const double * ics = (gmcmc_ode_model_get_ics(ode_model) != NULL) ?

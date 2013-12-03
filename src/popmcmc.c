@@ -261,6 +261,7 @@ static int gmcmc_chain_update(gmcmc_chain *, const gmcmc_model *, const void *,
  */
 static int gmcmc_chain_exchange(gmcmc_chain **, size_t, const gmcmc_prng64 *);
 
+#include "popmcmc_seq.c"
 #include "popmcmc_mpi.c"
 
 /**

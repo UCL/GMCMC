@@ -160,4 +160,21 @@ static inline const double * gmcmc_ion_dataset_data(const gmcmc_ion_dataset * da
  */
 int gmcmc_ion_dataset_load_matlab(gmcmc_ion_dataset **, const char *);
 
+/**
+ * Loads an ion channel dataset from an HDF5 file.  The file must contain a
+ * 1-by-n dataset of native double values named "TimePoints" and a corresponding
+ * dataset of the same dimensions and type named "Data".
+ *
+ * @param [out] dataset     the dataset object to load data into
+ * @param [in]  filename    the name of the HDF .h5 file containing the data
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the dataset or
+ *                        data vectors,
+ *         GMCMC_EINVAL if the HDF5 file does not contain valid ion channel
+ *                        data,
+ *         GMCMC_EIO    if there is an input/output error.
+ */
+int gmcmc_ion_dataset_load_hdf5(gmcmc_ion_dataset **, const char *);
+
 #endif /* GMCMC_ION_H */

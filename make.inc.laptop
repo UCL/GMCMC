@@ -58,3 +58,8 @@ MATLAB_ROOT = /opt/MATLAB/R2013a
 MATLAB_CPPFLAGS = -I$(MATLAB_ROOT)/extern/include
 MATLAB_LDFLAGS = -L$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath-link,$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath,$(MATLAB_ROOT)/sys/os/glnxa64
 MATLAB_LDLIBS = -lmx -lmex -lmat -lm -lstdc++
+
+# HDF5
+HDF5_CPPFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_BSD_SOURCE -D_GNU_SOURCE
+HDF5_LDFLAGS = -L/usr/lib64
+HDF5_LDLIBS = -lhdf5_hl -lhdf5 -Wl,-O1 -Wl,--as-needed -lpthread -lz -lm -Wl,-rpath -Wl,/usr/lib64

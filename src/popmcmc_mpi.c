@@ -183,11 +183,11 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
       }
 
       // Write current samples to file
-      if (options->write != NULL) {
+      if (options->burn_in_writer != NULL) {
         for (size_t j = 0; j < num_chains; j++) {
-          if ((error = options->write(options, model, i, j,
-                                      chains[j]->params, chains[j]->log_prior,
-                                      chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
+          if ((error = gmcmc_filewriter_write(options->burn_in_writer, i, j,
+                                              chains[j]->params, chains[j]->log_prior,
+                                              chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
             for (size_t k = 0; k < num_chains; k++)
               gmcmc_chain_free(chains[k]);
             free(chains);
@@ -252,6 +252,20 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
 
 
   }     // burn-in
+
+  if (rank == 0) {
+    if (options->burn_in_writer != NULL) {
+      if ((error = gmcmc_filewriter_close(options->burn_in_writer)) != 0) {
+        for (size_t k = 0; k < num_chains; k++)
+          gmcmc_chain_free(chains[k]);
+        free(chains);
+        free(mutations);
+        free(exchanges);
+        free(stepsizes);
+        GMCMC_ERROR("Error closing burn-in file", error);
+      }
+    }
+  }
 
   // Posterior
   for (size_t i = 0; i < options->num_posterior_samples; i++) {
@@ -329,19 +343,17 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
       }
 
       // Write current samples to file
-      if (options->write != NULL) {
-        for (size_t j = 0; j < num_chains; j++) {
-          if ((error = options->write(options, model, options->num_burn_in_samples + i, j,
-                                      chains[j]->params, chains[j]->log_prior,
-                                      chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
-            for (size_t k = 0; k < num_chains; k++)
-              gmcmc_chain_free(chains[k]);
-            free(chains);
-            free(mutations);
-            free(exchanges);
-            free(stepsizes);
-            GMCMC_ERROR("Error writing chains", error);
-          }
+      for (size_t j = 0; j < num_chains; j++) {
+        if ((error = gmcmc_filewriter_write(options->posterior_writer, i, j,
+                                            chains[j]->params, chains[j]->log_prior,
+                                            chains[j]->log_likelihood, chains[j]->stepsize)) != 0) {
+          for (size_t k = 0; k < num_chains; k++)
+            gmcmc_chain_free(chains[k]);
+          free(chains);
+          free(mutations);
+          free(exchanges);
+          free(stepsizes);
+          GMCMC_ERROR("Error writing chains", error);
         }
       }
 
@@ -406,6 +418,10 @@ int gmcmc_popmcmc_mpi(const gmcmc_model * model, const void * data,
     free(stepsizes);
     for (size_t j = 0; j < num_chains; j++)
       gmcmc_chain_free(chains[j]);
+    if ((error = gmcmc_filewriter_close(options->posterior_writer)) != 0) {
+      free(chains);
+      GMCMC_ERROR("Error closing posterior file", error);
+    }
   }
   else {
     for (size_t j = 0; j < num_local_chains; j++)
