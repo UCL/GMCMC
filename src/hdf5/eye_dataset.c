@@ -68,7 +68,7 @@ int gmcmc_eye_dataset_load_hdf5(gmcmc_eye_dataset ** ds, const char * filename) 
 
   // Read the Data_Var vector
   size_t length;
-  if ((error = hdf5_read_vector(file, "Data_Mean", H5T_IEEE_F64LE,
+  if ((error = hdf5_read_vector(file, "Data_Var", H5T_IEEE_F64LE,
                                 &length, (void **)&hdf5->variance)) != 0) {
     free(hdf5->mean);
     H5Fclose(file);

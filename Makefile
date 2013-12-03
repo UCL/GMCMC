@@ -9,7 +9,6 @@ VPATH = . examples gmcmc
 
 .PHONY: all examples test clean install
 
-# LIBS = libgmcmc.so libgmcmc_matlab.so
 LIBS = libgmcmc.so libgmcmc_hdf5.so
 
 ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
@@ -40,6 +39,9 @@ install: $(LIBS) $(ION_examples) $(ODE_examples) $(EYE_examples)
 
 libgmcmc.so:
 	cd src && $(MAKE) ../libgmcmc.so
+
+libgmcmc_matlab.so: libgmcmc.so
+	cd src/matlab && $(MAKE) ../../libgmcmc_matlab.so
 
 libgmcmc_hdf5.so: libgmcmc.so
 	cd src/hdf5 && $(MAKE) ../../libgmcmc_hdf5.so

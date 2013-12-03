@@ -184,4 +184,22 @@ static inline const double * gmcmc_eye_dataset_noisevar(const gmcmc_eye_dataset 
  */
 int gmcmc_eye_dataset_load_matlab(gmcmc_eye_dataset **, const char *);
 
+/**
+ * Loads a stochastic eye dataset from an HDF5 file.  The file must contain a
+ * 1-by-n dataset of native double values named "Data_Mean" and a corresponding
+ * dataset of the same dimensions and type named "Data_Var".
+ *
+ * @param [out] dataset         the dataset object to load data into
+ * @param [in]  filename        the name of the HDF5 .h5 file containing the
+ *                                data
+ *
+ * @return 0 on success,
+ *         GMCMC_ENOMEM if there is not enough memory to allocate the dataset or
+ *                        data vectors,
+ *         GMCMC_EINVAL if the HDF5 file does not contain valid stochastic eye
+ *                        data,
+ *         GMCMC_EIO    if there is an input/output error.
+ */
+int gmcmc_eye_dataset_load_hdf5(gmcmc_eye_dataset **, const char *);
+
 #endif /* GMCMC_EYE_H */

@@ -48,26 +48,6 @@
  */
 static int locke_2005a(double, const double *, double *, const double *);
 
-/**
- * Function to evaluate the sensitivities right-hand side of the Locke 2005a
- * model.
- *
- * @param [in]  t      is the current value of the independent variable
- * @param [in]  y      is the current value of the state vector, y(t)
- * @param [in]  ydot   is the current value of the right-hand side of the state
- *                      equations
- * @param [in]  yS     contains the current values of the sensitivity vectors
- * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
- *                       sensitivity right-hand side vectors
- * @param [in]  params  function parameters
- *
- * @return = 0 on success,
- *         > 0 if the current values in y are invalid,
- *         < 0 if one of the parameter values is incorrect.
- */
-static int locke_2005a_sens(double, const double *, const double *,
-                            const double **, double **, const double *);
-
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
@@ -103,23 +83,14 @@ int main(int argc, char * argv[]) {
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
-  mcmc_options.write = gmcmc_matlab_popmcmc_write;
+  mcmc_options.burn_in_writer = NULL;
+  mcmc_options.posterior_writer = NULL;
 
   int error;
   if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
-
-  // Output file
-  gmcmc_matlab_outputID = argv[optind];
-
-
-  // How often to save posterior samples.
-  gmcmc_matlab_save_size = 2000000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
-
-  // Save burn-in
-  gmcmc_matlab_save_burn_in = true;
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
@@ -254,7 +225,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_ode_dataset * dataset;
-  if ((error = gmcmc_ode_dataset_load_matlab(&dataset, data_file)) != 0) {
+  if ((error = gmcmc_ode_dataset_load_hdf5(&dataset, data_file)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -333,9 +304,43 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, ode_model);
 
-//   gmcmc_ode_model_set_rhs_sens(ode_model, locke_2005a_sens);
-
   gmcmc_ode_model_set_tolerances(ode_model, 1.0e-08, 1.0e-08);
+
+
+  /*
+   * Output file format.
+   */
+  if (optind + 1 < argc) {
+    if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.burn_in_writer,
+                                              argv[optind++], num_params, 1,
+                                              mcmc_options.num_temperatures,
+                                              mcmc_options.num_burn_in_samples)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ode_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      gmcmc_ode_model_destroy(ode_model);
+      fputs("Unable to create HDF5 burn-in writer\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+
+  if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.posterior_writer,
+                                            argv[optind], num_params, 1,
+                                            mcmc_options.num_temperatures,
+                                            mcmc_options.num_posterior_samples)) != 0) {
+    // Clean up
+    free(temperatures);
+    gmcmc_ode_dataset_destroy(dataset);
+    gmcmc_model_destroy(model);
+    gmcmc_ode_model_destroy(ode_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    fputs("Unable to create HDF5 posterior writer\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -5;
+  }
+
 
 
   /*
@@ -348,6 +353,8 @@ int main(int argc, char * argv[]) {
     gmcmc_ode_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
     gmcmc_ode_model_destroy(ode_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
     fputs("Unable to create parallel RNG\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -5;
@@ -391,6 +398,8 @@ int main(int argc, char * argv[]) {
   gmcmc_ode_dataset_destroy(dataset);
   gmcmc_model_destroy(model);
   gmcmc_ode_model_destroy(ode_model);
+  gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+  gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
   gmcmc_prng64_destroy(rng);
 
   MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
@@ -471,426 +480,6 @@ static int locke_2005a(double t, const double * y, double * ydot, const double *
 
   // d/dt(TOC1n) = r3*TOC1c - r4*TOC1n - (m6*TOC1n)/(k6 + TOC1n)
   ydot[5] = r3 * TOC1c - r4 * TOC1n - (m6 * TOC1n) / (k6 + TOC1n);
-
-  return 0;
-}
-
-/**
- * Function to evaluate the sensitivities right-hand side of the Fitz Hugh
- * Nagumo model.
- *
- * @param [in]  t      is the current value of the independent variable
- * @param [in]  y      is the current value of the state vector, y(t)
- * @param [in]  ydot   is the current value of the right-hand side of the state
- *                      equations
- * @param [in]  yS     contains the current values of the sensitivity vectors
- * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
- *                       sensitivity right-hand side vectors
- * @param [in]  params  function parameters
- *
- * @return = 0 on success,
- *         > 0 if the current values in y are invalid,
- *         < 0 if one of the parameter values is incorrect.
- */
-static int locke_2005a_sens(double t, const double * y, const double * ydot,
-                            const double ** yS, double ** ySdot, const double * params) {
-  (void)t;      // Unused
-  (void)ydot;
-
-  // Model variables
-  const double a = 1;
-  const double b = 2;
-
-  // Model parameters
-  double g1 = params[ 0];
-  double g2 = params[ 1];
-
-  double k1 = params[ 2];
-  double k2 = params[ 3];
-  double k3 = params[ 4];
-  double k4 = params[ 5];
-  double k5 = params[ 6];
-  double k6 = params[ 7];
-
-  double m1 = params[ 8];
-  double m2 = params[ 9];
-  double m3 = params[10];
-  double m4 = params[11];
-  double m5 = params[12];
-  double m6 = params[13];
-
-  double n1 = params[14];
-  double n2 = params[15];
-
-  double p1 = params[16];
-  double p2 = params[17];
-
-  double r1 = params[18];
-  double r2 = params[19];
-  double r3 = params[20];
-  double r4 = params[21];
-
-  // Model states
-  double LHYm  = y[0];
-  double LHYc  = y[1];
-  double LHYn  = y[2];
-  double TOC1m = y[3];
-  double TOC1c = y[4];
-  double TOC1n = y[5];
-
-  double LHYm_g1  = yS[ 0][0];
-  double LHYc_g1  = yS[ 0][1];
-  double LHYn_g1  = yS[ 0][2];
-  double TOC1m_g1 = yS[ 0][3];
-  double TOC1c_g1 = yS[ 0][4];
-  double TOC1n_g1 = yS[ 0][5];
-  double LHYm_g2  = yS[ 1][0];
-  double LHYc_g2  = yS[ 1][1];
-  double LHYn_g2  = yS[ 1][2];
-  double TOC1m_g2 = yS[ 1][3];
-  double TOC1c_g2 = yS[ 1][4];
-  double TOC1n_g2 = yS[ 1][5];
-
-  double LHYm_k1  = yS[ 2][0];
-  double LHYc_k1  = yS[ 2][1];
-  double LHYn_k1  = yS[ 2][2];
-  double TOC1m_k1 = yS[ 2][3];
-  double TOC1c_k1 = yS[ 2][4];
-  double TOC1n_k1 = yS[ 2][5];
-  double LHYm_k2  = yS[ 3][0];
-  double LHYc_k2  = yS[ 3][1];
-  double LHYn_k2  = yS[ 3][2];
-  double TOC1m_k2 = yS[ 3][3];
-  double TOC1c_k2 = yS[ 3][4];
-  double TOC1n_k2 = yS[ 3][5];
-  double LHYm_k3  = yS[ 4][0];
-  double LHYc_k3  = yS[ 4][1];
-  double LHYn_k3  = yS[ 4][2];
-  double TOC1m_k3 = yS[ 4][3];
-  double TOC1c_k3 = yS[ 4][4];
-  double TOC1n_k3 = yS[ 4][5];
-  double LHYm_k4  = yS[ 5][0];
-  double LHYc_k4  = yS[ 5][1];
-  double LHYn_k4  = yS[ 5][2];
-  double TOC1m_k4 = yS[ 5][3];
-  double TOC1c_k4 = yS[ 5][4];
-  double TOC1n_k4 = yS[ 5][5];
-  double LHYm_k5  = yS[ 6][0];
-  double LHYc_k5  = yS[ 6][1];
-  double LHYn_k5  = yS[ 6][2];
-  double TOC1m_k5 = yS[ 6][3];
-  double TOC1c_k5 = yS[ 6][4];
-  double TOC1n_k5 = yS[ 6][5];
-  double LHYm_k6  = yS[ 7][0];
-  double LHYc_k6  = yS[ 7][1];
-  double LHYn_k6  = yS[ 7][2];
-  double TOC1m_k6 = yS[ 7][3];
-  double TOC1c_k6 = yS[ 7][4];
-  double TOC1n_k6 = yS[ 7][5];
-
-  double LHYm_m1  = yS[ 8][0];
-  double LHYc_m1  = yS[ 8][1];
-  double LHYn_m1  = yS[ 8][2];
-  double TOC1m_m1 = yS[ 8][3];
-  double TOC1c_m1 = yS[ 8][4];
-  double TOC1n_m1 = yS[ 8][5];
-  double LHYm_m2  = yS[ 9][0];
-  double LHYc_m2  = yS[ 9][1];
-  double LHYn_m2  = yS[ 9][2];
-  double TOC1m_m2 = yS[ 9][3];
-  double TOC1c_m2 = yS[ 9][4];
-  double TOC1n_m2 = yS[ 9][5];
-  double LHYm_m3  = yS[10][0];
-  double LHYc_m3  = yS[10][1];
-  double LHYn_m3  = yS[10][2];
-  double TOC1m_m3 = yS[10][3];
-  double TOC1c_m3 = yS[10][4];
-  double TOC1n_m3 = yS[10][5];
-  double LHYm_m4  = yS[11][0];
-  double LHYc_m4  = yS[11][1];
-  double LHYn_m4  = yS[11][2];
-  double TOC1m_m4 = yS[11][3];
-  double TOC1c_m4 = yS[11][4];
-  double TOC1n_m4 = yS[11][5];
-  double LHYm_m5  = yS[12][0];
-  double LHYc_m5  = yS[12][1];
-  double LHYn_m5  = yS[12][2];
-  double TOC1m_m5 = yS[12][3];
-  double TOC1c_m5 = yS[12][4];
-  double TOC1n_m5 = yS[12][5];
-  double LHYm_m6  = yS[13][0];
-  double LHYc_m6  = yS[13][1];
-  double LHYn_m6  = yS[13][2];
-  double TOC1m_m6 = yS[13][3];
-  double TOC1c_m6 = yS[13][4];
-  double TOC1n_m6 = yS[13][5];
-
-  double LHYm_n1  = yS[14][0];
-  double LHYc_n1  = yS[14][1];
-  double LHYn_n1  = yS[14][2];
-  double TOC1m_n1 = yS[14][3];
-  double TOC1c_n1 = yS[14][4];
-  double TOC1n_n1 = yS[14][5];
-  double LHYm_n2  = yS[15][0];
-  double LHYc_n2  = yS[15][1];
-  double LHYn_n2  = yS[15][2];
-  double TOC1m_n2 = yS[15][3];
-  double TOC1c_n2 = yS[15][4];
-  double TOC1n_n2 = yS[15][5];
-
-  double LHYm_p1  = yS[16][0];
-  double LHYc_p1  = yS[16][1];
-  double LHYn_p1  = yS[16][2];
-  double TOC1m_p1 = yS[16][3];
-  double TOC1c_p1 = yS[16][4];
-  double TOC1n_p1 = yS[16][5];
-  double LHYm_p2  = yS[17][0];
-  double LHYc_p2  = yS[17][1];
-  double LHYn_p2  = yS[17][2];
-  double TOC1m_p2 = yS[17][3];
-  double TOC1c_p2 = yS[17][4];
-  double TOC1n_p2 = yS[17][5];
-
-  double LHYm_r1  = yS[18][0];
-  double LHYc_r1  = yS[18][1];
-  double LHYn_r1  = yS[18][2];
-  double TOC1m_r1 = yS[18][3];
-  double TOC1c_r1 = yS[18][4];
-  double TOC1n_r1 = yS[18][5];
-  double LHYm_r2  = yS[19][0];
-  double LHYc_r2  = yS[19][1];
-  double LHYn_r2  = yS[19][2];
-  double TOC1m_r2 = yS[19][3];
-  double TOC1c_r2 = yS[19][4];
-  double TOC1n_r2 = yS[19][5];
-  double LHYm_r3  = yS[20][0];
-  double LHYc_r3  = yS[20][1];
-  double LHYn_r3  = yS[20][2];
-  double TOC1m_r3 = yS[20][3];
-  double TOC1c_r3 = yS[20][4];
-  double TOC1n_r3 = yS[20][5];
-  double LHYm_r4  = yS[21][0];
-  double LHYc_r4  = yS[21][1];
-  double LHYn_r4  = yS[21][2];
-  double TOC1m_r4 = yS[21][3];
-  double TOC1c_r4 = yS[21][4];
-  double TOC1n_r4 = yS[21][5];
-
-#ifdef INFER_ICS
-  double LHYm_LHYm0   = yS[22][0];
-  double LHYc_LHYm0   = yS[22][1];
-  double LHYn_LHYm0   = yS[22][2];
-  double TOC1m_LHYm0  = yS[22][3];
-  double TOC1c_LHYm0  = yS[22][4];
-  double TOC1n_LHYm0  = yS[22][5];
-
-  double LHYm_LHYc0   = yS[23][0];
-  double LHYc_LHYc0   = yS[23][1];
-  double LHYn_LHYc0   = yS[23][2];
-  double TOC1m_LHYc0  = yS[23][3];
-  double TOC1c_LHYc0  = yS[23][4];
-  double TOC1n_LHYc0  = yS[23][5];
-
-  double LHYm_LHYn0   = yS[24][0];
-  double LHYc_LHYn0   = yS[24][1];
-  double LHYn_LHYn0   = yS[24][2];
-  double TOC1m_LHYn0  = yS[24][3];
-  double TOC1c_LHYn0  = yS[24][4];
-  double TOC1n_LHYn0  = yS[24][5];
-
-  double LHYm_TOC1m0  = yS[25][0];
-  double LHYc_TOC1m0  = yS[25][1];
-  double LHYn_TOC1m0  = yS[25][2];
-  double TOC1m_TOC1m0 = yS[25][3];
-  double TOC1c_TOC1m0 = yS[25][4];
-  double TOC1n_TOC1m0 = yS[25][5];
-
-  double LHYm_TOC1c0  = yS[26][0];
-  double LHYc_TOC1c0  = yS[26][1];
-  double LHYn_TOC1c0  = yS[26][2];
-  double TOC1m_TOC1c0 = yS[26][3];
-  double TOC1c_TOC1c0 = yS[26][4];
-  double TOC1n_TOC1c0 = yS[26][5];
-
-  double LHYm_TOC1n0  = yS[27][0];
-  double LHYc_TOC1n0  = yS[27][1];
-  double LHYn_TOC1n0  = yS[27][2];
-  double TOC1m_TOC1n0 = yS[27][3];
-  double TOC1c_TOC1n0 = yS[27][4];
-  double TOC1n_TOC1n0 = yS[27][5];
-#endif
-  // i=-1; j=0; grep "DDTvector\[" SBLocke2005_1st_Paras_ICs.c | cut -d'=' -f2 | while read eq; do echo "ySdot[$i][$j] = ${eq}"; let j=j+1; if [ $[$j % 6] -eq 0 ]; then let i=i+1; j=0; fi; done
-  ySdot[ 0][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_g1+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_g1+(-(pow(TOC1n,a)*a*pow(g1,a-1.0)*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0));
-  ySdot[ 0][1] = (p1)*LHYm_g1+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_g1+(r2)*LHYn_g1;
-  ySdot[ 0][2] = (r1)*LHYc_g1+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_g1;
-  ySdot[ 0][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_g1+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_g1;
-  ySdot[ 0][4] = (p2)*TOC1m_g1+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_g1+(r4)*TOC1n_g1;
-  ySdot[ 0][5] = (r3)*TOC1c_g1+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_g1;
-  ySdot[ 1][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_g2+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_g2;
-  ySdot[ 1][1] = (p1)*LHYm_g2+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_g2+(r2)*LHYn_g2;
-  ySdot[ 1][2] = (r1)*LHYc_g2+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_g2;
-  ySdot[ 1][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_g2+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_g2+((b*pow(g2,b-1.0)*n2)/(pow(LHYn,b)+pow(g2,b))-(b*pow(g2,b)*pow(g2,b-1.0)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0));
-  ySdot[ 1][4] = (p2)*TOC1m_g2+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_g2+(r4)*TOC1n_g2;
-  ySdot[ 1][5] = (r3)*TOC1c_g2+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_g2;
-  ySdot[ 2][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_k1+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_k1+((LHYm*m1)/pow(LHYm+k1,2.0));
-  ySdot[ 2][1] = (p1)*LHYm_k1+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_k1+(r2)*LHYn_k1;
-  ySdot[ 2][2] = (r1)*LHYc_k1+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_k1;
-  ySdot[ 2][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_k1+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_k1;
-  ySdot[ 2][4] = (p2)*TOC1m_k1+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_k1+(r4)*TOC1n_k1;
-  ySdot[ 2][5] = (r3)*TOC1c_k1+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_k1;
-  ySdot[ 3][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_k2+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_k2;
-  ySdot[ 3][1] = (p1)*LHYm_k2+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_k2+(r2)*LHYn_k2+((LHYc*m2)/pow(LHYc+k2,2.0));
-  ySdot[ 3][2] = (r1)*LHYc_k2+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_k2;
-  ySdot[ 3][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_k2+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_k2;
-  ySdot[ 3][4] = (p2)*TOC1m_k2+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_k2+(r4)*TOC1n_k2;
-  ySdot[ 3][5] = (r3)*TOC1c_k2+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_k2;
-  ySdot[ 4][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_k3+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_k3;
-  ySdot[ 4][1] = (p1)*LHYm_k3+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_k3+(r2)*LHYn_k3;
-  ySdot[ 4][2] = (r1)*LHYc_k3+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_k3+((LHYn*m3)/pow(LHYn+k3,2.0));
-  ySdot[ 4][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_k3+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_k3;
-  ySdot[ 4][4] = (p2)*TOC1m_k3+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_k3+(r4)*TOC1n_k3;
-  ySdot[ 4][5] = (r3)*TOC1c_k3+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_k3;
-  ySdot[ 5][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_k4+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_k4;
-  ySdot[ 5][1] = (p1)*LHYm_k4+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_k4+(r2)*LHYn_k4;
-  ySdot[ 5][2] = (r1)*LHYc_k4+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_k4;
-  ySdot[ 5][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_k4+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_k4+((TOC1m*m4)/pow(TOC1m+k4,2.0));
-  ySdot[ 5][4] = (p2)*TOC1m_k4+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_k4+(r4)*TOC1n_k4;
-  ySdot[ 5][5] = (r3)*TOC1c_k4+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_k4;
-  ySdot[ 6][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_k5+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_k5;
-  ySdot[ 6][1] = (p1)*LHYm_k5+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_k5+(r2)*LHYn_k5;
-  ySdot[ 6][2] = (r1)*LHYc_k5+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_k5;
-  ySdot[ 6][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_k5+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_k5;
-  ySdot[ 6][4] = (p2)*TOC1m_k5+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_k5+(r4)*TOC1n_k5+((TOC1c*m5)/pow(TOC1c+k5,2.0));
-  ySdot[ 6][5] = (r3)*TOC1c_k5+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_k5;
-  ySdot[ 7][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_k6+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_k6;
-  ySdot[ 7][1] = (p1)*LHYm_k6+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_k6+(r2)*LHYn_k6;
-  ySdot[ 7][2] = (r1)*LHYc_k6+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_k6;
-  ySdot[ 7][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_k6+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_k6;
-  ySdot[ 7][4] = (p2)*TOC1m_k6+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_k6+(r4)*TOC1n_k6;
-  ySdot[ 7][5] = (r3)*TOC1c_k6+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_k6+((TOC1n*m6)/pow(TOC1n+k6,2.0));
-  ySdot[ 8][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_m1+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_m1+(-LHYm/(LHYm+k1));
-  ySdot[ 8][1] = (p1)*LHYm_m1+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_m1+(r2)*LHYn_m1;
-  ySdot[ 8][2] = (r1)*LHYc_m1+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_m1;
-  ySdot[ 8][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_m1+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_m1;
-  ySdot[ 8][4] = (p2)*TOC1m_m1+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_m1+(r4)*TOC1n_m1;
-  ySdot[ 8][5] = (r3)*TOC1c_m1+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_m1;
-  ySdot[ 9][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_m2+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_m2;
-  ySdot[ 9][1] = (p1)*LHYm_m2+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_m2+(r2)*LHYn_m2+(-LHYc/(LHYc+k2));
-  ySdot[ 9][2] = (r1)*LHYc_m2+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_m2;
-  ySdot[ 9][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_m2+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_m2;
-  ySdot[ 9][4] = (p2)*TOC1m_m2+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_m2+(r4)*TOC1n_m2;
-  ySdot[ 9][5] = (r3)*TOC1c_m2+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_m2;
-  ySdot[10][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_m3+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_m3;
-  ySdot[10][1] = (p1)*LHYm_m3+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_m3+(r2)*LHYn_m3;
-  ySdot[10][2] = (r1)*LHYc_m3+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_m3+(-LHYn/(LHYn+k3));
-  ySdot[10][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_m3+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_m3;
-  ySdot[10][4] = (p2)*TOC1m_m3+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_m3+(r4)*TOC1n_m3;
-  ySdot[10][5] = (r3)*TOC1c_m3+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_m3;
-  ySdot[11][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_m4+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_m4;
-  ySdot[11][1] = (p1)*LHYm_m4+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_m4+(r2)*LHYn_m4;
-  ySdot[11][2] = (r1)*LHYc_m4+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_m4;
-  ySdot[11][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_m4+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_m4+(-TOC1m/(TOC1m+k4));
-  ySdot[11][4] = (p2)*TOC1m_m4+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_m4+(r4)*TOC1n_m4;
-  ySdot[11][5] = (r3)*TOC1c_m4+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_m4;
-  ySdot[12][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_m5+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_m5;
-  ySdot[12][1] = (p1)*LHYm_m5+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_m5+(r2)*LHYn_m5;
-  ySdot[12][2] = (r1)*LHYc_m5+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_m5;
-  ySdot[12][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_m5+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_m5;
-  ySdot[12][4] = (p2)*TOC1m_m5+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_m5+(r4)*TOC1n_m5+(-TOC1c/(TOC1c+k5));
-  ySdot[12][5] = (r3)*TOC1c_m5+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_m5;
-  ySdot[13][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_m6+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_m6;
-  ySdot[13][1] = (p1)*LHYm_m6+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_m6+(r2)*LHYn_m6;
-  ySdot[13][2] = (r1)*LHYc_m6+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_m6;
-  ySdot[13][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_m6+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_m6;
-  ySdot[13][4] = (p2)*TOC1m_m6+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_m6+(r4)*TOC1n_m6;
-  ySdot[13][5] = (r3)*TOC1c_m6+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_m6+(-TOC1n/(TOC1n+k6));
-  ySdot[14][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_n1+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_n1+(pow(TOC1n,a)/(pow(TOC1n,a)+pow(g1,a)));
-  ySdot[14][1] = (p1)*LHYm_n1+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_n1+(r2)*LHYn_n1;
-  ySdot[14][2] = (r1)*LHYc_n1+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_n1;
-  ySdot[14][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_n1+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_n1;
-  ySdot[14][4] = (p2)*TOC1m_n1+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_n1+(r4)*TOC1n_n1;
-  ySdot[14][5] = (r3)*TOC1c_n1+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_n1;
-  ySdot[15][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_n2+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_n2;
-  ySdot[15][1] = (p1)*LHYm_n2+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_n2+(r2)*LHYn_n2;
-  ySdot[15][2] = (r1)*LHYc_n2+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_n2;
-  ySdot[15][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_n2+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_n2+(pow(g2,b)/(pow(LHYn,b)+pow(g2,b)));
-  ySdot[15][4] = (p2)*TOC1m_n2+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_n2+(r4)*TOC1n_n2;
-  ySdot[15][5] = (r3)*TOC1c_n2+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_n2;
-  ySdot[16][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_p1+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_p1;
-  ySdot[16][1] = (p1)*LHYm_p1+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_p1+(r2)*LHYn_p1+(LHYm);
-  ySdot[16][2] = (r1)*LHYc_p1+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_p1;
-  ySdot[16][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_p1+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_p1;
-  ySdot[16][4] = (p2)*TOC1m_p1+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_p1+(r4)*TOC1n_p1;
-  ySdot[16][5] = (r3)*TOC1c_p1+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_p1;
-  ySdot[17][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_p2+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_p2;
-  ySdot[17][1] = (p1)*LHYm_p2+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_p2+(r2)*LHYn_p2;
-  ySdot[17][2] = (r1)*LHYc_p2+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_p2;
-  ySdot[17][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_p2+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_p2;
-  ySdot[17][4] = (p2)*TOC1m_p2+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_p2+(r4)*TOC1n_p2+(TOC1m);
-  ySdot[17][5] = (r3)*TOC1c_p2+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_p2;
-  ySdot[18][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_r1+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_r1;
-  ySdot[18][1] = (p1)*LHYm_r1+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_r1+(r2)*LHYn_r1+(-LHYc);
-  ySdot[18][2] = (r1)*LHYc_r1+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_r1+(LHYc);
-  ySdot[18][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_r1+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_r1;
-  ySdot[18][4] = (p2)*TOC1m_r1+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_r1+(r4)*TOC1n_r1;
-  ySdot[18][5] = (r3)*TOC1c_r1+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_r1;
-  ySdot[19][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_r2+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_r2;
-  ySdot[19][1] = (p1)*LHYm_r2+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_r2+(r2)*LHYn_r2+(LHYn);
-  ySdot[19][2] = (r1)*LHYc_r2+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_r2+(-LHYn);
-  ySdot[19][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_r2+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_r2;
-  ySdot[19][4] = (p2)*TOC1m_r2+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_r2+(r4)*TOC1n_r2;
-  ySdot[19][5] = (r3)*TOC1c_r2+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_r2;
-  ySdot[20][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_r3+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_r3;
-  ySdot[20][1] = (p1)*LHYm_r3+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_r3+(r2)*LHYn_r3;
-  ySdot[20][2] = (r1)*LHYc_r3+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_r3;
-  ySdot[20][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_r3+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_r3;
-  ySdot[20][4] = (p2)*TOC1m_r3+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_r3+(r4)*TOC1n_r3+(-TOC1c);
-  ySdot[20][5] = (r3)*TOC1c_r3+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_r3+(TOC1c);
-  ySdot[21][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_r4+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_r4;
-  ySdot[21][1] = (p1)*LHYm_r4+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_r4+(r2)*LHYn_r4;
-  ySdot[21][2] = (r1)*LHYc_r4+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_r4;
-  ySdot[21][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_r4+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_r4;
-  ySdot[21][4] = (p2)*TOC1m_r4+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_r4+(r4)*TOC1n_r4+(TOC1n);
-  ySdot[21][5] = (r3)*TOC1c_r4+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_r4+(-TOC1n);
-
-#ifdef INFER_ICS
-  ySdot[22][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_LHYm0+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_LHYm0;
-  ySdot[22][1] = (p1)*LHYm_LHYm0+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_LHYm0+(r2)*LHYn_LHYm0;
-  ySdot[22][2] = (r1)*LHYc_LHYm0+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_LHYm0;
-  ySdot[22][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_LHYm0+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_LHYm0;
-  ySdot[22][4] = (p2)*TOC1m_LHYm0+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_LHYm0+(r4)*TOC1n_LHYm0;
-  ySdot[22][5] = (r3)*TOC1c_LHYm0+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_LHYm0;
-  ySdot[23][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_LHYc0+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_LHYc0;
-  ySdot[23][1] = (p1)*LHYm_LHYc0+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_LHYc0+(r2)*LHYn_LHYc0;
-  ySdot[23][2] = (r1)*LHYc_LHYc0+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_LHYc0;
-  ySdot[23][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_LHYc0+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_LHYc0;
-  ySdot[23][4] = (p2)*TOC1m_LHYc0+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_LHYc0+(r4)*TOC1n_LHYc0;
-  ySdot[23][5] = (r3)*TOC1c_LHYc0+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_LHYc0;
-  ySdot[24][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_LHYn0+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_LHYn0;
-  ySdot[24][1] = (p1)*LHYm_LHYn0+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_LHYn0+(r2)*LHYn_LHYn0;
-  ySdot[24][2] = (r1)*LHYc_LHYn0+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_LHYn0;
-  ySdot[24][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_LHYn0+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_LHYn0;
-  ySdot[24][4] = (p2)*TOC1m_LHYn0+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_LHYn0+(r4)*TOC1n_LHYn0;
-  ySdot[24][5] = (r3)*TOC1c_LHYn0+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_LHYn0;
-  ySdot[25][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_TOC1m0+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_TOC1m0;
-  ySdot[25][1] = (p1)*LHYm_TOC1m0+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_TOC1m0+(r2)*LHYn_TOC1m0;
-  ySdot[25][2] = (r1)*LHYc_TOC1m0+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_TOC1m0;
-  ySdot[25][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_TOC1m0+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_TOC1m0;
-  ySdot[25][4] = (p2)*TOC1m_TOC1m0+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_TOC1m0+(r4)*TOC1n_TOC1m0;
-  ySdot[25][5] = (r3)*TOC1c_TOC1m0+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_TOC1m0;
-  ySdot[26][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_TOC1c0+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_TOC1c0;
-  ySdot[26][1] = (p1)*LHYm_TOC1c0+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_TOC1c0+(r2)*LHYn_TOC1c0;
-  ySdot[26][2] = (r1)*LHYc_TOC1c0+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_TOC1c0;
-  ySdot[26][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_TOC1c0+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_TOC1c0;
-  ySdot[26][4] = (p2)*TOC1m_TOC1c0+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_TOC1c0+(r4)*TOC1n_TOC1c0;
-  ySdot[26][5] = (r3)*TOC1c_TOC1c0+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_TOC1c0;
-  ySdot[27][0] = ((LHYm*m1)/pow(LHYm+k1,2.0)-m1/(LHYm+k1))*LHYm_TOC1n0+((pow(TOC1n,a-1.0)*a*n1)/(pow(TOC1n,a)+pow(g1,a))-(pow(TOC1n,a)*pow(TOC1n,a-1.0)*a*n1)/pow(pow(TOC1n,a)+pow(g1,a),2.0))*TOC1n_TOC1n0;
-  ySdot[27][1] = (p1)*LHYm_TOC1n0+((LHYc*m2)/pow(LHYc+k2,2.0)-m2/(LHYc+k2)-r1)*LHYc_TOC1n0+(r2)*LHYn_TOC1n0;
-  ySdot[27][2] = (r1)*LHYc_TOC1n0+((LHYn*m3)/pow(LHYn+k3,2.0)-m3/(LHYn+k3)-r2)*LHYn_TOC1n0;
-  ySdot[27][3] = (-(pow(LHYn,b-1.0)*b*pow(g2,b)*n2)/pow(pow(LHYn,b)+pow(g2,b),2.0))*LHYn_TOC1n0+((TOC1m*m4)/pow(TOC1m+k4,2.0)-m4/(TOC1m+k4))*TOC1m_TOC1n0;
-  ySdot[27][4] = (p2)*TOC1m_TOC1n0+((TOC1c*m5)/pow(TOC1c+k5,2.0)-m5/(TOC1c+k5)-r3)*TOC1c_TOC1n0+(r4)*TOC1n_TOC1n0;
-  ySdot[27][5] = (r3)*TOC1c_TOC1n0+((TOC1n*m6)/pow(TOC1n+k6,2.0)-m6/(TOC1n+k6)-r4)*TOC1n_TOC1n0;
-#endif
 
   return 0;
 }

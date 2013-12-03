@@ -48,7 +48,7 @@ int main(int argc, char * argv[]) {
   MPI_ERROR_CHECK(MPI_Comm_size(MPI_COMM_WORLD, &size), "Unable to get MPI communicator size");
 
   // Default dataset file
-  const char * data_file = "data/MacroC500Hz_Data.mat";
+  const char * data_file = "data/MacroC500Hz_Data.h5";
 
   /*
    * Set up default MCMC options
@@ -69,7 +69,8 @@ int main(int argc, char * argv[]) {
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
-  mcmc_options.write = gmcmc_matlab_popmcmc_write;
+  mcmc_options.burn_in_writer = NULL;
+  mcmc_options.posterior_writer = NULL;
 
   int error;
   if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
@@ -78,21 +79,12 @@ int main(int argc, char * argv[]) {
   }
 
   if (argc < optind + 2) {
-    fprintf(stderr, "Usage: %s [options] <input> <output>\n", argv[0]);
+    fprintf(stderr, "Usage: %s [options] <input> [burn-in-file] <output>\n", argv[0]);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -1;
   }
 
-  char * input_file = argv[optind];
-
-  // Output file
-  gmcmc_matlab_outputID = argv[optind + 1];
-
-  // How often to save posterior samples
-  gmcmc_matlab_save_size = 8500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
-
-  // Save burn-in
-  gmcmc_matlab_save_burn_in = true;
+  char * input_file = argv[optind++];
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
@@ -210,7 +202,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_eye_dataset * dataset;
-  if ((error = gmcmc_eye_dataset_load_matlab(&dataset, data_file)) != 0) {
+  if ((error = gmcmc_eye_dataset_load_hdf5(&dataset, data_file)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < 7; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -291,6 +283,41 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, eye_model);
 
+
+  /*
+   * Output file format.
+   */
+  if (optind + 1 < argc) {
+    if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.burn_in_writer,
+                                              argv[optind++], 7, 1,
+                                              mcmc_options.num_temperatures,
+                                              mcmc_options.num_burn_in_samples)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_eye_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      gmcmc_eye_model_destroy(eye_model);
+      fputs("Unable to create HDF5 burn-in writer\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+
+  if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.posterior_writer,
+                                            argv[optind], 7, 1,
+                                            mcmc_options.num_temperatures,
+                                            mcmc_options.num_posterior_samples)) != 0) {
+    // Clean up
+    free(temperatures);
+    gmcmc_eye_dataset_destroy(dataset);
+    gmcmc_model_destroy(model);
+    gmcmc_eye_model_destroy(eye_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    fputs("Unable to create HDF5 posterior writer\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -5;
+  }
+
   // Seed the RNG
   time_t seed = time(NULL);
   gmcmc_prng64_seed(rng, seed);
@@ -328,6 +355,8 @@ int main(int argc, char * argv[]) {
   gmcmc_eye_dataset_destroy(dataset);
   gmcmc_model_destroy(model);
   gmcmc_eye_model_destroy(eye_model);
+  gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+  gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
   gmcmc_prng64_destroy(rng);
 
   MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");

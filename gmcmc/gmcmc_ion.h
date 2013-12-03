@@ -166,7 +166,7 @@ int gmcmc_ion_dataset_load_matlab(gmcmc_ion_dataset **, const char *);
  * dataset of the same dimensions and type named "Data".
  *
  * @param [out] dataset     the dataset object to load data into
- * @param [in]  filename    the name of the HDF .h5 file containing the data
+ * @param [in]  filename    the name of the HDF5 .h5 file containing the data
  *
  * @return 0 on success,
  *         GMCMC_ENOMEM if there is not enough memory to allocate the dataset or

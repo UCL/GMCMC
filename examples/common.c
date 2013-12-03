@@ -98,27 +98,27 @@ int parse_options(int argc, char * argv[], gmcmc_popmcmc_options * options, cons
         fprintf(stderr, "Unknown option: %s\n", optarg);
         return optind;
       default:
-        fprintf(stdout, "Usage: %s [option1,option2,...optionN] output\n"
+        fprintf(stdout, "Usage: %s [option1,option2,...optionN] [burn_in_file] posterior_file\n"
                         "where valid options are:\n"
                         "  --num_temperatures|-t=<n>\tthe number of temperatures to use\n"
                         "  --num_burn_in_samples|-b=<n>\tthe number of samples to discard as burn-in\n"
                         "  --num_posterior_samples|-p=<n>\tthe number of posterior samples to generate\n"
                         "  --adapt_rate|-a=<n>\thow often to adapt the step sizes for parameter proposals\n"
                         "  --upper_acceptance_rate|-u=<z>\tthe upper limit on the acceptance rate (increase the step size when the acceptance rate is above this value)\n"
-                        "  --lower_acceptance_rate|-u=<z>\tthe lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
+                        "  --lower_acceptance_rate|-l=<z>\tthe lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
         return -1;
     }
   }
 
   if (optind >= argc || help == 1) {
-        fprintf(stdout, "Usage: %s [option1,option2,...optionN] output\n"
+        fprintf(stdout, "Usage: %s [option1,option2,...optionN] [burn_in_file] posterior_file\n"
                         "where valid options are:\n"
                         "  --num_temperatures|-t=<n>\tthe number of temperatures to use\n"
                         "  --num_burn_in_samples|-b=<n>\tthe number of samples to discard as burn-in\n"
                         "  --num_posterior_samples|-p=<n>\tthe number of posterior samples to generate\n"
                         "  --adapt_rate|-a=<n>\thow often to adapt the step sizes for parameter proposals\n"
                         "  --upper_acceptance_rate|-u=<z>\tthe upper limit on the acceptance rate (increase the step size when the acceptance rate is above this value)\n"
-                        "  --lower_acceptance_rate|-u=<z>\tthe lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
+                        "  --lower_acceptance_rate|-l=<z>\tthe lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
     return 1;
   }
 

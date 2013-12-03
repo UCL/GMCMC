@@ -57,7 +57,7 @@ int main(int argc, char * argv[]) {
   MPI_ERROR_CHECK(MPI_Comm_size(MPI_COMM_WORLD, &size), "Unable to get MPI communicator size");
 
   // Default dataset file
-  const char * data_file = "data/ION_Five_State_Balanced_Data_Long.mat";
+  const char * data_file = "data/ION_Five_State_Balanced_Data_Long.h5";
 
   /*
    * Set up default MCMC options
@@ -78,22 +78,14 @@ int main(int argc, char * argv[]) {
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
-  mcmc_options.write = gmcmc_matlab_popmcmc_write;
+  mcmc_options.burn_in_writer = NULL;
+  mcmc_options.posterior_writer = NULL;
 
   int error;
   if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
-
-  // Output file
-  gmcmc_matlab_outputID = argv[optind];
-
-  // How often to save posterior samples
-  gmcmc_matlab_save_size = 7000000 / mcmc_options.num_temperatures;   // Results in ~1GB files for this model
-
-  // Save burn-in
-  gmcmc_matlab_save_burn_in = true;
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
@@ -167,7 +159,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_ion_dataset * dataset;
-  if ((error = gmcmc_ion_dataset_load_matlab(&dataset, data_file)) != 0) {
+  if ((error = gmcmc_ion_dataset_load_hdf5(&dataset, data_file)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -222,9 +214,6 @@ int main(int argc, char * argv[]) {
   gmcmc_ion_model * ion_model;
   if ((error = gmcmc_ion_model_create(&ion_model, 3, 2, calculate_Q_matrix)) != 0) {
     // Clean up
-    for (unsigned int i = 0; i < num_params; i++)
-      gmcmc_distribution_destroy(priors[i]);
-    free(priors);
     free(temperatures);
     gmcmc_ion_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
@@ -234,6 +223,42 @@ int main(int argc, char * argv[]) {
   }
 
   gmcmc_model_set_modelspecific(model, ion_model);
+
+
+  /*
+   * Output file format.
+   */
+  if (optind + 1 < argc) {
+    if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.burn_in_writer,
+                                              argv[optind++], num_params, 1,
+                                              mcmc_options.num_temperatures,
+                                              mcmc_options.num_burn_in_samples)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ion_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      gmcmc_ion_model_destroy(ion_model);
+      fputs("Unable to create HDF5 burn-in writer\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+
+  if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.posterior_writer,
+                                            argv[optind], num_params, 1,
+                                            mcmc_options.num_temperatures,
+                                            mcmc_options.num_posterior_samples)) != 0) {
+    // Clean up
+    free(temperatures);
+    gmcmc_ion_dataset_destroy(dataset);
+    gmcmc_model_destroy(model);
+    gmcmc_ion_model_destroy(ion_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    fputs("Unable to create HDF5 posterior writer\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -5;
+  }
+
 
   /*
    * Create a parallel random number generator to use
@@ -245,6 +270,8 @@ int main(int argc, char * argv[]) {
     gmcmc_ion_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
     gmcmc_ion_model_destroy(ion_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
     fputs("Unable to create parallel RNG\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -5;
@@ -287,6 +314,8 @@ int main(int argc, char * argv[]) {
   gmcmc_ion_dataset_destroy(dataset);
   gmcmc_model_destroy(model);
   gmcmc_ion_model_destroy(ion_model);
+  gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+  gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
   gmcmc_prng64_destroy(rng);
 
   MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");

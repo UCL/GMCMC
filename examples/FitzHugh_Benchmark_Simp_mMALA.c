@@ -48,26 +48,6 @@
  */
 static int fitzhughnagumo(double, const double *, double *, const double *);
 
-/**
- * Function to evaluate the sensitivities right-hand side of the Fitz Hugh
- * Nagumo model.
- *
- * @param [in]  t      is the current value of the independent variable
- * @param [in]  y      is the current value of the state vector, y(t)
- * @param [in]  ydot   is the current value of the right-hand side of the state
- *                      equations
- * @param [in]  yS     contains the current values of the sensitivity vectors
- * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
- *                       sensitivity right-hand side vectors
- * @param [in]  params  function parameters
- *
- * @return = 0 on success,
- *         > 0 if the current values in y are invalid,
- *         < 0 if one of the parameter values is incorrect.
- */
-static int fitzhughnagumo_sens(double, const double *, const double *,
-                               const double **, double **, const double *);
-
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
@@ -82,7 +62,7 @@ int main(int argc, char * argv[]) {
   MPI_ERROR_CHECK(MPI_Comm_size(MPI_COMM_WORLD, &size), "Unable to get MPI communicator size");
 
   // Default dataset file
-  const char * data_file = "data/FitzHugh_Benchmark_Data_1000.mat";
+  const char * data_file = "data/FitzHugh_Benchmark_Data_1000.h5";
 
   /*
    * Set up default MCMC options
@@ -103,22 +83,14 @@ int main(int argc, char * argv[]) {
 
   // Callbacks
   mcmc_options.acceptance = acceptance_monitor;
-  mcmc_options.write = gmcmc_matlab_popmcmc_write;
+  mcmc_options.burn_in_writer = NULL;
+  mcmc_options.posterior_writer = NULL;
 
   int error;
   if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
-
-  // Output file
-  gmcmc_matlab_outputID = argv[optind];
-
-  // How often to save posterior samples
-  gmcmc_matlab_save_size = 12500000 / mcmc_options.num_temperatures;  // Results in ~1GB files for this model
-
-  // Save burn-in
-  gmcmc_matlab_save_burn_in = true;
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
@@ -195,7 +167,7 @@ int main(int argc, char * argv[]) {
 
   // Load the dataset
   gmcmc_ode_dataset * dataset;
-  if ((error = gmcmc_ode_dataset_load_matlab(&dataset, data_file)) != 0) {
+  if ((error = gmcmc_ode_dataset_load_hdf5(&dataset, data_file)) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);
@@ -265,9 +237,43 @@ int main(int argc, char * argv[]) {
 
   gmcmc_model_set_modelspecific(model, ode_model);
 
-//   gmcmc_ode_model_set_rhs_sens(ode_model, fitzhughnagumo_sens);
-
   gmcmc_ode_model_set_tolerances(ode_model, 1.0e-08, 1.0e-08);
+
+
+  /*
+   * Output file format.
+   */
+  if (optind + 1 < argc) {
+    if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.burn_in_writer,
+                                              argv[optind++], num_params, 1,
+                                              mcmc_options.num_temperatures,
+                                              mcmc_options.num_burn_in_samples)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ode_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      gmcmc_ode_model_destroy(ode_model);
+      fputs("Unable to create HDF5 burn-in writer\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+
+  if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.posterior_writer,
+                                            argv[optind], num_params, 1,
+                                            mcmc_options.num_temperatures,
+                                            mcmc_options.num_posterior_samples)) != 0) {
+    // Clean up
+    free(temperatures);
+    gmcmc_ode_dataset_destroy(dataset);
+    gmcmc_model_destroy(model);
+    gmcmc_ode_model_destroy(ode_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    fputs("Unable to create HDF5 posterior writer\n", stderr);
+    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+    return -5;
+  }
+
 
 
   /*
@@ -280,6 +286,8 @@ int main(int argc, char * argv[]) {
     gmcmc_ode_dataset_destroy(dataset);
     gmcmc_model_destroy(model);
     gmcmc_ode_model_destroy(ode_model);
+    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+    gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
     fputs("Unable to create parallel RNG\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -5;
@@ -322,6 +330,8 @@ int main(int argc, char * argv[]) {
   gmcmc_ode_dataset_destroy(dataset);
   gmcmc_model_destroy(model);
   gmcmc_ode_model_destroy(ode_model);
+  gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+  gmcmc_filewriter_destroy(mcmc_options.posterior_writer);
   gmcmc_prng64_destroy(rng);
 
   MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
@@ -358,84 +368,6 @@ static int fitzhughnagumo(double t, const double * y, double * ydot, const doubl
 
   // d/dt(R) = -(V-a+b*R)/c
   ydot[1] = -(v - a + b * r) / c;
-
-  return 0;
-}
-
-/**
- * Function to evaluate the sensitivities right-hand side of the Fitz Hugh
- * Nagumo model.
- *
- * @param [in]  t      is the current value of the independent variable
- * @param [in]  y      is the current value of the state vector, y(t)
- * @param [in]  ydot   is the current value of the right-hand side of the state
- *                      equations
- * @param [in]  yS     contains the current values of the sensitivity vectors
- * @param [out] ySdot  is the output of CVSensRhsFn. On exit it must contain the
- *                       sensitivity right-hand side vectors
- * @param [in]  params  function parameters
- *
- * @return = 0 on success,
- *         > 0 if the current values in y are invalid,
- *         < 0 if one of the parameter values is incorrect.
- */
-static int fitzhughnagumo_sens(double t, const double * y, const double * ydot,
-                               const double ** yS, double ** ySdot, const double * params) {
-  (void)t;      // Unused
-  (void)ydot;
-
-  // Model parameters
-  double a = params[0];
-  double b = params[1];
-  double c = params[2];
-
-  // Model states
-  double v = y[0];
-  double r = y[1];
-  double v_a = yS[0][0];
-  double r_a = yS[0][1];
-  double v_b = yS[1][0];
-  double r_b = yS[1][1];
-  double v_c = yS[2][0];
-  double r_c = yS[2][1];
-#ifdef INFER_ICS
-  double v_v0 = yS[3][0];
-  double r_v0 = yS[3][1];
-  double v_r0 = yS[4][0];
-  double r_r0 = yS[4][1];
-#endif
-
-  // d/dt(V_a) = (-c*(V^2 - 1))*V_a + (c)*R_a
-  ySdot[0][0] = (-c * (v*v - 1.0)) * v_a + c * r_a;
-
-  // d/dt(R_a) = (-1/c)*V_a + (-b/c)*R_a + 1/c
-  ySdot[0][1] = (-1.0 / c) * v_a + (-b / c) * r_a + 1.0 / c;
-
-  // d/dt(V_b) = (-c*(V^2 - 1))*V_b + (c)*R_b
-  ySdot[1][0] = (-c * (v*v - 1.0)) * v_b + c * r_b;
-
-  // d/dt(R_b) = (-1/c)*V_b + (-b/c)*R_b - R/c
-  ySdot[1][1] = (-1.0 / c) * v_b + (-b / c) * r_b - r / c;
-
-  // d/dt(V_c) = (-c*(V^2 - 1))*V_c + (c)*R_c + V - V^3/3 + R
-  ySdot[2][0] = (-c * (v*v - 1.0)) * v_c + c * r_c + v - (v*v*v) / 3.0 + r;
-
-  // d/dt(R_c) = (-1/c)*V_c + (-b/c)*R_c + (V - a + R*b)/c^2
-  ySdot[2][1] = (-1.0 / c) * v_c + (-b / c) * r_c + (v - a + r * b) / (c*c);
-
-#ifdef INFER_ICS
-  // d/dt(V_V0) = (-c*(V^2 - 1))*V_V0 + (c)*R_V0
-  ySdot[3][0] = (-c * (v*v - 1.0)) * v_v0 + c * r_v0;
-
-  // d/dt(R_V0) = (-1/c)*V_V0 + (-b/c)*R_V0
-  ySdot[3][1] = (-1.0 / c) * v_v0 + (-b / c) * r_v0;
-
-  // d/dt(V_R0) = (-c*(V^2 - 1))*V_R0 + (c)*R_R0
-  ySdot[4][0] = (-c * (v*v - 1.0)) * v_r0 + c * r_r0;
-
-  // d/dt(R_R0) = (-1/c)*V_R0 + (-b/c)*R_R0
-  ySdot[4][1] = (-1.0 / c) * v_r0 + (-b / c) * r_r0;
-#endif
 
   return 0;
 }
