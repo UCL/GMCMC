@@ -64,7 +64,7 @@ static int init_fitzhugh_mh() {
   int error;
 
   // Load the dataset
-  if ((error = gmcmc_ode_dataset_load_matlab(&data, "../data/FitzHugh_Benchmark_Data.mat")) != 0)
+  if ((error = gmcmc_ode_dataset_load_hdf5(&data, "../data/FitzHugh_Benchmark_Data.h5")) != 0)
     GMCMC_ERROR("Failed to create Fitz Hugh Nagumo dataset", error);
 
   // Create the priors for each of the parameters and initial conditions
@@ -140,7 +140,7 @@ static int init_fitzhugh_simp_mmala() {
   int error;
 
   // Load the dataset
-  if ((error = gmcmc_ode_dataset_load_matlab(&data, "../data/FitzHugh_Benchmark_Data.mat")) != 0)
+  if ((error = gmcmc_ode_dataset_load_hdf5(&data, "../data/FitzHugh_Benchmark_Data.h5")) != 0)
     GMCMC_ERROR("Failed to create Fitz Hugh Nagumo dataset", error);
 
   // Create the priors for each of the parameters

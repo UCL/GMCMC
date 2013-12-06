@@ -24,7 +24,7 @@ static void set(void * state, int id, uint64_t seed) {
   mt_state * mt = (mt_state *)state;
 
   mt->state[0] = (uint32_t)(seed & MT_WMASK);
-  for (int i = 1; i < MT_NN; i++) {
+  for (uint32_t i = 1; i < MT_NN; i++) {
     mt->state[i] = (UINT32_C(1812433253) * (mt->state[i - 1] ^
                                             (mt->state[i - 1] >> 30))) + i + 1;
     mt->state[i] &= MT_WMASK;
@@ -63,5 +63,5 @@ static uint64_t get(void * state, int id) {
 static double get_double(void * state, int id) {
   uint64_t a = get(state, id) >> 5;
   uint64_t b = get(state, id) >> 6;
-  return (a * 67108864.0 + b) * (1.0 / 9007199254740992.0);
+  return ((double)a * 67108864.0 + (double)b) * (1.0 / 9007199254740992.0);
 }

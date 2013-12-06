@@ -101,7 +101,7 @@ int gmcmc_ode_dataset_load_hdf5(gmcmc_ode_dataset ** ds, const char * filename) 
   // Read the timepoints matrix
   int error;
   if ((error = hdf5_read_matrix(file, "TimePoints", H5T_IEEE_F64LE,
-                                &hdf5->num_timepoints, &hdf5->num_timepoint_vectors,
+                                &hdf5->num_timepoint_vectors, &hdf5->num_timepoints,
                                 (void **)&hdf5->timepoints)) != 0) {
     H5Fclose(file);
     free(hdf5);
@@ -110,7 +110,7 @@ int gmcmc_ode_dataset_load_hdf5(gmcmc_ode_dataset ** ds, const char * filename) 
 
   // Read the data matrix
   size_t num_datapoints;
-  if ((error = hdf5_read_matrix(file, "Data", H5T_IEEE_F64LE, &num_datapoints, &hdf5->num_data_vectors, (void **)&hdf5->data)) != 0) {
+  if ((error = hdf5_read_matrix(file, "Data", H5T_IEEE_F64LE, &hdf5->num_data_vectors, &num_datapoints, (void **)&hdf5->data)) != 0) {
     free(hdf5->timepoints);
     H5Fclose(file);
     free(hdf5);
@@ -128,7 +128,7 @@ int gmcmc_ode_dataset_load_hdf5(gmcmc_ode_dataset ** ds, const char * filename) 
 
   // Read the data matrix
   size_t num_noisecovs;
-  if ((error = hdf5_read_vector(file, "NoiseCov", H5T_IEEE_F64LE, &num_noisecovs, (void **)&hdf5->noisecov)) != 0) {
+  if ((error = hdf5_read_vector(file, "NoiseVariance", H5T_IEEE_F64LE, &num_noisecovs, (void **)&hdf5->noisecov)) != 0) {
     free(hdf5->data);
     free(hdf5->timepoints);
     H5Fclose(file);
@@ -144,6 +144,15 @@ int gmcmc_ode_dataset_load_hdf5(gmcmc_ode_dataset ** ds, const char * filename) 
     H5Fclose(file);
     free(hdf5);
     GMCMC_ERROR("Data vector is too short", error);
+  }
+
+  // Close the file after loading the data
+  if (H5Fclose(file) < 0) {
+    free(hdf5->noisecov);
+    free(hdf5->data);
+    free(hdf5->timepoints);
+    free(hdf5);
+    GMCMC_ERROR("Failed to close HDF5 file", GMCMC_EIO);
   }
 
   // Allocate the dataset structure

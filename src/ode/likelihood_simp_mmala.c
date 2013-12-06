@@ -88,17 +88,28 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
     const size_t num_real_params = num_params - num_species;
     ics = &params[num_real_params];
 
-    // For each parameter (or initial condition) in the block
-    for (size_t i = 0; i < n; i++) {
-      if (block[i] < num_real_params) {
-        // parameter in block is a real parameter
-        for (size_t j = 0; j < num_species; j++)
-          sensitivities[(i * num_species + j) * lds] = 0.0;
+    if (block == NULL) {
+      for (size_t j = 0; j < num_real_params * num_species; j++)
+        sensitivities[j * lds] = 0.0;
+      double * sensitivities_ics = &sensitivities[num_real_params * num_species * lds];
+      for (size_t j = 0; j < num_species; j++) {
+        for (size_t i = 0; i < num_species; i++)
+          sensitivities_ics[(j * num_species + i) * lds] = (i == j) ? 1.0 : 0.0;
       }
-      else {
-        // parameter in block is an initial condition
-        for (size_t j = 0; j < num_species; j++)
-          sensitivities[(i * num_species + j) * lds] = (block[i] == j) ? 1.0 : 0.0;
+    }
+    else {
+      // For each parameter (or initial condition) in the block
+      for (size_t i = 0; i < n; i++) {
+        if (block[i] < num_real_params) {
+          // parameter in block is a real parameter
+          for (size_t j = 0; j < num_species; j++)
+            sensitivities[(i * num_species + j) * lds] = 0.0;
+        }
+        else {
+          // parameter in block is an initial condition
+          for (size_t j = 0; j < num_species; j++)
+            sensitivities[(i * num_species + j) * lds] = (block[i] == j) ? 1.0 : 0.0;
+        }
       }
     }
   }

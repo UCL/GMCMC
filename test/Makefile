@@ -1,7 +1,7 @@
 include ../make.inc
 CPPFLAGS = -I..
 LDFLAGS = -L..
-LDLIBS = -lgmcmc -lgmcmc_matlab -lcunit -lm
+LDLIBS = -lgmcmc -lgmcmc_hdf5 -lcunit -lm
 
 VPATH = . ../gmcmc
 

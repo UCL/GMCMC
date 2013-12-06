@@ -167,7 +167,7 @@ static inline int hdf5_read_matrix(hid_t file, const char * name, hid_t type,
     H5Dclose(dataset);
     GMCMC_ERROR("Unable to read file dataspace dimensions", GMCMC_EIO);
   }
-  if (dims[0] != 1 || dims[1] < 1) {
+  if (dims[0] < 1 || dims[1] < 1) {
     H5Sclose(filespace);
     H5Tclose(datatype);
     H5Dclose(dataset);
@@ -182,7 +182,7 @@ static inline int hdf5_read_matrix(hid_t file, const char * name, hid_t type,
     GMCMC_ERROR("Failed to allocate memory for matrix", GMCMC_ENOMEM);
   }
   *rows = dims[0];
-  *cols = dims[0];
+  *cols = dims[1];
 
   // Read the matrix from the dataset
   if (H5Dread(dataset, H5T_IEEE_F64LE, H5S_ALL, H5S_ALL, H5P_DEFAULT, *data) < 0) {

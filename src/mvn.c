@@ -211,7 +211,7 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
   free(inv);
 
   // LogResult = -(k/2)*log(2*pi) - sum(log(diag(chol(Covar)))) -0.5*(( Diff'/Covar )*Diff);
-  *res = -(n / 2.0) * M_LOG2PI - 0.5 * ldet - 0.5 * p;
+  *res = -((double)n / 2.0) * M_LOG2PI - 0.5 * ldet - 0.5 * p;
 
   return 0;
 }
@@ -270,7 +270,7 @@ static inline int gmcmc_mvn_logpdfv(size_t n, const double * x,
     }
   }
 
-  *res = -(n / 2.0) * M_LOG2PI - 0.5 * (log_det + p);
+  *res = -((double)n / 2.0) * M_LOG2PI - 0.5 * (log_det + p);
 
   return 0;
 }
@@ -323,7 +323,7 @@ static inline int gmcmc_mvn_logpdfs(size_t n, const double * x,
   }
 
   // log(det(Sigma)) becomes n * log(sigma)
-  *res = -(n / 2.0) * (M_LOG2PI + log(sigma)) - (p / (2.0 * sigma));
+  *res = -((double)n / 2.0) * (M_LOG2PI + log(sigma)) - (p / (2.0 * sigma));
 
   return 0;
 }

@@ -30,7 +30,7 @@ static void set(void * state, int id, uint64_t seed) {
   mt_state * mt = (mt_state *)state;
 
   mt->state[0] = seed & MT_WMASK;
-  for (int i = 1; i < MT_NN; i++) {
+  for (uint64_t i = 1; i < MT_NN; i++) {
     mt->state[i] = (UINT64_C(6364136223846793005) * (mt->state[i - 1] ^
                                             (mt->state[i - 1] >> 62))) + i + 1;
     mt->state[i] &= MT_WMASK;
@@ -40,7 +40,7 @@ static void set(void * state, int id, uint64_t seed) {
 
 uint64_t get(void * state, int id) {
   mt_state * mt = (mt_state *)state;
-  const uint32_t mag01[] = { UINT64_C(0), params[id].aaa };
+  const uint64_t mag01[] = { UINT64_C(0), params[id].aaa };
 
   if (mt->i >= MT_NN) {
     for (int k = 0; k < MT_NN - MT_MM; k++) {
@@ -67,7 +67,7 @@ uint64_t get(void * state, int id) {
 }
 
 static double get_double(void * state, int id) {
-  return (get(state, id) >> 11) * (1.0/9007199254740992.0);
+  return (double)(get(state, id) >> 11) * (1.0/9007199254740992.0);
 }
 
 static const gmcmc_prng64_type type = {

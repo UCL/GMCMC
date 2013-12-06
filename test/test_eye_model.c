@@ -80,7 +80,7 @@ static int init_eye() {
   }
 
   // Load the dataset
-  if ((error = gmcmc_eye_dataset_load_matlab(&data, "../data/MacroC500Hz_Data.mat")) != 0) {
+  if ((error = gmcmc_eye_dataset_load_hdf5(&data, "../data/MacroC500Hz_Data.h5")) != 0) {
     // Clean up
     for (unsigned int i = 0; i < 6; i++)
       gmcmc_distribution_destroy(priors[i]);

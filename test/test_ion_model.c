@@ -83,7 +83,7 @@ static int init_castillo_katz() {
   }
 
   // Load the data
-  if ((error = gmcmc_ion_dataset_load_matlab(&data, "../data/ION_dCK_0,5s.mat")) != 0) {
+  if ((error = gmcmc_ion_dataset_load_hdf5(&data, "../data/ION_dCK_0,5s.h5")) != 0) {
     // Clean up
     for (unsigned int i = 0; i < num_params; i++)
       gmcmc_distribution_destroy(priors[i]);

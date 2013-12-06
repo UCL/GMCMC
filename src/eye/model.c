@@ -56,7 +56,7 @@ int gmcmc_eye_model_create(gmcmc_eye_model ** eye_model, const char * ph_data,
   (*eye_model)->num_stimuli = NULL;
   (*eye_model)->stimuli = NULL;
 
-  const size_t max_length = 100;
+  const int max_length = 100;
   char line[max_length];
   while (fgets(line, max_length, file) != NULL) {
     // Increment the number of photoreceptors

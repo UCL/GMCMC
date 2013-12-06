@@ -85,6 +85,14 @@ int gmcmc_eye_dataset_load_hdf5(gmcmc_eye_dataset ** ds, const char * filename) 
     GMCMC_ERROR("Variance vector is wrong size", error);
   }
 
+  // Close the file after loading the data
+  if (H5Fclose(file) < 0) {
+    free(hdf5->mean);
+    free(hdf5->variance);
+    free(hdf5);
+    GMCMC_ERROR("Failed to close HDF5 file", GMCMC_EIO);
+  }
+
   // Allocate the dataset structure
   if ((*ds = malloc(sizeof(gmcmc_eye_dataset))) == NULL) {
     free(hdf5->mean);
