@@ -34,6 +34,40 @@
     } \
   } while (false)
 
+struct eye_args {
+  const char * ph_data;
+  int offset, length;
+};
+
+static int parse_extra(int c, const char * optarg, void * extra) {
+  struct eye_args * args = (struct eye_args *)extra;
+  switch (c) {
+    case 100:
+      args->ph_data = optarg;
+      return 0;
+    case 101:
+      if (sscanf(optarg, "%d", &args->offset) != 1) {
+        fprintf(stderr, "Invalid offset: %s\n", optarg);
+        return -1;
+      }
+      return 0;
+    case 102:
+      if (sscanf(optarg, "%d", &args->length) != 1) {
+        fprintf(stderr, "Invalid length: %s\n", optarg);
+        return -1;
+      }
+      return 0;
+  }
+  return '?';
+}
+
+static void print_extra(FILE * stream) {
+  fprintf(stream, "Stochastic eye extra options:\n");
+  fprintf(stream, "  --ph_data=<file.txt>  photoreceptor data file\n");
+  fprintf(stream, "  --offset=<n>          first photoreceptor to compare\n");
+  fprintf(stream, "  --length=<n>          number of photoreceptors to compare\n");
+}
+
 int main(int argc, char * argv[]) {
   // Since we are using MPI for parallel processing initialise it here before
   // parsing the arguments for our program
@@ -49,6 +83,18 @@ int main(int argc, char * argv[]) {
 
   // Default dataset file
   const char * data_file = "data/MacroC500Hz_Data.h5";
+  // Default extra options
+  struct eye_args extra = {
+    .ph_data = "data/WNBG05_500Hz.txt",
+    .offset  =  115,
+    .length  = 2125
+  };
+  struct option ext_longopts[] = {
+    { "ph_data", required_argument, NULL, 100 },
+    { "offset",  required_argument, NULL, 101 },
+    { "length",  required_argument, NULL, 102 },
+    { NULL, 0, NULL, 0 }
+  };
 
   /*
    * Set up default MCMC options
@@ -73,18 +119,11 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL,
+                             ext_longopts, parse_extra, print_extra, &extra)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
-
-  if (argc < optind + 2) {
-    fprintf(stderr, "Usage: %s [options] <input> [burn-in-file] <output>\n", argv[0]);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -1;
-  }
-
-  char * input_file = argv[optind++];
 
   // Set up temperature schedule
   // Since we are using MPI we *could* just initialise the temperatures this
@@ -269,8 +308,7 @@ int main(int argc, char * argv[]) {
   gmcmc_prng64_seed(rng, 4721);
 
   gmcmc_eye_model * eye_model;
-  if ((gmcmc_eye_model_create(&eye_model, input_file,
-                              115, 2010, rng)) != 0) {
+  if ((gmcmc_eye_model_create(&eye_model, extra.ph_data, extra.offset, extra.length, rng)) != 0) {
     // Clean up
     free(temperatures);
     gmcmc_eye_dataset_destroy(dataset);

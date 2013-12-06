@@ -87,7 +87,7 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options, &data_file)) != 0) {
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL, NULL, NULL, NULL, NULL)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }

@@ -1,6 +1,7 @@
 #include "common.h"
 #include <stdio.h>
-#include <getopt.h>
+#include <string.h>
+#include "gmcmc/gmcmc_errno.h"
 
 void acceptance_monitor(const gmcmc_popmcmc_options * options, const gmcmc_model * model,
                         size_t i, const double * accepts,
@@ -34,9 +35,24 @@ void acceptance_monitor(const gmcmc_popmcmc_options * options, const gmcmc_model
     fprintf(stderr, "Posterior iteration: %zu of %zu\n\n", i - options->num_burn_in_samples, options->num_posterior_samples);
 }
 
-int parse_options(int argc, char * argv[], gmcmc_popmcmc_options * options, const char ** data_file) {
+static inline bool is_null(const struct option opt) {
+  return (opt.name == NULL && opt.has_arg == 0 && opt.flag == NULL && opt.val == 0);
+}
+
+static inline size_t optlen(const struct option * opts) {
+  size_t len = 0;
+  while (!is_null(opts[len]))
+    len++;
+  return len;
+}
+
+int parse_options(int argc, char * argv[], gmcmc_popmcmc_options * options, const char ** data_file,
+                  const char * ext_optstring, const struct option * ext_longopts,
+                  int (*parse_extra)(int, const char *, void *), void (*print_extra)(FILE *), void * extra) {
   int help = 0;
-  struct option long_options[] = {
+
+  const char * std_optstring = "t:b:p:a:u:l:d:h";
+  const struct option std_longopts[] = {
     { "num_temperatures",      required_argument, NULL, 't' },
     { "num_burn_in_samples",   required_argument, NULL, 'b' },
     { "num_posterior_samples", required_argument, NULL, 'p' },
@@ -48,9 +64,47 @@ int parse_options(int argc, char * argv[], gmcmc_popmcmc_options * options, cons
     { NULL, 0, NULL, 0 }
   };
 
-  int c, option_index;
+  char * optstring;
+  if (ext_optstring != NULL) {
+    const size_t stdlen = strlen(std_optstring), extlen = strlen(ext_optstring);
+    if ((optstring = malloc((stdlen + extlen + 1) * sizeof(char))) == NULL)
+      GMCMC_ERROR("Failed to allocate optstring", GMCMC_ENOMEM);
+    memcpy(optstring, std_optstring, stdlen * sizeof(char));
+    memcpy(&optstring[stdlen], ext_optstring, extlen * sizeof(char));
+    optstring[stdlen + extlen - 1] = '\0';
+  }
+  else {
+    const size_t stdlen = strlen(std_optstring);
+    if ((optstring = malloc((stdlen + 1) * sizeof(char))) == NULL)
+      GMCMC_ERROR("Failed to allocate optstring", GMCMC_ENOMEM);
+    memcpy(optstring, std_optstring, stdlen * sizeof(char));
+    optstring[stdlen - 1] = '\0';
+  }
+
+  struct option * longopts;
+  if (ext_longopts != NULL) {
+    const size_t stdlen = optlen(std_longopts), extlen = optlen(ext_longopts);
+    if ((longopts = malloc((stdlen + extlen + 1) * sizeof(struct option))) == NULL) {
+      free(optstring);
+      GMCMC_ERROR("Failed to allocate options", GMCMC_ENOMEM);
+    }
+    memcpy(longopts, std_longopts, stdlen * sizeof(struct option));
+    memcpy(&longopts[stdlen], ext_longopts, extlen * sizeof(struct option));
+    longopts[stdlen + extlen - 1] = (struct option){ NULL, 0, NULL, 0 };
+  }
+  else {
+    const size_t stdlen = optlen(std_longopts);
+    if ((longopts = malloc((stdlen + 1) * sizeof(struct option))) == NULL) {
+      free(optstring);
+      GMCMC_ERROR("Failed to allocate options", GMCMC_ENOMEM);
+    }
+    memcpy(longopts, std_longopts, stdlen * sizeof(struct option));
+    longopts[stdlen - 1] = (struct option){ NULL, 0, NULL, 0 };
+  }
+
+  int c, longindex;
   opterr = 0;
-  while ((c = getopt_long(argc, argv, "t:b:p:a:u:l:d:h", long_options, &option_index)) != -1) {
+  while ((c = getopt_long(argc, argv, optstring, longopts, &longindex)) != -1) {
     switch (c) {
       case 'd':
         *data_file = optarg;
@@ -58,69 +112,100 @@ int parse_options(int argc, char * argv[], gmcmc_popmcmc_options * options, cons
       case 't':
         if (sscanf(optarg, "%u", &options->num_temperatures) != 1) {
           fprintf(stderr, "Invalid number of temperatures: %s\n", optarg);
+          free(optstring);
+          free(longopts);
           return -optind;
         }
         break;
       case 'b':
         if (sscanf(optarg, "%zu", &options->num_burn_in_samples) != 1) {
           fprintf(stderr, "Invalid number of burn-in samples: %s\n", optarg);
+          free(optstring);
+          free(longopts);
           return -optind;
         }
         break;
       case 'p':
         if (sscanf(optarg, "%zu", &options->num_posterior_samples) != 1) {
           fprintf(stderr, "Invalid number of posterior samples: %s\n", optarg);
+          free(optstring);
+          free(longopts);
           return -optind;
         }
         break;
       case 'a':
         if (sscanf(optarg, "%u", &options->adapt_rate) != 1) {
           fprintf(stderr, "Invalid adapt rate: %s\n", optarg);
+          free(optstring);
+          free(longopts);
           return -optind;
         }
         break;
       case 'u':
         if (sscanf(optarg, "%lf", &options->upper_acceptance_rate) != 1) {
           fprintf(stderr, "Invalid upper limit: %s\n", optarg);
+          free(optstring);
+          free(longopts);
           return -optind;
         }
         break;
       case 'l':
         if (sscanf(optarg, "%lf", &options->lower_acceptance_rate) != 1) {
           fprintf(stderr, "Invalid lower limit: %s\n", optarg);
+          free(optstring);
+          free(longopts);
           return -optind;
         }
         break;
       case 'h':
         help = 1;
         break;
-      case '?':
-        fprintf(stderr, "Unknown option: %s\n", optarg);
-        return optind;
+//       case '?':
+//         fprintf(stderr, "Unknown option: %s\n", optarg);
+//         return optind;
       default:
-        fprintf(stdout, "Usage: %s [option1,option2,...optionN] [burn_in_file] posterior_file\n"
-                        "where valid options are:\n"
-                        "  --num_temperatures|-t=<n>\tthe number of temperatures to use\n"
-                        "  --num_burn_in_samples|-b=<n>\tthe number of samples to discard as burn-in\n"
-                        "  --num_posterior_samples|-p=<n>\tthe number of posterior samples to generate\n"
-                        "  --adapt_rate|-a=<n>\thow often to adapt the step sizes for parameter proposals\n"
-                        "  --upper_acceptance_rate|-u=<z>\tthe upper limit on the acceptance rate (increase the step size when the acceptance rate is above this value)\n"
-                        "  --lower_acceptance_rate|-l=<z>\tthe lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
-        return -1;
+        if (parse_extra != NULL && parse_extra(c, optarg, extra) == '?') {
+          fprintf(stderr, "Unknown option: %s\n", optarg);
+          free(optstring);
+          free(longopts);
+          return optind;
+        }
+        else {
+          fprintf(stdout, "Usage: %s [option1,option2,...optionN] [burn_in_file] posterior_file\n"
+                          "where valid options are:\n"
+                          "  --num_temperatures|-t=<n>       the number of temperatures to use\n"
+                          "  --num_burn_in_samples|-b=<n>    the number of samples to discard as burn-in\n"
+                          "  --num_posterior_samples|-p=<n>  the number of posterior samples to generate\n"
+                          "  --adapt_rate|-a=<n>             how often to adapt the step sizes for parameter proposals\n"
+                          "  --upper_acceptance_rate|-u=<z>  the upper limit on the acceptance rate (increase the step size when the acceptance rate is above this value)\n"
+                          "  --lower_acceptance_rate|-l=<z>  the lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
+          if (print_extra != NULL)
+            print_extra(stdout);
+          free(optstring);
+          free(longopts);
+          return -1;
+        }
     }
   }
 
   if (optind >= argc || help == 1) {
         fprintf(stdout, "Usage: %s [option1,option2,...optionN] [burn_in_file] posterior_file\n"
                         "where valid options are:\n"
-                        "  --num_temperatures|-t=<n>\tthe number of temperatures to use\n"
-                        "  --num_burn_in_samples|-b=<n>\tthe number of samples to discard as burn-in\n"
-                        "  --num_posterior_samples|-p=<n>\tthe number of posterior samples to generate\n"
-                        "  --adapt_rate|-a=<n>\thow often to adapt the step sizes for parameter proposals\n"
-                        "  --upper_acceptance_rate|-u=<z>\tthe upper limit on the acceptance rate (increase the step size when the acceptance rate is above this value)\n"
-                        "  --lower_acceptance_rate|-l=<z>\tthe lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
+                        "  --num_temperatures|-t=<n>       the number of temperatures to use\n"
+                        "  --num_burn_in_samples|-b=<n>    the number of samples to discard as burn-in\n"
+                        "  --num_posterior_samples|-p=<n>  the number of posterior samples to generate\n"
+                        "  --adapt_rate|-a=<n>             how often to adapt the step sizes for parameter proposals\n"
+                        "  --upper_acceptance_rate|-u=<z>  the upper limit on the acceptance rate (increase the step size when the acceptance rate is above this value)\n"
+                        "  --lower_acceptance_rate|-l=<z>  the lower limit on the acceptance rate (reduce the step size when the acceptance rate is below this value)\n", argv[0]);
+        if (print_extra != NULL)
+          print_extra(stdout);
+          free(optstring);
+          free(longopts);
     return 1;
   }
+
+  free(optstring);
+  free(longopts);
 
   return 0;
 }
