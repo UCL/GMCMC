@@ -68,60 +68,64 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
   const size_t num_timepoints = gmcmc_ode_dataset_num_timepoints(ode_dataset);
   const double * timepoints = gmcmc_ode_dataset_timepoints(ode_dataset, 0);     // Assume all timepoints are the same (for now)
 
+  // Get the initial conditions
+  const double * ics = gmcmc_ode_model_get_ics(ode_model);
+  if (ics == NULL)
+    // Initial conditions are being inferred as part of the parameter vector
+    ics = &params[num_params - num_species];
+
   // Allocate simulated data
   double * simdata;
   size_t lds = (num_timepoints + 1u) & ~1u;
   if ((simdata = malloc(lds * num_species * sizeof(double))) == NULL)
     GMCMC_ERROR("Failed to allocate simulated data", GMCMC_ENOMEM);
 
-  // Allocate sensitivities for the parameters in the current block
-  double * sensitivities;
-  if ((sensitivities = malloc(lds * num_species * n * sizeof(double))) == NULL) {
-    free(simdata);
-    GMCMC_ERROR("Failed to allocate sensitivities", GMCMC_ENOMEM);
-  }
-
-  // Copy sensitivity initial conditions into sensitivities
-  const double * ics = gmcmc_ode_model_get_ics(ode_model);
-  if (ics == NULL) {
-    // Initial conditions are being inferred as part of the parameter vector
-    const size_t num_real_params = num_params - num_species;
-    ics = &params[num_real_params];
-
-    if (block == NULL) {
-      for (size_t j = 0; j < num_real_params * num_species; j++)
-        sensitivities[j * lds] = 0.0;
-      double * sensitivities_ics = &sensitivities[num_real_params * num_species * lds];
-      for (size_t j = 0; j < num_species; j++) {
-        for (size_t i = 0; i < num_species; i++)
-          sensitivities_ics[(j * num_species + i) * lds] = (i == j) ? 1.0 : 0.0;
-      }
-    }
-    else {
-      // For each parameter (or initial condition) in the block
-      for (size_t i = 0; i < n; i++) {
-        if (block[i] < num_real_params) {
-          // parameter in block is a real parameter
-          for (size_t j = 0; j < num_species; j++)
-            sensitivities[(i * num_species + j) * lds] = 0.0;
-        }
-        else {
-          // parameter in block is an initial condition
-          for (size_t j = 0; j < num_species; j++)
-            sensitivities[(i * num_species + j) * lds] = (block[i] == j) ? 1.0 : 0.0;
-        }
-      }
-    }
-  }
-  else {
-    // Initial conditions are fixed
-    for (size_t j = 0; j < n * num_species; j++)
-      sensitivities[j * lds] = 0.0;
-  }
-
   // Copy initial conditions into simulated data
   for (size_t j = 0; j < num_species; j++)
     simdata[j * lds] = ics[j];
+
+  // Allocate sensitivities for the parameters in the current block
+  double * sensitivities = NULL;
+  size_t num_sens = 0;
+  if (geometry != NULL) {       // Sensitivities are only needed to calculate geometry
+    num_sens = n;
+    if ((sensitivities = malloc(lds * num_species * num_sens * sizeof(double))) == NULL) {
+      free(simdata);
+      GMCMC_ERROR("Failed to allocate sensitivities", GMCMC_ENOMEM);
+    }
+
+    // Copy sensitivity initial conditions into sensitivities
+    const double * ics = gmcmc_ode_model_get_ics(ode_model);
+    if (ics == NULL) {
+      // Initial conditions are being inferred
+      const size_t num_real_params = num_params - num_species;
+      for (size_t j = 0; j < num_sens; j++) {
+        if (block[j] < num_real_params) {
+          // Entry in parameter vector is for a real parameter
+          for (size_t i = 0; i < num_species; i++)
+            sensitivities[(j * num_species + i) * lds] = 0.0;
+        }
+        else {
+          // Entry in parameter vector is for an initial condition
+          for (size_t i = 0; i < num_species; i++)
+            sensitivities[(j * num_species + i) * lds] = (i == (block[j] - num_real_params)) ? 1.0 : 0.0;
+        }
+      }
+//       const size_t num_real_params = num_params - num_species;
+//       for (size_t j = 0; j < num_real_params; j++)
+//         sensitivities[j * lds] = 0.0;
+//       double * sensitivities_ics = &sensitivities[num_real_params * num_species * lds];
+//       for (size_t j = 0; j < num_species; j++) {
+//         for (size_t i = 0; i < num_species; i++)
+//           sensitivities_ics[(j * num_species + i) * lds] = (i == j) ? 1.0 : 0.0;
+//       }
+    }
+    else {
+      // Initial conditions are fixed
+      for (size_t j = 0; j < num_species * num_sens; j++)
+        sensitivities[j * lds] = 0.0;
+    }
+  }
 
   // Solve the system of equations using the function specified in the ODE model
   cvodes_options options;
@@ -129,7 +133,7 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
   int error;
   if ((error = cvodes_solve(gmcmc_ode_model_get_rhs(ode_model),
                             gmcmc_ode_model_get_rhs_sens(ode_model),
-                            num_timepoints, num_species, num_params, n,
+                            num_timepoints, num_species, num_params, num_sens,
                             timepoints, params, block, &options,
                             simdata, sensitivities, lds)) != 0) {
     free(sensitivities);
@@ -176,10 +180,10 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
       free(sensitivities);
       GMCMC_ERROR("Failed to allocate gradient structure", GMCMC_ENOMEM);
     }
-    if ((g->gradient_log_prior = malloc(n * sizeof(double))) == NULL ||
-        (g->gradient_log_likelihood = malloc(n * sizeof(double))) == NULL ||
-        (g->hessian_log_prior = malloc(n * sizeof(double))) == NULL ||
-        (g->FI = malloc((g->ldfi = (n + 1u) & ~1u) * n * sizeof(double))) == NULL) {
+    if ((g->gradient_log_prior = calloc(num_sens, sizeof(double))) == NULL ||
+        (g->gradient_log_likelihood = calloc(num_sens, sizeof(double))) == NULL ||
+        (g->hessian_log_prior = calloc(num_sens, sizeof(double))) == NULL ||
+        (g->FI = calloc(num_sens, (g->ldfi = (num_sens + 1u) & ~1u) * sizeof(double))) == NULL) {
       free(g->gradient_log_prior);
       free(g->gradient_log_likelihood);
       free(g->hessian_log_prior);
@@ -191,31 +195,31 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
     }
 
     // Calculate gradients for each of the parameters in the block i.e. d(LL)/d(Parameter)
-    for (size_t j = 0; j < n; j++) {
-      const double * sens_j = &sensitivities[j * num_species * lds];      // Sensitivities of parameter block[j]
+    for (size_t j = 0; j < num_sens; j++) {
+      const double * sens_j = &sensitivities[block[j] * num_species * lds];      // Sensitivities of parameter block[j]
 
       // Calculate the gradient of the log-likelihood
       for (size_t i = 0; i < num_observed; i++) {
         double noisecov = gmcmc_ode_dataset_noisecov(dataset, i);
-        g->gradient_log_likelihood[j] -= cblas_ddot(num_timepoints, &simdata[i * lds], 1, &sens_j[i * lds], 1) / noisecov;
+        g->gradient_log_likelihood[block[j]] -= cblas_ddot(num_timepoints, &simdata[i * lds], 1, &sens_j[i * lds], 1) / noisecov;
       }
 
       // Calculate gradient of the log prior
       const gmcmc_distribution * prior = gmcmc_model_get_prior(model, block[j]);
-      g->gradient_log_prior[j] = gmcmc_distribution_log_pdf_1st_order(prior, params[block[j]]);
+      g->gradient_log_prior[block[j]] = gmcmc_distribution_log_pdf_1st_order(prior, params[block[j]]);
 
       // Calculate the Hessian of the log prior
-      g->hessian_log_prior[j] = gmcmc_distribution_log_pdf_2nd_order(prior, params[block[j]]);
+      g->hessian_log_prior[block[j]] = gmcmc_distribution_log_pdf_2nd_order(prior, params[block[j]]);
 
       // Calculate metric tensor
-      for (size_t i = j; i < n; i++) {
-        const double * sens_i = &sensitivities[i * num_species * lds];    // Sensitivities of parameter i
+      for (size_t i = j; i < num_sens; i++) {
+        const double * sens_i = &sensitivities[block[i] * num_species * lds];    // Sensitivities of parameter i
         for (size_t k = 0; k < num_observed; k++) {
           double noisecov = gmcmc_ode_dataset_noisecov(dataset, k);
-          g->FI[j * g->ldfi + i] += cblas_ddot(num_timepoints, &sens_i[k * lds], 1, &sens_j[k * lds], 1) / noisecov;
+          g->FI[block[j] * g->ldfi + block[i]] += cblas_ddot(num_timepoints, &sens_i[k * lds], 1, &sens_j[k * lds], 1) / noisecov;
         }
 
-        g->FI[i * g->ldfi + j] = g->FI[j * g->ldfi + i];
+        g->FI[block[i] * g->ldfi + block[j]] = g->FI[block[j] * g->ldfi + block[i]];
       }
     }
   }

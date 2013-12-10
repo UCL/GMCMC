@@ -89,6 +89,7 @@ static int stochastic_eye_sim(const gmcmc_eye_model * eye_model,
       macro_c[k] += bump_series[k];
   }
 
+  free(bump_series);
   free(bump_approx);
 
   return 0;

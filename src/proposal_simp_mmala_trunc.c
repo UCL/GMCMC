@@ -42,6 +42,11 @@ static int proposal_simp_mmala_trunc(size_t n, const size_t * blocks, const doub
       (G = malloc(n * ldg * sizeof(double))) == NULL) {
     free(gradient);
     free(G);
+    free(g->gradient_log_prior);
+    free(g->gradient_log_likelihood);
+    free(g->hessian_log_prior);
+    free(g->FI);
+    free(g);
     GMCMC_ERROR("Failed to allocate posterior gradients", GMCMC_ENOMEM);
   }
   // Posterior_Grad   = Chain.GradLL*Chain.Temp + Chain.GradLogPrior;
@@ -65,6 +70,11 @@ static int proposal_simp_mmala_trunc(size_t n, const size_t * blocks, const doub
   if (info != 0) {
     free(gradient);
     free(G);
+    free(g->gradient_log_prior);
+    free(g->gradient_log_likelihood);
+    free(g->hessian_log_prior);
+    free(g->FI);
+    free(g);
     if (info < 0)
       GMCMC_ERROR("Invalid argument to LAPACK function", GMCMC_EINVAL);
     else
