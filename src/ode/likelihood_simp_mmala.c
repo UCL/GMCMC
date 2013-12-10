@@ -180,10 +180,10 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
       free(sensitivities);
       GMCMC_ERROR("Failed to allocate gradient structure", GMCMC_ENOMEM);
     }
-    if ((g->gradient_log_prior = calloc(num_sens, sizeof(double))) == NULL ||
-        (g->gradient_log_likelihood = calloc(num_sens, sizeof(double))) == NULL ||
-        (g->hessian_log_prior = calloc(num_sens, sizeof(double))) == NULL ||
-        (g->FI = calloc(num_sens, (g->ldfi = (num_sens + 1u) & ~1u) * sizeof(double))) == NULL) {
+    if ((g->gradient_log_prior = malloc(num_sens * sizeof(double))) == NULL ||
+        (g->gradient_log_likelihood = malloc(num_sens * sizeof(double))) == NULL ||
+        (g->hessian_log_prior = malloc(num_sens * sizeof(double))) == NULL ||
+        (g->FI = malloc(num_sens * (g->ldfi = (num_sens + 1u) & ~1u) * sizeof(double))) == NULL) {
       free(g->gradient_log_prior);
       free(g->gradient_log_likelihood);
       free(g->hessian_log_prior);
