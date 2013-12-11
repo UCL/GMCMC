@@ -60,14 +60,6 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
   if (n == 0)
     return 0;
 
-  // If x is not contiguous (required for BLAS/LAPACK), allocate a contiguous
-  // vector, y, of length n to store the result and copy it into x
-  double * y;
-  if (map != NULL) {
-    if ((y = malloc(n * sizeof(double))) == NULL)
-      GMCMC_ERROR("Failed to allocate sample vector", GMCMC_ENOMEM);
-  }
-
   // Calculate the Cholesky decomposition of the covariance matrix
   double * cholC;
   size_t ldcc = (n + 1u) & ~1u;
@@ -84,6 +76,14 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
   }
 
   if (map != NULL) {
+    // If x is not contiguous (required for BLAS/LAPACK), allocate a contiguous
+    // vector, y, of length n to store the result and copy it into x
+    double * y;
+    if ((y = malloc(n * sizeof(double))) == NULL) {
+      free(cholC);
+      GMCMC_ERROR("Failed to allocate sample vector", GMCMC_ENOMEM);
+    }
+
     // Generate the sample in y then copy into x using the map
     // y = ~N(0,1)
     for (size_t i = 0; i < n; i++)
