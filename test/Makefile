@@ -1,7 +1,7 @@
 include ../make.inc
-CPPFLAGS = -I..
-LDFLAGS = -L..
-LDLIBS = -lgmcmc -lgmcmc_hdf5 -lcunit -lm
+CPPFLAGS = -I.. $(CUNIT_CPPFLAGS)
+LDFLAGS = -L.. $(CUNIT_LDFLAGS)
+LDLIBS = -lgmcmc -lgmcmc_hdf5 $(CUNIT_LDLIBS) -lm
 
 VPATH = . ../gmcmc
 

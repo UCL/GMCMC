@@ -1,25 +1,16 @@
-# Common settings to all Makefiles
+# Common settings for all Makefiles
 
 # Compiler
 # GCC
 CC = gcc
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=opteron -O2 -pipe
-
-# ICC
-# CC = icc
-# CFLAGS = -std=c99 -Wall -Wextra -xHost -O2
+CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=opteron -O2 -pipe -fopenmp -pthread
 
 
 # BLAS/CBLAS/LAPACK
 # Reference
-LAPACK_CPPFLAGS = -I${HOME}/include
-LAPACK_LDFLAGS = -L${HOME}/lib64
-LAPACK_LDLIBS = -llapack -lcblas -lxblas -lblas -lm
-
-# MKL
-# LAPACK_CPPFLAGS = -I/opt/intel/composerxe-2013_update4.5.192/mkl/include -DMKL_ILP64
-# LAPACK_LDFLAGS = -L/opt/intel/composerxe-2013_update4.5.192/mkl/lib/intel64
-# LAPACK_LDLIBS = -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core
+LAPACK_CPPFLAGS = -I$(HOME)/include
+LAPACK_LDFLAGS = -L$(HOME)/lib64
+LAPACK_LDLIBS = -llapack -lcblas -lblas -lm
 
 # ATLAS
 # LAPACK_CPPFLAGS = -I/usr/include/atlas
@@ -29,20 +20,15 @@ LAPACK_LDLIBS = -llapack -lcblas -lxblas -lblas -lm
 
 # MPI
 # OpenMPI
-MPI_CPPFLAGS = -I/share/apps/openmpi-1.6/include
-MPI_LDFLAGS = -L/share/apps/openmpi-1.6/lib
-MPI_LDLIBS = -lmpi -ldl -lm -Wl,--export-dynamic -lrt -lnsl -lutil -lm -ldl
+MPI_CPPFLAGS = -I/share/apps/openmpi-1.6.5/include
+MPI_LDFLAGS = -L/share/apps/openmpi-1.6.5/lib
+MPI_LDLIBS = -lmpi
 
 # OPENMP
 # GNU
 OMP_CPPFLAGS =
 OMP_LDFLAGS =
 OMP_LDLIBS = -lgomp
-
-# Intel
-# OMP_CPPFLAGS =
-# OMP_LDFLAGS = -L/opt/intel/composerxe-2013_update4.5.192/compiler/lib/intel64
-# OMP_LDLIBS = -liomp5
 
 
 # SUNDIALS
@@ -56,3 +42,15 @@ MATLAB_ROOT = /share/apps/matlabR2013a
 MATLAB_CPPFLAGS = -I$(MATLAB_ROOT)/extern/include
 MATLAB_LDFLAGS = -L$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath-link,$(MATLAB_ROOT)/bin/glnxa64 -Wl,-rpath,$(MATLAB_ROOT)/sys/os/glnxa64
 MATLAB_LDLIBS = -lmx -lmex -lmat -lm -lstdc++
+
+# HDF5
+HDF5_ROOT = /share/apps/hdf5
+HDF5_CPPFLAGS = -I$(HDF5_ROOT)/include -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_BSD_SOURCE
+HDF5_LDFLAGS = -L$(HDF5_ROOT)/lib
+HDF5_LDLIBS = -lhdf5_hl -lhdf5 -lz -lrt -lm -Wl,-rpath -Wl,$(HDF5_ROOT)/lib
+
+
+# CUNIT
+CUNIT_CPPFLAGS = -I$(HOME)/include
+CUNIT_LDFLAGS = -L$(HOME)/lib64
+CUNIT_LDLIBS = -lcunit
