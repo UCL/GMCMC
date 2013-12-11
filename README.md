@@ -6,16 +6,16 @@ C library implementing Geometric Parallel Population MCMC.
 See http://www.hector.ac.uk/cse/distributedcse/reports/UniMCMC/.  
 
 Dependencies:  
- Required:
+ Required:  
   BLAS, CBLAS and LAPACK (available from netlib.org)  
   MPI (either openMPI (http://www.openmpi.org/) or MPICH (http://www.mpich.org/))  
   sundials-2.5.0 or greater (http://computation.llnl.gov/casc/sundials/main.html)  
   C compiler supporting C99 and openmp  
   GNU make 3.81 or greater  
-  Either:
+  Either:  
    MATLAB (to read and write data stored in MATLAB files)  
    HDF5 (to read and write data stored in HDF5 files (http://www.hdfgroup.org/))  
- Optional:
+ Optional:  
   CUnit (http://cunit.sourceforge.net/.  Only needed to compile tests.)  
 
 To compile:  
