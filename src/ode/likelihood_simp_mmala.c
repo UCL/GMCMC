@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "cvodes.c"
+#include "cvodes.h"
 #include "../mvn.c"
 
 /**

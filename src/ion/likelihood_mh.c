@@ -5,7 +5,6 @@
 #include <string.h>
 #include <math.h>
 #include <cblas.h>
-#include <lapacke.h>
 
 
 // Forward declarations of utility functions
@@ -17,6 +16,71 @@ static int idealised_transition_probability(size_t, size_t, double,
                                             const double *, size_t,
                                             double *);
 static double log_sum(size_t, double *);
+
+// LAPACK functions declared static inline
+extern void dgesv_(const int *, const int *, double *, const int *, int *, double *, const int *, int *);
+static inline int dgesv(int n, int nrhs, double * A, int lda, int * ipiv, double * B, int ldb) {
+  int info;
+  dgesv_(&n, &nrhs, A, &lda, ipiv, B, &ldb, &info);
+  return info;
+}
+
+extern void dgeev_(const char *, const char *, const int *, double *, const int *, double *, double *, double *, const int *, double *, const int *, double *, const int *, int *);
+static inline int dgeev(bool left, bool right, int n, double * A, int lda, double * wr, double * wi, double * vl, int ldvl, double * vr, int ldvr) {
+  const char * jobvl = (left) ? "V" : "N";
+  const char * jobvr = (right) ? "V" : "N";
+  int info;
+
+  // Perform a workspace query
+  int lwork = -1;
+  double lworkd;
+  dgeev_(jobvl, jobvr, &n, A, &lda, wr, wi, vl, &ldvl, vr, &ldvr, &lworkd, &lwork, &info);
+
+  // Allocate the workspace
+  lwork = (int)lworkd;
+  double * work;
+  if ((work = malloc(lwork * sizeof(double))) == NULL)
+    GMCMC_ERROR("Failed to allocate LAPACK work array", GMCMC_ENOMEM);
+
+  // Call the LAPACK function with the workspace
+  dgeev_(jobvl, jobvr, &n, A, &lda, wr, wi, vl, &ldvl, vr, &ldvr, work, &lwork, &info);
+
+  // Free the workspace
+  free(work);
+
+  return info;
+}
+
+extern void dgetrf_(const int *, const int *, double *, const int *, int *, int *);
+static inline int dgetrf(int m, int n, double * A, int lda, int * ipiv) {
+  int info;
+  dgetrf_(&m, &n, A, &lda, ipiv, &info);
+  return info;
+}
+
+extern void dgetri_(const int *, double *, const int *, const int *, double *, const int *, int *);
+static inline int dgetri(int n, double * A, int lda, const int * ipiv) {
+  int info;
+
+  // Perform a workspace query
+  int lwork = -1;
+  double lworkd;
+  dgetri_(&n, A, &lda, ipiv, &lworkd, &lwork, &info);
+
+  // Allocate the workspace
+  lwork = (int)lworkd;
+  double * work;
+  if ((work = malloc(lwork * sizeof(double))) == NULL)
+    GMCMC_ERROR("Failed to allocate LAPACK work array", GMCMC_ENOMEM);
+
+  // Call the LAPACK function with the workspace
+  dgetri_(&n, A, &lda, ipiv, work, &lwork, &info);
+
+  // Free the workspace
+  free(work);
+
+  return info;
+}
 
 /**
  * Ion Channel model likelihood function using Metropolis-Hastings.
@@ -109,14 +173,14 @@ static int ion_likelihood_mh(const void * dataset, const gmcmc_model * model,
               num_states, num_states, num_states,
               1.0, Q, ldq, Q, ldq, 1.0, S, lds);
 
-  lapack_int * ipiv;
-  if ((ipiv = malloc(num_states * sizeof(lapack_int))) == NULL) {
+  int * ipiv;
+  if ((ipiv = malloc(num_states * sizeof(int))) == NULL) {
     free(eq_states);
     free(S);
     free(Q);
     GMCMC_ERROR("Failed to allocate LAPACK pivot array", GMCMC_ENOMEM);
   }
-  long info = LAPACKE_dgesv(LAPACK_COL_MAJOR, num_states, 1, S, lds, ipiv, eq_states, num_states);
+  long info = dgesv(num_states, 1, S, lds, ipiv, eq_states, num_states);
 
   free(ipiv);
   free(S);
@@ -306,7 +370,7 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
     GMCMC_ERROR("Unable to allocate temporary variables", GMCMC_ENOMEM);
 
   // Calculate the eigenvalues and (right) eigenvectors using LAPACK
-  long info = LAPACKE_dgeev(LAPACK_COL_MAJOR, 'N', 'V', n, Q, ldq, v, wi, NULL, 1, X, ldx);
+  int info = dgeev(false, true, n, Q, ldq, v, wi, NULL, 1, X, ldx);
   free(wi);
   if (info != 0) {
     free(X);
@@ -319,16 +383,16 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
 
   // Y = inv(X);
   // Calculate the inverse of Y via the LU decomposition
-  lapack_int * ipiv;
-  if ((ipiv = malloc(n * sizeof(lapack_int))) == NULL) {
+  int * ipiv;
+  if ((ipiv = malloc(n * sizeof(int))) == NULL) {
     free(X);
     free(Y);
     GMCMC_ERROR("Failed to allocate LAPACK pivot array", GMCMC_ENOMEM);
   }
   for (size_t j = 0; j < n; j++)
     memcpy(&Y[j * ldy], &X[j * ldx], n * sizeof(double));
-  if ((info = LAPACKE_dgetrf(LAPACK_COL_MAJOR, n, n, Y, ldy, ipiv)) != 0 ||
-      (info = LAPACKE_dgetri(LAPACK_COL_MAJOR, n, Y, ldy, ipiv) != 0)) {
+  if ((info = dgetrf(n, n, Y, ldy, ipiv)) != 0 ||
+      (info = dgetri(n, Y, ldy, ipiv) != 0)) {
     free(ipiv);
     free(X);
     free(Y);

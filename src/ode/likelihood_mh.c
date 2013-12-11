@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "../mvn.c"
-#include "cvodes.c"
+#include "cvodes.h"
 
 /**
  * Computes the sum of x.

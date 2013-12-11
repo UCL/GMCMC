@@ -15,7 +15,7 @@ CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -ggdb -pipe
 # Reference
 LAPACK_CPPFLAGS = -I/usr/include/cblas
 LAPACK_LDFLAGS =
-LAPACK_LDLIBS = -lreflapacke -lreflapack -lrefblas -lrefcblas
+LAPACK_LDLIBS = -lreflapack -lrefblas -lrefcblas
 
 # MKL
 # LAPACK_CPPFLAGS = -I/opt/intel/composerxe-2013_update4.5.192/mkl/include -DMKL_ILP64
@@ -25,7 +25,7 @@ LAPACK_LDLIBS = -lreflapacke -lreflapack -lrefblas -lrefcblas
 # ATLAS
 # LAPACK_CPPFLAGS = -I/usr/include/atlas
 # LAPACK_LDFLAGS =
-# LAPACK_LDLIBS = -lreflapacke -lptlapack -lptf77blas -lptcblas
+# LAPACK_LDLIBS = -lptlapack -lptf77blas -lptcblas
 
 
 # MPI

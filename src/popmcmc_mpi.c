@@ -450,11 +450,19 @@ static int gmcmc_chain_mpi_send(const gmcmc_chain * chain, int dest, int tag, MP
   if ((error = MPI_Send(chain->stepsize, chain->num_blocks, MPI_DOUBLE, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending chain step size", GMCMC_EIPC);
 
+#if MPI_VERSION < 2
+  if ((error = MPI_Send(chain->accepted_mutation, chain->num_blocks * 8, MPI_BYTE, dest, tag, comm)) != 0)
+    GMCMC_ERROR("Error sending accepted mutation", GMCMC_EIPC);
+
+  if ((error = MPI_Send(chain->attempted_mutation, chain->num_blocks * 8, MPI_BYTE, dest, tag, comm)) != 0)
+    GMCMC_ERROR("Error sending attempted mutation", GMCMC_EIPC);
+#else
   if ((error = MPI_Send(chain->accepted_mutation, chain->num_blocks, MPI_UINT64_T, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending accepted mutation", GMCMC_EIPC);
 
   if ((error = MPI_Send(chain->attempted_mutation, chain->num_blocks, MPI_UINT64_T, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending attempted mutation", GMCMC_EIPC);
+#endif
 
   if ((error = MPI_Send(chain->params, chain->num_params, MPI_DOUBLE, dest, tag, comm)) != 0)
     GMCMC_ERROR("Error sending parameter values", GMCMC_EIPC);
@@ -488,11 +496,19 @@ static int gmcmc_chain_mpi_recv(gmcmc_chain * chain, int source, int tag, MPI_Co
   if ((error = MPI_Recv(chain->stepsize, chain->num_blocks, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving chain step size", GMCMC_EIPC);
 
+#if MPI_VERSION < 2
+  if ((error = MPI_Recv(chain->accepted_mutation, chain->num_blocks * 8, MPI_BYTE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+    GMCMC_ERROR("Error receiving accepted mutation", GMCMC_EIPC);
+
+  if ((error = MPI_Recv(chain->attempted_mutation, chain->num_blocks * 8, MPI_BYTE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
+    GMCMC_ERROR("Error receiving attempted mutation", GMCMC_EIPC);
+#else
   if ((error = MPI_Recv(chain->accepted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving accepted mutation", GMCMC_EIPC);
 
   if ((error = MPI_Recv(chain->attempted_mutation, chain->num_blocks, MPI_UINT64_T, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving attempted mutation", GMCMC_EIPC);
+#endif
 
   if ((error = MPI_Recv(chain->params, chain->num_params, MPI_DOUBLE, source, tag, comm, MPI_STATUS_IGNORE)) != 0)
     GMCMC_ERROR("Error receiving parameter values", GMCMC_EIPC);

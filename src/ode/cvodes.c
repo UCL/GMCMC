@@ -1,26 +1,11 @@
+#include "cvodes.h"
 #include <cvodes/cvodes.h>
-#include <cvodes/cvodes_dense.h>
+#include <cvodes/cvodes_lapack.h>
 #include <nvector/nvector_serial.h>
 
 #include <gmcmc/gmcmc_errno.h>
 
 #include <stdlib.h>
-
-/**
- * CVODES integrator options.
- */
-typedef struct {
-  double abstol, reltol;        /**< Absolute and relative tolerances */
-} cvodes_options;
-
-typedef struct {
-  gmcmc_ode_rhs rhs;
-  gmcmc_ode_rhs_sens rhs_sens;
-  const double * params;
-  bool init;
-  const double ** yS;
-  double ** ySdot;       // temporary vectors for rearranging sensitivity data
-} cvodes_userdata;
 
 /**
  * Wrapper round gmcmc_ode_rhs to make it match CVRhsFn.
@@ -91,11 +76,11 @@ static int cvodes_rhs_sens(int Ns, realtype t, N_Vector y, N_Vector ydot,
  *         GMCMC_EINVAL  if there was an invalid argument to the function,
  *         GMCMC_ELINAL  if the solution could not be found.
  */
-static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
-                        size_t num_timepoints, size_t num_species, size_t num_params, size_t num_sens,
-                        const double * timepoints, const double * params, const size_t * sens_params,
-                        const cvodes_options * options,
-                        double * simdata, double * sensitivities, size_t lds) {
+int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
+                 size_t num_timepoints, size_t num_species, size_t num_params, size_t num_sens,
+                 const double * timepoints, const double * params, const size_t * sens_params,
+                 const cvodes_options * options,
+                 double * simdata, double * sensitivities, size_t lds) {
   int error;
 
   // Set vector of initial values
@@ -129,7 +114,7 @@ static int cvodes_solve(gmcmc_ode_rhs rhs, gmcmc_ode_rhs_sens rhs_sens,
   }
 
   // Attach linear solver module
-  if ((error = CVDense(cvode_mem, num_species)) != CV_SUCCESS) {
+  if ((error = CVLapackDense(cvode_mem, num_species)) != CV_SUCCESS) {
     CVodeFree(&cvode_mem);
     GMCMC_ERROR("Failed to attach ODE solver module",
                 (error == CV_ILL_INPUT) ? GMCMC_EINVAL : GMCMC_ENOMEM);

@@ -2,9 +2,19 @@
 #include <gmcmc/gmcmc_geometry.h>
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 #include <cblas.h>
-#include <lapacke.h>
+
+extern void dpotrf_(const char *, const int *, double *, const int *, int *);
+static inline int dpotrf(bool upper, int n, double * A, int lda) {
+  int info;
+  if (upper)
+    dpotrf_("Upper", &n, A, &lda, &info);
+  else
+    dpotrf_("Lower", &n, A, &lda, &info);
+  return info;
+}
 
 /**
  * Proposal function using truncated Simplified M-MALA.
@@ -66,7 +76,7 @@ static int proposal_simp_mmala_trunc(size_t n, const size_t * blocks, const doub
 
 
   // Calculate cholesky
-  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, G, ldg);
+  int info = dpotrf(false, n, G, ldg);
   if (info != 0) {
     free(gradient);
     free(G);

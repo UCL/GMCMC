@@ -7,7 +7,7 @@ LDLIBS = $(MPI_LDLIBS) $(SUNDIALS_LDLIBS) $(LAPACK_LDLIBS) $(OMP_LDLIBS)
 OBJS = distribution/distribution.o distribution/gamma.o distribution/lognormal.o distribution/normal.o distribution/uniform.o \
        rng/rng.o rng/mt19937.o rng/mt19937-64.o rng/dcmt521.o rng/dcmt607.o rng/dcmt1279.o rng/dcmt2203.o rng/dcmt2281.o rng/dcmt3217.o rng/dcmt4253.o rng/dcmt4423.o rng/dcmt9689.o \
        ion/dataset.o ion/model.o ion/likelihood_mh.o \
-       ode/dataset.o ode/model.o ode/likelihood_mh.o ode/likelihood_simp_mmala.o \
+       ode/dataset.o ode/model.o ode/likelihood_mh.o ode/likelihood_simp_mmala.o ode/cvodes.o \
        eye/dataset.o eye/model.o eye/likelihood_mh.o \
        proposal_mh.o proposal_simp_mmala.o proposal_simp_mmala_trunc.o \
        errno.o model.o popmcmc.o
@@ -70,9 +70,10 @@ ion/likelihood_mh.o: gmcmc_ion.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h 
 ion/model.o: gmcmc_ion.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h
 
 # ODE model and likelihood functions
+ode/cvodes.o: gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_likelihood.h gmcmc_errno.h ode/cvodes.h
 ode/dataset.o: gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h
-ode/likelihood_mh.o: ode/cvodes.c mvn.c distribution/randn.c gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h
-ode/likelihood_simp_mmala.o: ode/cvodes.c mvn.c distribution/randn.c gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h
+ode/likelihood_mh.o: ode/cvodes.c mvn.c distribution/randn.c gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h ode/cvodes.h
+ode/likelihood_simp_mmala.o: ode/cvodes.c mvn.c distribution/randn.c gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h ode/cvodes.h
 ode/model.o: gmcmc_ode.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_errno.h
 
 # Stochastic eye model and likelihood functions

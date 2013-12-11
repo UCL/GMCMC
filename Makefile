@@ -9,8 +9,6 @@ VPATH = . examples gmcmc
 
 .PHONY: all examples test clean install
 
-LIBS = libgmcmc.so libgmcmc_hdf5.so
-
 ION_examples = ION_dCK_PopMCMC ION_FiveState_Balanced_PopMCMC ION_FiveState_PopMCMC
 
 ODE_examples = FitzHugh_Benchmark_MH FitzHugh_Benchmark_Simp_mMALA \
@@ -21,11 +19,11 @@ ODE_examples = FitzHugh_Benchmark_MH FitzHugh_Benchmark_Simp_mMALA \
 
 EYE_examples = Eye_all_MH
 
-all: $(LIBS)
+all: libgmcmc.so
 
 examples: $(ION_examples) $(ODE_examples) $(EYE_examples)
 
-test: $(LIBS)
+test:
 	cd test && $(MAKE)
 
 clean:
@@ -33,9 +31,9 @@ clean:
 	cd test && $(MAKE) clean
 	rm -f examples/common.o $(addprefix examples/,$(addsuffix .o,$(ION_examples) $(ODE_examples) $(EYE_examples))) $(ION_examples) $(ODE_examples) $(EYE_examples)
 
-install: $(LIBS) $(ION_examples) $(ODE_examples) $(EYE_examples)
-	$(foreach lib,$(LIBS),cp $(lib) $(DESTDIR)$(libdir)/$(lib))
-	$(foreach bin,$(ION_examples) $(ODE_examples) $(EYE_examples), cp $(bin) $(DESTDIR)$(bindir)/$(bin))
+# install: $(LIBS) $(ION_examples) $(ODE_examples) $(EYE_examples)
+# 	$(foreach lib,$(LIBS),cp $(lib) $(DESTDIR)$(libdir)/$(lib))
+# 	$(foreach bin,$(ION_examples) $(ODE_examples) $(EYE_examples), cp $(bin) $(DESTDIR)$(bindir)/$(bin))
 
 libgmcmc.so:
 	cd src && $(MAKE) ../libgmcmc.so
@@ -52,7 +50,7 @@ $(addprefix examples/,$(addsuffix .o,$(ODE_examples))): gmcmc_ode.h gmcmc_model.
 $(addprefix examples/,$(addsuffix .o,$(EYE_examples))): gmcmc_eye.h gmcmc_model.h gmcmc_proposal.h gmcmc_likelihood.h gmcmc_distribution.h gmcmc_rng.h gmcmc_popmcmc.h common.h
 
 define make_example
-$(1): examples/$(1).o examples/common.o $(LIBS)
+$(1): examples/$(1).o examples/common.o libgmcmc.so libgmcmc_hdf5.so
 endef
 $(foreach exe,$(ION_examples) $(ODE_examples) $(EYE_examples),$(eval $(call make_example,$(exe))))
 
