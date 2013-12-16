@@ -111,14 +111,6 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
             sensitivities[(j * num_species + i) * lds] = (i == (block[j] - num_real_params)) ? 1.0 : 0.0;
         }
       }
-//       const size_t num_real_params = num_params - num_species;
-//       for (size_t j = 0; j < num_real_params; j++)
-//         sensitivities[j * lds] = 0.0;
-//       double * sensitivities_ics = &sensitivities[num_real_params * num_species * lds];
-//       for (size_t j = 0; j < num_species; j++) {
-//         for (size_t i = 0; i < num_species; i++)
-//           sensitivities_ics[(j * num_species + i) * lds] = (i == j) ? 1.0 : 0.0;
-//       }
     }
     else {
       // Initial conditions are fixed

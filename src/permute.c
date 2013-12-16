@@ -5,7 +5,7 @@
  * @param [out] indices  the permutation
  * @param [in]  rng      an RNG
  */
-void gmcmc_permute(size_t n, size_t * indices, const gmcmc_prng64 * rng) {
+static inline void gmcmc_permute(size_t n, size_t * indices, const gmcmc_prng64 * rng) {
   // Knuth shuffle
   for (size_t i = 0; i < n; i++) {
     // Generate j = [0,i]

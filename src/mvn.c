@@ -1,35 +1,22 @@
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <math.h>
+
+#ifdef MKL
+#include <mkl_cblas.h>
+#include <mkl_lapacke.h>
+#else
 #include <cblas.h>
+#include <lapacke.h>
+#endif
+
 #include "distribution/randn.c"
 
 /**
  * Constant for log(2 * pi) (used in the log multivariate normal PDF).
  */
 #define M_LOG2PI 1.83787706640935
-
-extern void dpotrf_(const char *, const int *, double *, const int *, int *);
-static inline int dpotrf(bool upper, int n, double * A, int lda) {
-  int info;
-  if (upper)
-    dpotrf_("Upper", &n, A, &lda, &info);
-  else
-    dpotrf_("Lower", &n, A, &lda, &info);
-  return info;
-}
-
-extern void dpotri_(const char *, const int *, double *, const int *, int *);
-static inline int dpotri(bool upper, int n, double * A, int lda) {
-  int info;
-  if (upper)
-    dpotri_("Upper", &n, A, &lda, &info);
-  else
-    dpotri_("Lower", &n, A, &lda, &info);
-  return info;
-}
 
 /**
  * Generates a multivariate normal random vector.  The covariance matrix is
@@ -69,7 +56,7 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
   for (size_t j = 0; j < n; j++)
     memcpy(&cholC[j * ldcc], &C[j * ldc], n * sizeof(double));
 
-  int info = dpotrf(false, n, cholC, ldcc);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, cholC, ldcc);
   if (info != 0) {
     free(cholC);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
@@ -172,7 +159,7 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
     memcpy(&inv[j * ldi], &sigma[j * lds], n * sizeof(double));
 
   // Calculate the Cholesky decomposition of the covariance matrix
-  int info = dpotrf(false, n, inv, ldi);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
   if (info != 0) {
     free(inv);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
@@ -183,7 +170,7 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
   double ldet = log_det(n, inv, ldi);
 
   // Calculate the inverse from the Cholesky
-  info = dpotri(false, n, inv, ldi);
+  info = LAPACKE_dpotri(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
   if (info != 0) {
     free(inv);
     GMCMC_ERROR("Proposal covariance matrix is singular", GMCMC_EINVAL);

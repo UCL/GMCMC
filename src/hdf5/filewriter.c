@@ -124,10 +124,6 @@ static int hdf5_write_vector(hid_t group, const char * name, size_t iteration, c
     H5Dclose(dataset);
     GMCMC_ERROR("Failed to define hyperslab", GMCMC_EIO);
   }
-  fprintf(stderr, "hdf5_write_vector(group = %d, name = \"%s\", iteration = %zu, data = 0x%p {", group, name, iteration, data);
-  for (size_t i = 0; i < dims[1]; i++)
-    fprintf(stderr, " %6.3f", data[i]);
-  fprintf(stderr, "})\n");
 
   // Write the data
   if (H5Dwrite(dataset, H5T_NATIVE_DOUBLE, memspace, filespace, H5P_DEFAULT, data) < 0) {
@@ -144,10 +140,6 @@ static int hdf5_write_vector(hid_t group, const char * name, size_t iteration, c
     H5Dclose(dataset);
     GMCMC_ERROR("Failed to re-read parameters from dataset", GMCMC_EIO);
   }
-  fprintf(stderr, "read data back as {");
-  for (size_t i = 0; i < dims[1]; i++)
-    fprintf(stderr, " %6.3f", shite[i]);
-  fprintf(stderr, "}\n");
 
   // Close the memory and file dataspaces, the dataset and the group
   H5Sclose(memspace);

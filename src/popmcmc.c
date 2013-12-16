@@ -4,12 +4,16 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
-#include <cblas.h>
 #include <mpi.h>
+
+#ifdef MKL
+#include <mkl_cblas.h>
+#else
+#include <cblas.h>
+#endif
+
 #include "mvn.c"
 #include "permute.c"
-
-#include <sys/time.h>
 
 /**
  * This structure contains information about each Markov Chain in the population.

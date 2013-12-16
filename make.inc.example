@@ -2,25 +2,26 @@
 
 # Compiler
 # GCC
-CC = gcc
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -ggdb -pipe
+# CC = gcc
+# CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -ggdb -pipe
 # CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=native -O2 -pipe
 
 # ICC
-# CC = icc
-# CFLAGS = -std=c99 -Wall -Wextra -xHost -O2 -openmp -pthread
+CC = icc
+CFLAGS = -std=c99 -Wall -Wextra -xHost -O2 -openmp -pthread
 
 
 # BLAS/CBLAS/LAPACK
 # Reference
-LAPACK_CPPFLAGS = -I/usr/include/cblas
-LAPACK_LDFLAGS =
-LAPACK_LDLIBS = -lreflapack -lrefblas -lrefcblas
+# LAPACK_CPPFLAGS = -I/usr/include/cblas
+# LAPACK_LDFLAGS =
+# LAPACK_LDLIBS = -lreflapack -lrefblas -lrefcblas
 
 # MKL
-# LAPACK_CPPFLAGS = -I/opt/intel/composerxe-2013.0.080/mkl/include -DMKL_ILP64
-# LAPACK_LDFLAGS = -L/opt/intel/composerxe-2013.0.080/mkl/lib/intel64
-# LAPACK_LDLIBS = -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core
+MKLROOT = /opt/intel/composerxe-2013.0.080/mkl
+LAPACK_CPPFLAGS = -DMKL -DMKL_LP64 -I$(MKLROOT)/include
+LAPACK_LDFLAGS = -L$(MKLROOT)/lib/intel64
+LAPACK_LDLIBS = -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core
 
 # ATLAS
 # LAPACK_CPPFLAGS = -I/usr/include/atlas
@@ -37,14 +38,14 @@ MPI_LDLIBS = -lmpi -ldl -lhwloc -Wl,--export-dynamic -lrt -lnsl -lutil -lm -lhwl
 
 # OPENMP
 # GNU
-OMP_CPPFLAGS =
-OMP_LDFLAGS =
-OMP_LDLIBS = -lgomp
+# OMP_CPPFLAGS =
+# OMP_LDFLAGS =
+# OMP_LDLIBS = -lgomp
 
 # Intel
-# OMP_CPPFLAGS =
-# OMP_LDFLAGS = -L/opt/intel/composerxe-2013.0.080/compiler/lib/intel64
-# OMP_LDLIBS = -liomp5
+OMP_CPPFLAGS =
+OMP_LDFLAGS =
+OMP_LDLIBS = -liomp5
 
 
 # SUNDIALS
