@@ -8,7 +8,7 @@ CFLAGS = -std=c99 -pedantic -Wall -Wextra -O0 -ggdb -pipe
 
 # ICC
 # CC = icc
-# CFLAGS = -std=c99 -Wall -Wextra -xHost -O2
+# CFLAGS = -std=c99 -Wall -Wextra -xHost -O2 -openmp -pthread
 
 
 # BLAS/CBLAS/LAPACK
@@ -18,9 +18,9 @@ LAPACK_LDFLAGS =
 LAPACK_LDLIBS = -lreflapack -lrefblas -lrefcblas
 
 # MKL
-# LAPACK_CPPFLAGS = -I/opt/intel/composerxe-2013_update4.5.192/mkl/include -DMKL_ILP64
-# LAPACK_LDFLAGS = -L/opt/intel/composerxe-2013_update4.5.192/mkl/lib/intel64
-# LAPACK_LDLIBS = -lmkl_intel_ilp64 -lmkl_intel_thread -lmkl_core
+# LAPACK_CPPFLAGS = -I/opt/intel/composerxe-2013.0.080/mkl/include -DMKL_ILP64
+# LAPACK_LDFLAGS = -L/opt/intel/composerxe-2013.0.080/mkl/lib/intel64
+# LAPACK_LDLIBS = -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core
 
 # ATLAS
 # LAPACK_CPPFLAGS = -I/usr/include/atlas
@@ -43,14 +43,14 @@ OMP_LDLIBS = -lgomp
 
 # Intel
 # OMP_CPPFLAGS =
-# OMP_LDFLAGS = -L/opt/intel/composerxe-2013_update4.5.192/compiler/lib/intel64
+# OMP_LDFLAGS = -L/opt/intel/composerxe-2013.0.080/compiler/lib/intel64
 # OMP_LDLIBS = -liomp5
 
 
 # SUNDIALS
 SUNDIALS_CPPFLAGS = -I$(HOME)/sundials-2.5.0/include
 SUNDIALS_LDFLAGS = -L$(HOME)/sundials-2.5.0/lib
-SUNDIALS_LDLIBS = -lsundials_cvodes -lsundials_nvecserial
+SUNDIALS_LDLIBS = -Wl,-rpath=$(HOME)/sundials-2.5.0/lib -lsundials_cvodes -lsundials_nvecserial
 
 
 # MATLAB
@@ -61,10 +61,10 @@ MATLAB_LDLIBS = -lmx -lmex -lmat -lm -lstdc++
 
 # HDF5
 HDF5_CPPFLAGS = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_BSD_SOURCE -D_GNU_SOURCE
-HDF5_LDFLAGS = -L/usr/lib64
-HDF5_LDLIBS = -lhdf5_hl -lhdf5 -Wl,-O1 -Wl,--as-needed -lpthread -lz -lm -Wl,-rpath -Wl,/usr/lib64
+HDF5_LDFLAGS =
+HDF5_LDLIBS = -lhdf5_hl -lhdf5 -Wl,-O1 -Wl,--as-needed -lpthread -lz -lm
 
 # CUNIT
-CUNIT_CPPFLAGS = -I/usr/include
-CUNIT_LDFLAGS = -L/usr/lib64
+CUNIT_CPPFLAGS =
+CUNIT_LDFLAGS =
 CUNIT_LDLIBS = -lcunit

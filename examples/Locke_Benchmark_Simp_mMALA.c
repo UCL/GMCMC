@@ -310,35 +310,37 @@ int main(int argc, char * argv[]) {
   /*
    * Output file format.
    */
-  if (optind + 1 < argc) {
-    if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.burn_in_writer,
-                                              argv[optind++], num_params, 1,
+  if (rank == 0) {
+    if (optind + 1 < argc) {
+      if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.burn_in_writer,
+                                                argv[optind++], num_params, 1,
+                                                mcmc_options.num_temperatures,
+                                                mcmc_options.num_burn_in_samples)) != 0) {
+        // Clean up
+        free(temperatures);
+        gmcmc_ode_dataset_destroy(dataset);
+        gmcmc_model_destroy(model);
+        gmcmc_ode_model_destroy(ode_model);
+        fputs("Unable to create HDF5 burn-in writer\n", stderr);
+        MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+        return -5;
+      }
+    }
+
+    if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.posterior_writer,
+                                              argv[optind], num_params, 1,
                                               mcmc_options.num_temperatures,
-                                              mcmc_options.num_burn_in_samples)) != 0) {
+                                              mcmc_options.num_posterior_samples)) != 0) {
       // Clean up
       free(temperatures);
       gmcmc_ode_dataset_destroy(dataset);
       gmcmc_model_destroy(model);
       gmcmc_ode_model_destroy(ode_model);
-      fputs("Unable to create HDF5 burn-in writer\n", stderr);
+      gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
+      fputs("Unable to create HDF5 posterior writer\n", stderr);
       MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
       return -5;
     }
-  }
-
-  if ((error = gmcmc_filewriter_create_hdf5(&mcmc_options.posterior_writer,
-                                            argv[optind], num_params, 1,
-                                            mcmc_options.num_temperatures,
-                                            mcmc_options.num_posterior_samples)) != 0) {
-    // Clean up
-    free(temperatures);
-    gmcmc_ode_dataset_destroy(dataset);
-    gmcmc_model_destroy(model);
-    gmcmc_ode_model_destroy(ode_model);
-    gmcmc_filewriter_destroy(mcmc_options.burn_in_writer);
-    fputs("Unable to create HDF5 posterior writer\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -5;
   }
 
 

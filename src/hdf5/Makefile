@@ -1,7 +1,7 @@
 include ../../make.inc
-CPPFLAGS = -I../.. $(HDF5_CPPFLAGS)
+CPPFLAGS = -I$(CURDIR)/../.. $(HDF5_CPPFLAGS)
 CFLAGS += -fPIC
-LDFLAGS = -L../.. $(HDF5_LDFLAGS) -Wl,--export-dynamic -Wl,-soname=libgmcmc_hdf5.so -Wl,--no-undefined
+LDFLAGS = -L$(CURDIR)/../.. $(HDF5_LDFLAGS) -Wl,--export-dynamic -Wl,-soname=libgmcmc_hdf5.so -Wl,--no-undefined
 LDLIBS =  -lgmcmc $(HDF5_LDLIBS)
 OBJS = ion_dataset.o ode_dataset.o eye_dataset.o filewriter.o
 

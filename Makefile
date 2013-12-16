@@ -1,9 +1,9 @@
 include make.inc
 PREFIX ?= /usr
-CPPFLAGS = -I. -I.. $(MPI_CPPFLAGS)
-LDFLAGS = -L. $(MPI_LDFLAGS)
+CPPFLAGS = -I$(CURDIR) -I$(CURDIR)/.. $(MPI_CPPFLAGS) $(OMP_CPPFLAGS)
+LDFLAGS = -L$(CURDIR) $(MPI_LDFLAGS) $(OMP_LDFLAGS)
 # LDLIBS = -lgmcmc -lgmcmc_matlab $(MPI_LDLIBS) -lm
-LDLIBS = -lgmcmc -lgmcmc_hdf5 $(MPI_LDLIBS) -lm
+LDLIBS = -Wl,-rpath=$(CURDIR) -lgmcmc -lgmcmc_hdf5 $(MPI_LDLIBS) $(OMP_LDLIBS) -lm
 
 VPATH = . examples gmcmc
 

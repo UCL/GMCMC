@@ -71,7 +71,7 @@ static int hdf5_write_scalar(hid_t group, const char * name, size_t iteration, d
   }
 
   // Write the data
-  if (H5Dwrite(dataset, H5T_IEEE_F64LE, memspace, filespace, H5P_DEFAULT, &data) < 0) {
+  if (H5Dwrite(dataset, H5T_NATIVE_DOUBLE, memspace, filespace, H5P_DEFAULT, &data) < 0) {
     H5Sclose(memspace);
     H5Sclose(filespace);
     H5Dclose(dataset);
@@ -124,14 +124,30 @@ static int hdf5_write_vector(hid_t group, const char * name, size_t iteration, c
     H5Dclose(dataset);
     GMCMC_ERROR("Failed to define hyperslab", GMCMC_EIO);
   }
+  fprintf(stderr, "hdf5_write_vector(group = %d, name = \"%s\", iteration = %zu, data = 0x%p {", group, name, iteration, data);
+  for (size_t i = 0; i < dims[1]; i++)
+    fprintf(stderr, " %6.3f", data[i]);
+  fprintf(stderr, "})\n");
 
   // Write the data
-  if (H5Dwrite(dataset, H5T_IEEE_F64LE, memspace, filespace, H5P_DEFAULT, data) < 0) {
+  if (H5Dwrite(dataset, H5T_NATIVE_DOUBLE, memspace, filespace, H5P_DEFAULT, data) < 0) {
     H5Sclose(memspace);
     H5Sclose(filespace);
     H5Dclose(dataset);
     GMCMC_ERROR("Failed to write parameters to dataset", GMCMC_EIO);
   }
+  
+  double shite[dims[1]];
+  if (H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, filespace, H5P_DEFAULT, (void *)shite) < 0) {
+    H5Sclose(memspace);
+    H5Sclose(filespace);
+    H5Dclose(dataset);
+    GMCMC_ERROR("Failed to re-read parameters from dataset", GMCMC_EIO);
+  }
+  fprintf(stderr, "read data back as {");
+  for (size_t i = 0; i < dims[1]; i++)
+    fprintf(stderr, " %6.3f", shite[i]);
+  fprintf(stderr, "}\n");
 
   // Close the memory and file dataspaces, the dataset and the group
   H5Sclose(memspace);
@@ -174,9 +190,14 @@ static int write(void * state, size_t iteration, size_t temperature,
     GMCMC_ERROR("Failed to write stepsize", error);
   }
 
+  if (H5Fflush(group, H5F_SCOPE_GLOBAL) < 0) {
+    H5Gclose(group);
+    GMCMC_ERROR("Flushing group to disk failed", GMCMC_EIO);
+  }
+
   if (H5Gclose(group) < 0)
     GMCMC_ERROR("Failed to close temperature group after writing", GMCMC_EIO);
-
+  
   return 0;
 }
 
