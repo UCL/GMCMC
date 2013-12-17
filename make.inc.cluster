@@ -10,7 +10,7 @@ CFLAGS = -std=c99 -pedantic -Wall -Wextra -march=opteron -O2 -pipe -fopenmp -pth
 # Reference
 LAPACK_CPPFLAGS = -I$(HOME)/include
 LAPACK_LDFLAGS = -L$(HOME)/lib64
-LAPACK_LDLIBS = -llapack -lcblas -lblas -lm
+LAPACK_LDLIBS = -llapacke -llapack -lcblas -lblas -lm
 
 # ATLAS
 # LAPACK_CPPFLAGS = -I/usr/include/atlas
