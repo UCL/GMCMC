@@ -297,7 +297,7 @@ int main(int argc, char * argv[]) {
 
   // Seed the RNG
   time_t seed = time(NULL);
-  gmcmc_prng64_seed(rng, seed);
+  gmcmc_prng64_seed(rng, (uint64_t)seed);
   fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 
   // Start timer

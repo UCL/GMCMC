@@ -66,7 +66,119 @@ static void test_mvn_sample0() {
     // Calculate mean
     for (size_t j = 0; j < 4; j++) {
       double delta = X[i * ldx + j] - mean[j];
-      mean[j] += delta / (i + 1);
+      mean[j] += delta / ((double)i + 1);
+    }
+  }
+
+  // x(j) -= mean
+  for (size_t j = 0; j < N; j++) {
+    for (size_t i = 0; i < 4; i++)
+      X[j * ldx + i] -= mean[i];
+  }
+
+  // cov = \frac{1}{N - 1} \sum_{j=1}^N (x_j - mean)*(x_j - mean)^T
+  double cov[16];
+  const double alpha = 1.0 / (N - 1.0);
+  for (size_t j = 0; j < 4; j++) {
+    for (size_t i = 0; i < 4; i++)
+      cov[j * 4 + i] = 0.0;
+    for (size_t k = 0; k < N; k++) {
+      const double temp = alpha * X[k * ldx + j];
+      for (size_t i = 0; i < 4; i++)
+        cov[j * 4 + i] += temp * X[k * ldx + i];
+    }
+  }
+
+  for (size_t i = 0; i < 4; i++)
+    CU_ASSERT_DOUBLE_EQUAL_REL(mean[i], mu[i], 1.0e-03);
+  for (size_t j = 0; j < 4; j++) {
+    for (size_t i = 0; i < 4; i++)
+      CU_ASSERT_DOUBLE_EQUAL_REL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+  }
+}
+
+static void test_mvn_sample1() {
+  // Input arguments
+  double mu[] = { 0.537667139546100, 1.833885014595086, -2.258846861003648, 0.862173320368121 };
+  double sigma[] = { 13.448159045144756,  9.262621609097568, -4.625091506787965, 10.644757941358025,
+                      9.262621609097568, 11.603005022466061, -1.117456379707958, 10.081095682477658,
+                     -4.625091506787965, -1.117456379707958,  4.506432405029324, -2.394987833402893,
+                     10.644757941358025, 10.081095682477658, -2.394987833402893, 11.378597393300055 };
+  size_t * block = NULL;
+
+  // Seed the RNG
+  gmcmc_prng64_seed(rng, 3421);
+
+  // Generate N samples and simultaneously calculate the sample mean using the
+  // online algorithm from Knuth
+  double mean[] = { 0.0, 0.0, 0.0, 0.0 };
+  int error;
+  for (size_t i = 0; i < N; i++) {
+    // Generate sample
+    if ((error = gmcmc_mvn_sample(4, mu, sigma, 4, rng, block, &X[i * ldx])) != 0)
+      GMCMC_ERROR_VOID("Failed to create sample", error);
+
+    // Calculate mean
+    for (size_t j = 0; j < 4; j++) {
+      double delta = X[i * ldx + j] - mean[j];
+      mean[j] += delta / ((double)i + 1);
+    }
+  }
+
+  // x(j) -= mean
+  for (size_t j = 0; j < N; j++) {
+    for (size_t i = 0; i < 4; i++)
+      X[j * ldx + i] -= mean[i];
+  }
+
+  // cov = \frac{1}{N - 1} \sum_{j=1}^N (x_j - mean)*(x_j - mean)^T
+  double cov[16];
+  const double alpha = 1.0 / (N - 1.0);
+  for (size_t j = 0; j < 4; j++) {
+    for (size_t i = 0; i < 4; i++)
+      cov[j * 4 + i] = 0.0;
+    for (size_t k = 0; k < N; k++) {
+      const double temp = alpha * X[k * ldx + j];
+      for (size_t i = 0; i < 4; i++)
+        cov[j * 4 + i] += temp * X[k * ldx + i];
+    }
+  }
+
+  for (size_t i = 0; i < 4; i++)
+    CU_ASSERT_DOUBLE_EQUAL_REL(mean[i], mu[i], 1.0e-03);
+  for (size_t j = 0; j < 4; j++) {
+    for (size_t i = 0; i < 4; i++)
+      CU_ASSERT_DOUBLE_EQUAL_REL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+  }
+}
+
+static void test_mvn_sample2() {
+  // Input arguments
+  double mu[] = { 0.537667139546100, 1.833885014595086, -2.258846861003648, 0.862173320368121 };
+  double sigma[] = { 13.448159045144756,  9.262621609097568, -4.625091506787965, 10.644757941358025,
+                      9.262621609097568, 11.603005022466061, -1.117456379707958, 10.081095682477658,
+                     -4.625091506787965, -1.117456379707958,  4.506432405029324, -2.394987833402893,
+                     10.644757941358025, 10.081095682477658, -2.394987833402893, 11.378597393300055 };
+  size_t block[] = { 1, 3 };
+
+  // Seed the RNG
+  gmcmc_prng64_seed(rng, 3421);
+
+  // Generate N samples and simultaneously calculate the sample mean using the
+  // online algorithm from Knuth
+  double mean[] = { 0.0, 0.0, 0.0, 0.0 };
+  int error;
+  for (size_t i = 0; i < N; i++) {
+    // Generate sample
+    X[i * ldx] = mu[0]; // Copy mean into those elements of X that are not being updated
+    X[i * ldx + 2] = mu[2];
+    if ((error = gmcmc_mvn_sample(2, mu, sigma, 4, rng, block, &X[i * ldx])) != 0)
+      GMCMC_ERROR_VOID("Failed to create sample", error);
+
+    // Calculate mean
+    for (size_t j = 0; j < 4; j++) {
+      double delta = X[i * ldx + j] - mean[j];
+      mean[j] += delta / ((double)i + 1);
     }
   }
 
@@ -813,6 +925,8 @@ int main() {
     CUNIT_ERROR("Failed to add suite to registry");
 
   ADD_TEST(sample, test_mvn_sample0);
+  ADD_TEST(sample, test_mvn_sample1);
+  ADD_TEST(sample, test_mvn_sample2);
 
   CU_pSuite pdf = CU_add_suite("gmcmc_mvn_logpdf", NULL, NULL);
   if (CU_get_error() != CUE_SUCCESS)

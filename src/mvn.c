@@ -56,7 +56,7 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
   for (size_t j = 0; j < n; j++)
     memcpy(&cholC[j * ldcc], &C[j * ldc], n * sizeof(double));
 
-  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, cholC, ldcc);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', (lapack_int)n, cholC, (lapack_int)ldcc);
   if (info != 0) {
     free(cholC);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
@@ -77,7 +77,7 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
       y[i] = gmcmc_randn(rng);
 
     // Use BLAS DTRMV (matrix-vector product) to compute y = Ay
-    cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, cholC, ldcc, y, 1);
+    cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, (int)n, cholC, (int)ldcc, y, 1);
 
     // Add the mean, x[map[i]] = y[i] + mean[i]
     for (size_t i = 0; i < n; i++)
@@ -92,7 +92,7 @@ static inline int gmcmc_mvn_sample(size_t n, const double * mean, const double *
       x[i] = gmcmc_randn(rng);
 
     // Use BLAS DTRMV (matrix-vector product) to compute x = Ax
-    cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, n, cholC, ldcc, x, 1);
+    cblas_dtrmv(CblasColMajor, CblasLower, CblasNoTrans, CblasNonUnit, (int)n, cholC, (int)ldcc, x, 1);
 
     // Add the mean, x[i] += mean[i]
     for (size_t i = 0; i < n; i++)
@@ -159,7 +159,7 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
     memcpy(&inv[j * ldi], &sigma[j * lds], n * sizeof(double));
 
   // Calculate the Cholesky decomposition of the covariance matrix
-  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
+  long info = LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', (lapack_int)n, inv, (lapack_int)ldi);
   if (info != 0) {
     free(inv);
     GMCMC_ERROR("Proposal covariance matrix is not positive definite", GMCMC_EINVAL);
@@ -170,7 +170,7 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
   double ldet = log_det(n, inv, ldi);
 
   // Calculate the inverse from the Cholesky
-  info = LAPACKE_dpotri(LAPACK_COL_MAJOR, 'L', n, inv, ldi);
+  info = LAPACKE_dpotri(LAPACK_COL_MAJOR, 'L', (lapack_int)n, inv, (lapack_int)ldi);
   if (info != 0) {
     free(inv);
     GMCMC_ERROR("Proposal covariance matrix is singular", GMCMC_EINVAL);
@@ -186,9 +186,9 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
     }
 
     // Use CBLAS DSYMV to compute x' * inv(Σ)
-    cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x, 1, 0.0, xTinv, 1);
+    cblas_dsymv(CblasColMajor, CblasLower, (lapack_int)n, 1.0, inv, (lapack_int)ldi, x, 1, 0.0, xTinv, 1);
     // Use CBLAS DDOT to compute x' * inv(Σ) * x
-    p = cblas_ddot(n, xTinv, 1, x, 1);
+    p = cblas_ddot((int)n, xTinv, 1, x, 1);
 
     free(xTinv);
   }
@@ -208,9 +208,9 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
       x_mu[i] = x[i] - mu[i];
 
     // Use CBLAS DSYMV to compute (x - mu)' * inv(Σ)
-    cblas_dsymv(CblasColMajor, CblasLower, n, 1.0, inv, ldi, x_mu, 1, 0.0, x_muTinv, 1);
+    cblas_dsymv(CblasColMajor, CblasLower, (int)n, 1.0, inv, (int)ldi, x_mu, 1, 0.0, x_muTinv, 1);
     // Use CBLAS DDOT to compute (x - mu)' * inv(Σ) * (x - mu)
-    p = cblas_ddot(n, x_muTinv, 1, x_mu, 1);
+    p = cblas_ddot((int)n, x_muTinv, 1, x_mu, 1);
 
     free(x_mu);
     free(x_muTinv);

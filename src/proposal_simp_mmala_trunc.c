@@ -19,7 +19,7 @@
  * @param [in]  n            size of the mean vector and covariance matrix
  *                             (n by n) and number of parameters in the current
  *                             block
- * @param [in]  blocks       the indices of the parameters in the current block
+ * @param [in]  block        the indices of the parameters in the current block
  * @param [in]  params       parameter vector
  * @param [in]  likelihood   likelihood value
  * @param [in]  temperature  chain temperature
@@ -33,7 +33,7 @@
  *         greater than zero on fatal error,
  *         less than zero on non-fatal error.
  */
-static int proposal_simp_mmala_trunc(size_t n, const size_t * blocks, const double * params,
+static int proposal_simp_mmala_trunc(size_t n, const size_t * block, const double * params,
                                      double likelihood, double temperature,
                                      double stepsize, void * geometry,
                                      double * mean, double * covariance, size_t ldc) {
@@ -93,7 +93,7 @@ static int proposal_simp_mmala_trunc(size_t n, const size_t * blocks, const doub
 
   // Proposal_Mean    = CurrentParas + NaturalGradient;
   for (size_t i = 0; i < n; i++)
-    mean[i] = params[blocks[i]] + gradient[i];
+    mean[i] = params[block[i]] + gradient[i];
 
   // Proposal_Covariance = CholG\(CholG'\( diag(ones(1, NumOfParas)) ));
   for (size_t j = 0; j < n; j++) {

@@ -32,3 +32,12 @@ Vyshemirsky_2008_Model4_Benchmark_1_MH
 Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA
 Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA_trunc
 Eye_all_MH
+test/test_ion_mode
+test/test_ode_model
+test/test_eye_model
+test/test_rng
+test/test_uniform
+test/test_normal
+test/test_lognormal
+test/test_gamma
+test/test_mvn

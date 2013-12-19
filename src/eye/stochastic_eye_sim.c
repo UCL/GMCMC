@@ -28,7 +28,7 @@ static int stochastic_eye_sim(const gmcmc_eye_model * eye_model,
   if ((bump_approx = malloc(num_bump_approx_timepoints * sizeof(double))) == NULL)
     GMCMC_ERROR("Failed to allocate bump approximation", GMCMC_ENOMEM);
 
-  unsigned int bump_max = 0;  // Index of the maximum point in the bump approximation
+  size_t bump_max = 0;  // Index of the maximum point in the bump approximation
   for (size_t i = 0; i < num_bump_approx_timepoints; i++) {
     double x = (double)i;
     bump_approx[i] = i_fac * pow(x / tao, p) * exp(-x / tao);
@@ -44,7 +44,7 @@ static int stochastic_eye_sim(const gmcmc_eye_model * eye_model,
   }
 
   // Find the first point after the maximum that the bump approximation is below 0.025
-  unsigned int bump_duration = bump_max;
+  size_t bump_duration = bump_max;
   while (bump_approx[bump_duration] >= 0.025)
     bump_duration++;
 
@@ -66,7 +66,7 @@ static int stochastic_eye_sim(const gmcmc_eye_model * eye_model,
     for (size_t k = 0; k < num_timepoints; k++)
       bump_series[k] = 0.0;
 
-    unsigned int lrefrac = 0;
+    size_t lrefrac = 0;
     for (size_t j = 0; j < num_stimuli; j++) {
       if (j == 0 || stimuli[j] > lrefrac) {
         double latency = floor(mean_lat * pow(var_lat, gmcmc_randn(rng)));

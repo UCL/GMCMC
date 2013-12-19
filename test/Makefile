@@ -1,6 +1,6 @@
 include ../make.inc
 CPPFLAGS = -I.. $(CUNIT_CPPFLAGS)
-LDFLAGS = -L.. $(CUNIT_LDFLAGS)
+LDFLAGS = -L.. -Wl,-rpath=$(CURDIR)/.. $(CUNIT_LDFLAGS)
 LDLIBS = -lgmcmc -lgmcmc_hdf5 $(CUNIT_LDLIBS) -lm
 
 VPATH = . ../gmcmc

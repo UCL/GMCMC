@@ -112,8 +112,8 @@ static int ion_likelihood_mh(const void * dataset, const gmcmc_model * model,
   }
 
   cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,
-              num_states, num_states, num_states,
-              1.0, Q, ldq, Q, ldq, 1.0, S, lds);
+              (int)num_states, (int)num_states, (int)num_states,
+              1.0, Q, (int)ldq, Q, (int)ldq, 1.0, S, (int)lds);
 
   lapack_int * ipiv;
   if ((ipiv = malloc(num_states * sizeof(lapack_int))) == NULL) {
@@ -122,7 +122,7 @@ static int ion_likelihood_mh(const void * dataset, const gmcmc_model * model,
     free(Q);
     GMCMC_ERROR("Failed to allocate LAPACK pivot array", GMCMC_ENOMEM);
   }
-  long info = LAPACKE_dgesv(LAPACK_COL_MAJOR, num_states, 1, S, lds, ipiv, eq_states, num_states);
+  long info = LAPACKE_dgesv(LAPACK_COL_MAJOR, (lapack_int)num_states, 1, S, (lapack_int)lds, ipiv, eq_states, (lapack_int)num_states);
 
   free(ipiv);
   free(S);
@@ -312,7 +312,7 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
     GMCMC_ERROR("Unable to allocate temporary variables", GMCMC_ENOMEM);
 
   // Calculate the eigenvalues and (right) eigenvectors using LAPACK
-  long info = LAPACKE_dgeev(LAPACK_COL_MAJOR, 'N', 'V', n, Q, ldq, v, wi, NULL, 1, X, ldx);
+  long info = LAPACKE_dgeev(LAPACK_COL_MAJOR, 'N', 'V', (lapack_int)n, Q, (lapack_int)ldq, v, wi, NULL, 1, X, (lapack_int)ldx);
   free(wi);
   if (info != 0) {
     free(X);
@@ -333,8 +333,8 @@ static int calculate_specmat_eigenvectors(size_t n, double * Q, size_t ldq,
   }
   for (size_t j = 0; j < n; j++)
     memcpy(&Y[j * ldy], &X[j * ldx], n * sizeof(double));
-  if ((info = LAPACKE_dgetrf(LAPACK_COL_MAJOR, n, n, Y, ldy, ipiv)) != 0 ||
-      (info = LAPACKE_dgetri(LAPACK_COL_MAJOR, n, Y, ldy, ipiv) != 0)) {
+  if ((info = LAPACKE_dgetrf(LAPACK_COL_MAJOR, (lapack_int)n, (lapack_int)n, Y, (lapack_int)ldy, ipiv)) != 0 ||
+      (info = LAPACKE_dgetri(LAPACK_COL_MAJOR, (lapack_int)n, Y, (lapack_int)ldy, ipiv) != 0)) {
     free(ipiv);
     free(X);
     free(Y);
@@ -412,7 +412,8 @@ static int idealised_transition_probability(size_t m, size_t n,
     free(G);
     GMCMC_ERROR("Unable to allocate temporary matrix", GMCMC_ENOMEM);
   }
-  cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, m, n, m, 1.0, G, ldg, Q, ldq, 0.0, T, ldt);
+  cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, (int)m, (int)n, (int)m,
+              1.0, G, (int)ldg, Q, (int)ldq, 0.0, T, (int)ldt);
   free(G);
 
   /*

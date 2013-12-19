@@ -91,7 +91,7 @@ static int ode_likelihood_mh(const void * dataset, const gmcmc_model * model,
   cvodes_options options;
   gmcmc_ode_model_get_tolerances(ode_model, &options.abstol, &options.reltol);
   int error;
-  if ((error = cvodes_solve(gmcmc_ode_model_get_rhs(ode_model), NULL,
+  if ((error = cvodes_solve(gmcmc_ode_model_get_rhs(ode_model),
                             num_timepoints, num_species, num_params, 0,
                             timepoints, params, NULL, &options, simdata, NULL, lds)) != 0) {
     free(simdata);

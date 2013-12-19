@@ -8,7 +8,7 @@
  * @param [in]  n            size of the mean vector and covariance matrix
  *                             (n by n) and number of parameters in the current
  *                             block
- * @param [in]  blocks       the indices of the parameters in the current block
+ * @param [in]  block        the indices of the parameters in the current block
  * @param [in]  params       parameter vector
  * @param [in]  likelihood   likelihood value
  * @param [in]  temperature  chain temperature
@@ -22,14 +22,14 @@
  *         greater than zero on fatal error,
  *         less than zero on non-fatal error.
  */
-static int proposal_mh(size_t n, const size_t * blocks, const double * params,
+static int proposal_mh(size_t n, const size_t * block, const double * params,
                        double likelihood, double temperature, double stepsize,
                        void * geometry,
                        double * mean, double * covariance, size_t ldc) {
   (void)likelihood;
   (void)geometry;
   (void)temperature;
-  (void)blocks;
+  (void)block;
 
   // Proposal_Mean    = Chain.Paras(Chain.CurrentBlock);
   memcpy(mean, params, n * sizeof(double));
