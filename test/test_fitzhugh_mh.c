@@ -12,7 +12,7 @@ static void test_ode_likelihood_fitzhugh_mh1() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -30054.63355183455860242, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -30054.63355183455860242) <= 1.0e-06);
 
   }
 
@@ -30,7 +30,7 @@ static void test_ode_likelihood_fitzhugh_mh2() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -17299.76717135065700859, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -17299.76717135065700859) <= 1.0e-06);
 
   }
 
@@ -48,7 +48,7 @@ static void test_ode_likelihood_fitzhugh_mh3() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -85193.77084328985074535, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -85193.77084328985074535) <= 1.0e-06);
 
   }
 
@@ -66,7 +66,7 @@ static void test_ode_likelihood_fitzhugh_mh4() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -399966.33249196782708168, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -399966.33249196782708168) <= 1.0e-06);
 
   }
 
@@ -84,7 +84,7 @@ static void test_ode_likelihood_fitzhugh_mh5() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -18764.43087783243390732, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -18764.43087783243390732) <= 1.0e-06);
 
   }
 
@@ -102,7 +102,7 @@ static void test_ode_likelihood_fitzhugh_mh6() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -33270.79154942021705210, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -33270.79154942021705210) <= 1.0e-06);
 
   }
 
@@ -120,7 +120,7 @@ static void test_ode_likelihood_fitzhugh_mh7() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -20541.29293155205959920, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -20541.29293155205959920) <= 1.0e-06);
 
   }
 
@@ -138,7 +138,7 @@ static void test_ode_likelihood_fitzhugh_mh8() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -68850.89922321465564892, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -68850.89922321465564892) <= 1.0e-06);
 
   }
 
@@ -156,7 +156,7 @@ static void test_ode_likelihood_fitzhugh_mh9() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -261563.53123698040144518, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -261563.53123698040144518) <= 1.0e-06);
 
   }
 
@@ -174,7 +174,7 @@ static void test_ode_likelihood_fitzhugh_mh10() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -25133.38448519164376194, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -25133.38448519164376194) <= 1.0e-06);
 
   }
 
@@ -192,7 +192,7 @@ static void test_ode_likelihood_fitzhugh_mh11() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -16989.51973114396969322, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -16989.51973114396969322) <= 1.0e-06);
 
   }
 
@@ -214,38 +214,38 @@ static void test_ode_proposal_fitzhugh_mh11() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 2.64899745535519981, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 5.26900577392737013, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 8.92843621734348325, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -3.36810738244697072, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 3.00092517073362419, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 2.64899745535519981) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 5.26900577392737013) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 8.92843621734348325) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -3.36810738244697072) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 3.00092517073362419) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -263,7 +263,7 @@ static void test_ode_likelihood_fitzhugh_mh12() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -19527.34553548803887679, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -19527.34553548803887679) <= 1.0e-06);
 
   }
 
@@ -285,38 +285,38 @@ static void test_ode_proposal_fitzhugh_mh12() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 6.83574780871166610, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 7.89385171784334716, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 5.47089462478756339, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 0.72100751682579445, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], -0.38800802234729292, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 6.83574780871166610) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 7.89385171784334716) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 5.47089462478756339) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 0.72100751682579445) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], -0.38800802234729292) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -334,7 +334,7 @@ static void test_ode_likelihood_fitzhugh_mh13() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14746.61435640308263828, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -14746.61435640308263828) <= 1.0e-06);
 
   }
 
@@ -356,38 +356,38 @@ static void test_ode_proposal_fitzhugh_mh13() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 1.65081465190332177, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 1.84728214091299248, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 8.13280664511262863, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 2.61358376054928243, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.68668229606129938, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 1.65081465190332177) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 1.84728214091299248) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 8.13280664511262863) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 2.61358376054928243) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.68668229606129938) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -405,7 +405,7 @@ static void test_ode_likelihood_fitzhugh_mh14() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -36823.54955065268586623, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -36823.54955065268586623) <= 1.0e-06);
 
   }
 
@@ -427,38 +427,38 @@ static void test_ode_proposal_fitzhugh_mh14() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 8.80023048356349413, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 5.13122599240989530, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 7.87241644514552252, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.55475439689863015, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 3.27477203034123976, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 8.80023048356349413) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 5.13122599240989530) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 7.87241644514552252) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.55475439689863015) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 3.27477203034123976) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -476,7 +476,7 @@ static void test_ode_likelihood_fitzhugh_mh15() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -16273.03404460841920809, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -16273.03404460841920809) <= 1.0e-06);
 
   }
 
@@ -498,38 +498,38 @@ static void test_ode_proposal_fitzhugh_mh15() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 2.37203891232905395, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 1.30227643195639176, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 6.60186423500073438, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.28112976403027917, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.32590579294200417, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 2.37203891232905395) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 1.30227643195639176) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 6.60186423500073438) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.28112976403027917) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.32590579294200417) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -547,7 +547,7 @@ static void test_ode_likelihood_fitzhugh_mh16() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -16401.20362006357754581, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -16401.20362006357754581) <= 1.0e-06);
 
   }
 
@@ -569,38 +569,38 @@ static void test_ode_proposal_fitzhugh_mh16() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 2.43655881173244016, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 2.85859301807329080, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 1.83075048597734824, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.57965371351888062, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], -0.24683440243182275, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 2.43655881173244016) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 2.85859301807329080) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 1.83075048597734824) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.57965371351888062) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], -0.24683440243182275) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -618,7 +618,7 @@ static void test_ode_likelihood_fitzhugh_mh17() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -15555.30565609161203611, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -15555.30565609161203611) <= 1.0e-06);
 
   }
 
@@ -640,38 +640,38 @@ static void test_ode_proposal_fitzhugh_mh17() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 3.01746103075253380, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 7.89884164812763423, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 6.99008006924530800, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 3.39296911741019924, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.02030302528100689, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 3.01746103075253380) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 7.89884164812763423) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 6.99008006924530800) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 3.39296911741019924) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.02030302528100689) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -689,7 +689,7 @@ static void test_ode_likelihood_fitzhugh_mh18() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14643.84498489689758571, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -14643.84498489689758571) <= 1.0e-06);
 
   }
 
@@ -711,38 +711,38 @@ static void test_ode_proposal_fitzhugh_mh18() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 1.84610705287142962, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 9.22483929416740445, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 1.22573410641557246, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 1.73731367303425510, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.94321002082663730, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 1.84610705287142962) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 9.22483929416740445) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 1.22573410641557246) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 1.73731367303425510) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.94321002082663730) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -760,7 +760,7 @@ static void test_ode_likelihood_fitzhugh_mh19() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -18508.67640186654170975, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -18508.67640186654170975) <= 1.0e-06);
 
   }
 
@@ -782,38 +782,38 @@ static void test_ode_proposal_fitzhugh_mh19() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 4.81353592168002198, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 6.06052763684816220, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 1.98231029126733405, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 2.60976652409627174, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], -1.21092303579664029, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 4.81353592168002198) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 6.06052763684816220) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 1.98231029126733405) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 2.60976652409627174) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], -1.21092303579664029) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -831,7 +831,7 @@ static void test_ode_likelihood_fitzhugh_mh20() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -19533.00065070129494416, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -19533.00065070129494416) <= 1.0e-06);
 
   }
 
@@ -853,38 +853,38 @@ static void test_ode_proposal_fitzhugh_mh20() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 4.80925862218467337, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 8.17960846265735597, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 1.90567074824301019, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02865311771733459, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.70706855303704053, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 4.80925862218467337) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 8.17960846265735597) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 1.90567074824301019) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02865311771733459) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.70706855303704053) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 3.67442891992271070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 3.67442891992271070, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 3.67442891992271070) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 3.67442891992271070) <= 1.0e-06);
 
 }
 
@@ -902,7 +902,7 @@ static void test_ode_likelihood_fitzhugh_mh21() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -17411.62400061950029340, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -17411.62400061950029340) <= 1.0e-06);
 
   }
 
@@ -924,38 +924,38 @@ static void test_ode_proposal_fitzhugh_mh21() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 4.21165336695110248, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 5.03955591705490580, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 4.34995159880650117, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 2.39608423421977701, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.60600768487656276, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 4.21165336695110248) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 5.03955591705490580) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 4.34995159880650117) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 2.39608423421977701) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.60600768487656276) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -973,7 +973,7 @@ static void test_ode_likelihood_fitzhugh_mh22() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14104.58172839073995419, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -14104.58172839073995419) <= 1.0e-06);
 
   }
 
@@ -995,38 +995,38 @@ static void test_ode_proposal_fitzhugh_mh22() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 1.45681634926581194, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 2.20462764444565140, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 6.52591756827282143, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.99034973191661491, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.21281025061124681, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 1.45681634926581194) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 2.20462764444565140) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 6.52591756827282143) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.99034973191661491) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.21281025061124681) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1044,7 +1044,7 @@ static void test_ode_likelihood_fitzhugh_mh23() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -1726.74296272375977424, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -1726.74296272375977424) <= 1.0e-06);
 
   }
 
@@ -1066,38 +1066,38 @@ static void test_ode_proposal_fitzhugh_mh23() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19263888450598926, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.73808353488762268, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97508162507836404, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.08047949915277730, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.56559623447837337, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19263888450598926) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.73808353488762268) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97508162507836404) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.08047949915277730) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.56559623447837337) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1115,7 +1115,7 @@ static void test_ode_likelihood_fitzhugh_mh24() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -447.54956473895197178, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -447.54956473895197178) <= 1.0e-06);
 
   }
 
@@ -1137,38 +1137,38 @@ static void test_ode_proposal_fitzhugh_mh24() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19996187640207977, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.45848506960082042, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99801476885588780, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.18006838598644703, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.46865355089713434, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19996187640207977) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.45848506960082042) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99801476885588780) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.18006838598644703) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.46865355089713434) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1186,7 +1186,7 @@ static void test_ode_likelihood_fitzhugh_mh25() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14786.49079660229472211, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -14786.49079660229472211) <= 1.0e-06);
 
   }
 
@@ -1208,38 +1208,38 @@ static void test_ode_proposal_fitzhugh_mh25() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 1.88140467159554925, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 6.02065323356368154, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 5.85466262859076814, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 1.40422755356749818, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 2.85561480194631789, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 1.88140467159554925) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 6.02065323356368154) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 5.85466262859076814) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 1.40422755356749818) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 2.85561480194631789) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1257,7 +1257,7 @@ static void test_ode_likelihood_fitzhugh_mh26() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -1963.83513529304855183, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -1963.83513529304855183) <= 1.0e-06);
 
   }
 
@@ -1279,38 +1279,38 @@ static void test_ode_proposal_fitzhugh_mh26() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.16734461185017535, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.85829214658590758, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 1.85380409810135816, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.87963877959895709, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.40697894722319927, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.16734461185017535) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.85829214658590758) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 1.85380409810135816) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.87963877959895709) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.40697894722319927) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1328,7 +1328,7 @@ static void test_ode_likelihood_fitzhugh_mh27() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -12264.73142988790277741, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -12264.73142988790277741) <= 1.0e-06);
 
   }
 
@@ -1350,38 +1350,38 @@ static void test_ode_proposal_fitzhugh_mh27() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.34956324708352299, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.71935296422346828, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 0.14625947779628679, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 0.06971379942496603, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], -0.04981326388115050, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.34956324708352299) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.71935296422346828) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 0.14625947779628679) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 0.06971379942496603) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], -0.04981326388115050) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1399,7 +1399,7 @@ static void test_ode_likelihood_fitzhugh_mh28() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -14619.22028809281255235, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -14619.22028809281255235) <= 1.0e-06);
 
   }
 
@@ -1421,38 +1421,38 @@ static void test_ode_proposal_fitzhugh_mh28() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 3.67690757696236359, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 9.39404175190827218, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 4.75799296642991898, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.93597778951819754, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.88213883938695159, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 3.67690757696236359) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 9.39404175190827218) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 4.75799296642991898) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.93597778951819754) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.88213883938695159) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1470,7 +1470,7 @@ static void test_ode_likelihood_fitzhugh_mh29() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -15996.02859097142209066, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -15996.02859097142209066) <= 1.0e-06);
 
   }
 
@@ -1492,38 +1492,38 @@ static void test_ode_proposal_fitzhugh_mh29() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 2.54030800237234189, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 3.56542226479669244, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 8.15005820140240012, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 1.74344844203717431, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], -0.45363337400631443, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 2.54030800237234189) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 3.56542226479669244) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 8.15005820140240012) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 1.74344844203717431) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], -0.45363337400631443) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1541,7 +1541,7 @@ static void test_ode_likelihood_fitzhugh_mh30() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -592.99718344515440549, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -592.99718344515440549) <= 1.0e-06);
 
   }
 
@@ -1563,38 +1563,38 @@ static void test_ode_proposal_fitzhugh_mh30() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.33547091477259439, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.21997618723038653, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.62826575817316854, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.80766945642267429, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.38469119306485289, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.33547091477259439) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.21997618723038653) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.62826575817316854) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.80766945642267429) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.38469119306485289) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.16071516088011142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.16071516088011142, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.16071516088011142) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.16071516088011142) <= 1.0e-06);
 
 }
 
@@ -1612,7 +1612,7 @@ static void test_ode_likelihood_fitzhugh_mh31() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -482.68219065250252697, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -482.68219065250252697) <= 1.0e-06);
 
   }
 
@@ -1634,38 +1634,38 @@ static void test_ode_proposal_fitzhugh_mh31() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.31777397647430627, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17189318112622679, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.87630806446519971, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], 0.54410230586104003, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.53984760964906742, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.31777397647430627) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17189318112622679) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.87630806446519971) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], 0.54410230586104003) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.53984760964906742) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -1683,7 +1683,7 @@ static void test_ode_likelihood_fitzhugh_mh32() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -143.75770907528539055, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -143.75770907528539055) <= 1.0e-06);
 
   }
 
@@ -1705,38 +1705,38 @@ static void test_ode_proposal_fitzhugh_mh32() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.36619302766181305, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.07881251457273561, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.74284865543800827, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.85426040201374298, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.04583782501546363, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.36619302766181305) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.07881251457273561) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.74284865543800827) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.85426040201374298) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.04583782501546363) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -1754,7 +1754,7 @@ static void test_ode_likelihood_fitzhugh_mh33() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -855.20734629060143561, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -855.20734629060143561) <= 1.0e-06);
 
   }
 
@@ -1776,38 +1776,38 @@ static void test_ode_proposal_fitzhugh_mh33() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.16645562275225889, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.81527025423807387, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.40296464482772132, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.28960538433457605, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.71690976818963925, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.16645562275225889) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.81527025423807387) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.40296464482772132) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.28960538433457605) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.71690976818963925) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -1825,7 +1825,7 @@ static void test_ode_likelihood_fitzhugh_mh34() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -133.83441721304262728, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -133.83441721304262728) <= 1.0e-06);
 
   }
 
@@ -1847,38 +1847,38 @@ static void test_ode_proposal_fitzhugh_mh34() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.24213496618829872, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.49279818531447339, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.85726874564852373, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.88655815359180323, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.13036367007813965, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.24213496618829872) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.49279818531447339) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.85726874564852373) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.88655815359180323) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.13036367007813965) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -1896,7 +1896,7 @@ static void test_ode_likelihood_fitzhugh_mh35() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -463.50131084594198683, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -463.50131084594198683) <= 1.0e-06);
 
   }
 
@@ -1918,38 +1918,38 @@ static void test_ode_proposal_fitzhugh_mh35() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.06563475342583369, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.08774515237931643, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99091456266483391, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.91100815934616997, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.31458149461644314, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.06563475342583369) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.08774515237931643) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99091456266483391) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.91100815934616997) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.31458149461644314) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -1967,7 +1967,7 @@ static void test_ode_likelihood_fitzhugh_mh36() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -125.37629096418261554, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -125.37629096418261554) <= 1.0e-06);
 
   }
 
@@ -1989,38 +1989,38 @@ static void test_ode_proposal_fitzhugh_mh36() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.12212518033806170, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.07888868722900479, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.01455453197021939, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.38948529431762502, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.19219504614211647, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.12212518033806170) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.07888868722900479) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.01455453197021939) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.38948529431762502) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.19219504614211647) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -2038,7 +2038,7 @@ static void test_ode_likelihood_fitzhugh_mh37() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -228.94325662929730925, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -228.94325662929730925) <= 1.0e-06);
 
   }
 
@@ -2060,38 +2060,38 @@ static void test_ode_proposal_fitzhugh_mh37() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.23755805969044830, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.31429439884772525, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.91189118478955900, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.37086879290117658, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.45016638145776011, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.23755805969044830) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.31429439884772525) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.91189118478955900) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.37086879290117658) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.45016638145776011) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -2109,7 +2109,7 @@ static void test_ode_likelihood_fitzhugh_mh38() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -1186.28025636725419645, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -1186.28025636725419645) <= 1.0e-06);
 
   }
 
@@ -2131,38 +2131,38 @@ static void test_ode_proposal_fitzhugh_mh38() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.22013723601918070, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.54740206276929060, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.51611969165118898, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.69042661538369310, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.76770068036543981, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.22013723601918070) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.54740206276929060) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.51611969165118898) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.69042661538369310) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.76770068036543981) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -2180,7 +2180,7 @@ static void test_ode_likelihood_fitzhugh_mh39() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -476.09540227895467979, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -476.09540227895467979) <= 1.0e-06);
 
   }
 
@@ -2202,38 +2202,38 @@ static void test_ode_proposal_fitzhugh_mh39() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.08800973018089495, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.14483183531833790, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.86095835919439079, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.14001065595454065, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.82061353853339603, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.08800973018089495) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.14483183531833790) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.86095835919439079) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.14001065595454065) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.82061353853339603) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -2251,7 +2251,7 @@ static void test_ode_likelihood_fitzhugh_mh40() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -720.95585480320210081, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -720.95585480320210081) <= 1.0e-06);
 
   }
 
@@ -2273,38 +2273,38 @@ static void test_ode_proposal_fitzhugh_mh40() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.05227464388644533, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.62164996405463679, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.65715678835474778, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.32313688968537635, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.67981261096182077, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.05227464388644533) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.62164996405463679) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.65715678835474778) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.32313688968537635) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.67981261096182077) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00584325558976905, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00584325558976905, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00584325558976905) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00584325558976905) <= 1.0e-06);
 
 }
 
@@ -2322,7 +2322,7 @@ static void test_ode_likelihood_fitzhugh_mh41() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 9.95527239391438457, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 9.95527239391438457) <= 1.0e-06);
 
   }
 
@@ -2344,38 +2344,38 @@ static void test_ode_proposal_fitzhugh_mh41() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.27821395686900552, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.10911381263436387, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.94403675607005466, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.76984829225384499, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.03005115815856030, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.27821395686900552) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.10911381263436387) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.94403675607005466) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.76984829225384499) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.03005115815856030) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2393,7 +2393,7 @@ static void test_ode_likelihood_fitzhugh_mh42() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 108.94577081072613112, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 108.94577081072613112) <= 1.0e-06);
 
   }
 
@@ -2415,38 +2415,38 @@ static void test_ode_proposal_fitzhugh_mh42() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19293955396556001, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.30579198380087308, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99971099881438974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.98651473315335891, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.93481113557655282, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19293955396556001) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.30579198380087308) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99971099881438974) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.98651473315335891) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.93481113557655282) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2464,7 +2464,7 @@ static void test_ode_likelihood_fitzhugh_mh43() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 71.07438808140257436, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 71.07438808140257436) <= 1.0e-06);
 
   }
 
@@ -2486,38 +2486,38 @@ static void test_ode_proposal_fitzhugh_mh43() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.23451231489242944, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.28878725218512069, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.91459540076216017, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.95931946793668821, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.22198732222433626, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.23451231489242944) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.28878725218512069) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.91459540076216017) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.95931946793668821) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.22198732222433626) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2535,7 +2535,7 @@ static void test_ode_likelihood_fitzhugh_mh44() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -59.64843605623319434, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -59.64843605623319434) <= 1.0e-06);
 
   }
 
@@ -2557,38 +2557,38 @@ static void test_ode_proposal_fitzhugh_mh44() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.17815765344361043, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.01577080716188051, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.85925172087083634, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.23149661947140743, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.30234427757105342, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.17815765344361043) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.01577080716188051) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.85925172087083634) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.23149661947140743) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.30234427757105342) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2606,7 +2606,7 @@ static void test_ode_likelihood_fitzhugh_mh45() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 92.36303661093447204, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 92.36303661093447204) <= 1.0e-06);
 
   }
 
@@ -2628,38 +2628,38 @@ static void test_ode_proposal_fitzhugh_mh45() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.17316161709920977, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.24030129018402019, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.08391457465613605, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.92346843065179762, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.89170749013267803, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.17316161709920977) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.24030129018402019) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.08391457465613605) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.92346843065179762) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.89170749013267803) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2677,7 +2677,7 @@ static void test_ode_likelihood_fitzhugh_mh46() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -119.14087066138081639, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -119.14087066138081639) <= 1.0e-06);
 
   }
 
@@ -2699,38 +2699,38 @@ static void test_ode_proposal_fitzhugh_mh46() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20985514950780304, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.53675648742137461, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.71456869460652994, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.11690505849063215, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.41849651986517311, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20985514950780304) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.53675648742137461) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.71456869460652994) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.11690505849063215) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.41849651986517311) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2748,7 +2748,7 @@ static void test_ode_likelihood_fitzhugh_mh47() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 57.26474305222633632, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 57.26474305222633632) <= 1.0e-06);
 
   }
 
@@ -2770,38 +2770,38 @@ static void test_ode_proposal_fitzhugh_mh47() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.15519006150843512, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.34364631989106659, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.87378349973721958, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.31493315877691730, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.21229977917187060, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.15519006150843512) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.34364631989106659) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.87378349973721958) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.31493315877691730) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.21229977917187060) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2819,7 +2819,7 @@ static void test_ode_likelihood_fitzhugh_mh48() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 17.66335630705849269, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 17.66335630705849269) <= 1.0e-06);
 
   }
 
@@ -2841,38 +2841,38 @@ static void test_ode_proposal_fitzhugh_mh48() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20883989390649454, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.44446777874173976, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.88200260365340855, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.87712033600443606, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.85383855526096641, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20883989390649454) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.44446777874173976) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.88200260365340855) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.87712033600443606) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.85383855526096641) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2890,7 +2890,7 @@ static void test_ode_likelihood_fitzhugh_mh49() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, -146.53206289000070228, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, -146.53206289000070228) <= 1.0e-06);
 
   }
 
@@ -2912,38 +2912,38 @@ static void test_ode_proposal_fitzhugh_mh49() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19063202071598620, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.04234890734364649, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.18596532680310585, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.61011551521476814, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.02310238462893222, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19063202071598620) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.04234890734364649) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.18596532680310585) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.61011551521476814) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.02310238462893222) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -2961,7 +2961,7 @@ static void test_ode_likelihood_fitzhugh_mh50() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 59.52009515002576734, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 59.52009515002576734) <= 1.0e-06);
 
   }
 
@@ -2983,38 +2983,38 @@ static void test_ode_proposal_fitzhugh_mh50() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19338439896157678, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.25702293731374376, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.09941463736436029, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.87332623631751205, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.92699869190417372, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19338439896157678) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.25702293731374376) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.09941463736436029) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.87332623631751205) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.92699869190417372) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00281792804290560, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00281792804290560, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00281792804290560) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00281792804290560) <= 1.0e-06);
 
 }
 
@@ -3032,7 +3032,7 @@ static void test_ode_likelihood_fitzhugh_mh51() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 136.44390370721745853, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 136.44390370721745853) <= 1.0e-06);
 
   }
 
@@ -3054,38 +3054,38 @@ static void test_ode_proposal_fitzhugh_mh51() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21794560335659455, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.13241583087215247, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.02053114287951141, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.89111429922490626, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.88658060802228222, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21794560335659455) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.13241583087215247) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.02053114287951141) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.89111429922490626) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.88658060802228222) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3103,7 +3103,7 @@ static void test_ode_likelihood_fitzhugh_mh52() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 142.55830528080912245, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 142.55830528080912245) <= 1.0e-06);
 
   }
 
@@ -3125,38 +3125,38 @@ static void test_ode_proposal_fitzhugh_mh52() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.23160405741559792, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.04998720940748652, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.96609868340164962, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.97943505278597731, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.94496689767640840, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.23160405741559792) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.04998720940748652) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.96609868340164962) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.97943505278597731) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.94496689767640840) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3174,7 +3174,7 @@ static void test_ode_likelihood_fitzhugh_mh53() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 136.70657753254158706, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 136.70657753254158706) <= 1.0e-06);
 
   }
 
@@ -3196,38 +3196,38 @@ static void test_ode_proposal_fitzhugh_mh53() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19299632323987187, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17385010715212720, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97924823169794006, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.01700706237292526, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.12871332000582658, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19299632323987187) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17385010715212720) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97924823169794006) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.01700706237292526) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.12871332000582658) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3245,7 +3245,7 @@ static void test_ode_likelihood_fitzhugh_mh54() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 123.85336972104813924, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 123.85336972104813924) <= 1.0e-06);
 
   }
 
@@ -3267,38 +3267,38 @@ static void test_ode_proposal_fitzhugh_mh54() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.18261923982941577, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.12308939241876121, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.01411533372003282, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.97357352882033443, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.85857304984321348, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.18261923982941577) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.12308939241876121) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.01411533372003282) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.97357352882033443) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.85857304984321348) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3316,7 +3316,7 @@ static void test_ode_likelihood_fitzhugh_mh55() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 134.80472305302492941, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 134.80472305302492941) <= 1.0e-06);
 
   }
 
@@ -3338,38 +3338,38 @@ static void test_ode_proposal_fitzhugh_mh55() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21719756051685155, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.11274412787722767, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00103804158743825, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.99688239969072834, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.06383002375591218, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21719756051685155) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.11274412787722767) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00103804158743825) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.99688239969072834) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.06383002375591218) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3387,7 +3387,7 @@ static void test_ode_likelihood_fitzhugh_mh56() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 128.99719216799269361, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 128.99719216799269361) <= 1.0e-06);
 
   }
 
@@ -3409,38 +3409,38 @@ static void test_ode_proposal_fitzhugh_mh56() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21089144210775121, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.24863162626669547, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98653598402994058, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.92214449726935466, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.01730882902718345, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21089144210775121) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.24863162626669547) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98653598402994058) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.92214449726935466) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.01730882902718345) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3458,7 +3458,7 @@ static void test_ode_likelihood_fitzhugh_mh57() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 123.35923670943734010, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 123.35923670943734010) <= 1.0e-06);
 
   }
 
@@ -3480,38 +3480,38 @@ static void test_ode_proposal_fitzhugh_mh57() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.18473089973794871, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.28755968092707185, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98603678566760644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.07620469980936506, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.06519370350502562, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.18473089973794871) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.28755968092707185) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98603678566760644) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.07620469980936506) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.06519370350502562) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3529,7 +3529,7 @@ static void test_ode_likelihood_fitzhugh_mh58() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 139.90091441663071237, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 139.90091441663071237) <= 1.0e-06);
 
   }
 
@@ -3551,38 +3551,38 @@ static void test_ode_proposal_fitzhugh_mh58() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21032229427203575, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.12466032601631120, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.04736825479453755, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.89335078339378948, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.92908394216873114, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21032229427203575) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.12466032601631120) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.04736825479453755) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.89335078339378948) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.92908394216873114) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3600,7 +3600,7 @@ static void test_ode_likelihood_fitzhugh_mh59() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 136.69253945662927663, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 136.69253945662927663) <= 1.0e-06);
 
   }
 
@@ -3622,38 +3622,38 @@ static void test_ode_proposal_fitzhugh_mh59() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.16647351718110714, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17508365984679991, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99719350531900819, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.07016869270316439, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.97299292405481341, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.16647351718110714) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17508365984679991) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99719350531900819) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.07016869270316439) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.97299292405481341) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3671,7 +3671,7 @@ static void test_ode_likelihood_fitzhugh_mh60() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 152.42646429998632129, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 152.42646429998632129) <= 1.0e-06);
 
   }
 
@@ -3693,38 +3693,38 @@ static void test_ode_proposal_fitzhugh_mh60() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.22204396205679730, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.15224153225820244, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.96519248656221901, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.98100310044212802, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.02001680568805098, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.22204396205679730) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.15224153225820244) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.96519248656221901) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.98100310044212802) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.02001680568805098) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00080154397664870, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00080154397664870, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00080154397664870) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00080154397664870) <= 1.0e-06);
 
 }
 
@@ -3742,7 +3742,7 @@ static void test_ode_likelihood_fitzhugh_mh61() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 95.16689747545760270, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 95.16689747545760270) <= 1.0e-06);
 
   }
 
@@ -3764,38 +3764,38 @@ static void test_ode_proposal_fitzhugh_mh61() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.24362951300858715, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.24484599302077487, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97741708266246929, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.92834926684573138, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.06286501026968438, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.24362951300858715) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.24484599302077487) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97741708266246929) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.92834926684573138) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.06286501026968438) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -3813,7 +3813,7 @@ static void test_ode_likelihood_fitzhugh_mh62() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 134.24718297465213368, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 134.24718297465213368) <= 1.0e-06);
 
   }
 
@@ -3835,38 +3835,38 @@ static void test_ode_proposal_fitzhugh_mh62() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19284254783837707, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.28728829959948615, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.94974087012063935, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.09815275275753277, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.04054782870345774, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19284254783837707) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.28728829959948615) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.94974087012063935) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.09815275275753277) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.04054782870345774) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -3884,7 +3884,7 @@ static void test_ode_likelihood_fitzhugh_mh63() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.80550640271127349, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 154.80550640271127349) <= 1.0e-06);
 
   }
 
@@ -3906,38 +3906,38 @@ static void test_ode_proposal_fitzhugh_mh63() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20793259419817928, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.20143265192699941, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98341187688870191, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02060422013715102, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.03287121805350868, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20793259419817928) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.20143265192699941) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98341187688870191) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02060422013715102) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.03287121805350868) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -3955,7 +3955,7 @@ static void test_ode_likelihood_fitzhugh_mh64() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.45741282207995937, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.45741282207995937) <= 1.0e-06);
 
   }
 
@@ -3977,38 +3977,38 @@ static void test_ode_proposal_fitzhugh_mh64() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20981133114394701, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.14651924491678342, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98545348710666891, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.98955942758296844, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.96977806199716865, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20981133114394701) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.14651924491678342) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98545348710666891) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.98955942758296844) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.96977806199716865) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4026,7 +4026,7 @@ static void test_ode_likelihood_fitzhugh_mh65() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 138.46138054274604201, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 138.46138054274604201) <= 1.0e-06);
 
   }
 
@@ -4048,38 +4048,38 @@ static void test_ode_proposal_fitzhugh_mh65() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.17260566463881474, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.16841212534682881, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98146442720424254, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.10259410958126880, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.97825514353056886, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.17260566463881474) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.16841212534682881) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98146442720424254) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.10259410958126880) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.97825514353056886) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4097,7 +4097,7 @@ static void test_ode_likelihood_fitzhugh_mh66() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 142.91300321029979159, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 142.91300321029979159) <= 1.0e-06);
 
   }
 
@@ -4119,38 +4119,38 @@ static void test_ode_proposal_fitzhugh_mh66() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20957480864374403, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.23167081766650593, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.95048509018681271, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.03035913549842251, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.94440261689465799, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20957480864374403) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.23167081766650593) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.95048509018681271) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.03035913549842251) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.94440261689465799) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4168,7 +4168,7 @@ static void test_ode_likelihood_fitzhugh_mh67() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 137.80889014642758639, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 137.80889014642758639) <= 1.0e-06);
 
   }
 
@@ -4190,38 +4190,38 @@ static void test_ode_proposal_fitzhugh_mh67() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.24541790229405680, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.08890316814015911, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97998963115435789, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.93186082286248084, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.01185951205744828, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.24541790229405680) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.08890316814015911) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97998963115435789) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.93186082286248084) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.01185951205744828) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4239,7 +4239,7 @@ static void test_ode_likelihood_fitzhugh_mh68() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 144.25889304674151958, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 144.25889304674151958) <= 1.0e-06);
 
   }
 
@@ -4261,38 +4261,38 @@ static void test_ode_proposal_fitzhugh_mh68() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.18331357013406449, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.24132934950919377, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98990065056254695, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.01830940376060242, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.96982428228450890, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.18331357013406449) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.24132934950919377) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98990065056254695) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.01830940376060242) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.96982428228450890) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4310,7 +4310,7 @@ static void test_ode_likelihood_fitzhugh_mh69() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 137.02395919009484260, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 137.02395919009484260) <= 1.0e-06);
 
   }
 
@@ -4332,38 +4332,38 @@ static void test_ode_proposal_fitzhugh_mh69() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21407385015323790, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.26947243739049420, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98136633901547743, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.93616484233871922, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.96570327438154235, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21407385015323790) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.26947243739049420) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98136633901547743) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.93616484233871922) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.96570327438154235) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4381,7 +4381,7 @@ static void test_ode_likelihood_fitzhugh_mh70() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 142.73293752863116879, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 142.73293752863116879) <= 1.0e-06);
 
   }
 
@@ -4403,38 +4403,38 @@ static void test_ode_proposal_fitzhugh_mh70() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.17025086826647509, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.19807588012041322, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00105889071126608, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.05413001820743246, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.05608099889214602, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.17025086826647509) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.19807588012041322) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00105889071126608) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.05413001820743246) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.05608099889214602) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00024739011624960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00024739011624960, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00024739011624960) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00024739011624960) <= 1.0e-06);
 
 }
 
@@ -4452,7 +4452,7 @@ static void test_ode_likelihood_fitzhugh_mh71() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.17901045491680634, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.17901045491680634) <= 1.0e-06);
 
   }
 
@@ -4474,38 +4474,38 @@ static void test_ode_proposal_fitzhugh_mh71() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21685785874650335, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.15088267227094648, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98206228942599338, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.97683559583171431, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.99060806649755240, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21685785874650335) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.15088267227094648) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98206228942599338) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.97683559583171431) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.99060806649755240) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4523,7 +4523,7 @@ static void test_ode_likelihood_fitzhugh_mh72() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.57020888245494916, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 159.57020888245494916) <= 1.0e-06);
 
   }
 
@@ -4545,38 +4545,38 @@ static void test_ode_proposal_fitzhugh_mh72() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20044800710543240, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.16624765258019142, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99963072087447369, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.01261657074994926, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.00291499476166734, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20044800710543240) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.16624765258019142) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99963072087447369) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.01261657074994926) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.00291499476166734) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4594,7 +4594,7 @@ static void test_ode_likelihood_fitzhugh_mh73() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.49416424247161217, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 154.49416424247161217) <= 1.0e-06);
 
   }
 
@@ -4616,38 +4616,38 @@ static void test_ode_proposal_fitzhugh_mh73() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.23092911423341619, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.11833817020241084, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97094320212278795, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.97080628494665644, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.96813224973458822, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.23092911423341619) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.11833817020241084) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97094320212278795) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.97080628494665644) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.96813224973458822) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4665,7 +4665,7 @@ static void test_ode_likelihood_fitzhugh_mh74() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 151.72139428151126594, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 151.72139428151126594) <= 1.0e-06);
 
   }
 
@@ -4687,38 +4687,38 @@ static void test_ode_proposal_fitzhugh_mh74() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.22951648261199586, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.12452344452081164, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.95830809456869215, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.00660525653355148, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.97467114248627817, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.22951648261199586) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.12452344452081164) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.95830809456869215) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.00660525653355148) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.97467114248627817) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4736,7 +4736,7 @@ static void test_ode_likelihood_fitzhugh_mh75() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 153.68756907773507692, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 153.68756907773507692) <= 1.0e-06);
 
   }
 
@@ -4758,38 +4758,38 @@ static void test_ode_proposal_fitzhugh_mh75() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21490985216969635, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.20428346020593627, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99587909468560776, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.95188410390450284, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.96330347144155848, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21490985216969635) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.20428346020593627) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99587909468560776) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.95188410390450284) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.96330347144155848) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4807,7 +4807,7 @@ static void test_ode_likelihood_fitzhugh_mh76() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 145.17087081908385926, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 145.17087081908385926) <= 1.0e-06);
 
   }
 
@@ -4829,38 +4829,38 @@ static void test_ode_proposal_fitzhugh_mh76() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.17282395778185855, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.14616099458992149, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99904237480512270, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.08491030739356065, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.06393865105017005, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.17282395778185855) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.14616099458992149) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99904237480512270) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.08491030739356065) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.06393865105017005) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4878,7 +4878,7 @@ static void test_ode_likelihood_fitzhugh_mh77() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 149.29036917884360491, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 149.29036917884360491) <= 1.0e-06);
 
   }
 
@@ -4900,38 +4900,38 @@ static void test_ode_proposal_fitzhugh_mh77() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.22435478827263489, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.14671780513325300, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99820008710838604, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.93845740515345411, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.89475243409682126, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.22435478827263489) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.14671780513325300) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99820008710838604) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.93845740515345411) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.89475243409682126) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -4949,7 +4949,7 @@ static void test_ode_likelihood_fitzhugh_mh78() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 156.00832589783095727, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 156.00832589783095727) <= 1.0e-06);
 
   }
 
@@ -4971,38 +4971,38 @@ static void test_ode_proposal_fitzhugh_mh78() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.18658800171104672, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.16600293394791435, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00392488708660022, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02563399016413359, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.99614699216741687, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.18658800171104672) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.16600293394791435) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00392488708660022) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02563399016413359) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.99614699216741687) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -5020,7 +5020,7 @@ static void test_ode_likelihood_fitzhugh_mh79() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 153.56932317674625210, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 153.56932317674625210) <= 1.0e-06);
 
   }
 
@@ -5042,38 +5042,38 @@ static void test_ode_proposal_fitzhugh_mh79() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21761602718857276, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.15954025260024568, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00994233483964413, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.94601417955494149, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.92649741422080922, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21761602718857276) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.15954025260024568) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00994233483964413) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.94601417955494149) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.92649741422080922) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -5091,7 +5091,7 @@ static void test_ode_likelihood_fitzhugh_mh80() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.92263622201551243, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.92263622201551243) <= 1.0e-06);
 
   }
 
@@ -5113,38 +5113,38 @@ static void test_ode_proposal_fitzhugh_mh80() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20215357537629880, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.15925160316360423, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99184394495029649, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02484036166626291, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.98664141013216211, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20215357537629880) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.15925160316360423) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99184394495029649) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02484036166626291) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.98664141013216211) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00015832967439974, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00015832967439974, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00015832967439974) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00015832967439974) <= 1.0e-06);
 
 }
 
@@ -5162,7 +5162,7 @@ static void test_ode_likelihood_fitzhugh_mh81() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 154.45043326099272463, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 154.45043326099272463) <= 1.0e-06);
 
   }
 
@@ -5184,38 +5184,38 @@ static void test_ode_proposal_fitzhugh_mh81() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20315539852306549, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.11900297250039407, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97413495597645072, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.03078207940440225, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.00437358459332060, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20315539852306549) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.11900297250039407) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97413495597645072) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.03078207940440225) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.00437358459332060) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5233,7 +5233,7 @@ static void test_ode_likelihood_fitzhugh_mh82() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 151.26382727961998853, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 151.26382727961998853) <= 1.0e-06);
 
   }
 
@@ -5255,38 +5255,38 @@ static void test_ode_proposal_fitzhugh_mh82() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19095936101055452, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.15802545540245733, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97313575974333189, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.05819385683172995, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.03804870191050758, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19095936101055452) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.15802545540245733) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97313575974333189) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.05819385683172995) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.03804870191050758) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5304,7 +5304,7 @@ static void test_ode_likelihood_fitzhugh_mh83() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.23364634449234245, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.23364634449234245) <= 1.0e-06);
 
   }
 
@@ -5326,38 +5326,38 @@ static void test_ode_proposal_fitzhugh_mh83() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20252826389085754, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17319167752239042, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99173367438001403, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02145746536915194, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.04031894674178638, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20252826389085754) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17319167752239042) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99173367438001403) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02145746536915194) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.04031894674178638) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5375,7 +5375,7 @@ static void test_ode_likelihood_fitzhugh_mh84() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.03575733239154033, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 159.03575733239154033) <= 1.0e-06);
 
   }
 
@@ -5397,38 +5397,38 @@ static void test_ode_proposal_fitzhugh_mh84() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21625750371968389, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.13481884954627960, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99367325466357714, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.98254494583781504, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.99660740852465779, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21625750371968389) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.13481884954627960) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99367325466357714) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.98254494583781504) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.99660740852465779) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5446,7 +5446,7 @@ static void test_ode_likelihood_fitzhugh_mh85() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.27235385834973158, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.27235385834973158) <= 1.0e-06);
 
   }
 
@@ -5468,38 +5468,38 @@ static void test_ode_proposal_fitzhugh_mh85() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20468417937511854, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.13159568322487489, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98208764628998457, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02733120920357046, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.03286288108167090, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20468417937511854) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.13159568322487489) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98208764628998457) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02733120920357046) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.03286288108167090) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5517,7 +5517,7 @@ static void test_ode_likelihood_fitzhugh_mh86() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.33086165722681926, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.33086165722681926) <= 1.0e-06);
 
   }
 
@@ -5539,38 +5539,38 @@ static void test_ode_proposal_fitzhugh_mh86() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20090149802378815, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.11037541719914211, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99854874614580735, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.00778897207752038, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.00711887358365915, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20090149802378815) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.11037541719914211) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99854874614580735) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.00778897207752038) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.00711887358365915) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5588,7 +5588,7 @@ static void test_ode_likelihood_fitzhugh_mh87() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.87062998647024870, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.87062998647024870) <= 1.0e-06);
 
   }
 
@@ -5610,38 +5610,38 @@ static void test_ode_proposal_fitzhugh_mh87() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20157418537890315, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17986845024043016, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99020376630374773, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02546740038253459, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.01379681352171724, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20157418537890315) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17986845024043016) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99020376630374773) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02546740038253459) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.01379681352171724) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5659,7 +5659,7 @@ static void test_ode_likelihood_fitzhugh_mh88() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.22578081774338443, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.22578081774338443) <= 1.0e-06);
 
   }
 
@@ -5681,38 +5681,38 @@ static void test_ode_proposal_fitzhugh_mh88() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20046363694221517, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.12453677605447593, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00339778446369499, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.00601039279031101, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.96930621665785333, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20046363694221517) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.12453677605447593) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00339778446369499) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.00601039279031101) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.96930621665785333) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5730,7 +5730,7 @@ static void test_ode_likelihood_fitzhugh_mh89() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 156.84451182052492868, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 156.84451182052492868) <= 1.0e-06);
 
   }
 
@@ -5752,38 +5752,38 @@ static void test_ode_proposal_fitzhugh_mh89() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.22473300805526347, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.15908370155980958, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97606579366044066, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.96943393618567553, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.99458156346686977, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.22473300805526347) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.15908370155980958) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97606579366044066) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.96943393618567553) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.99458156346686977) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5801,7 +5801,7 @@ static void test_ode_likelihood_fitzhugh_mh90() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 153.94999418114946366, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 153.94999418114946366) <= 1.0e-06);
 
   }
 
@@ -5823,38 +5823,38 @@ static void test_ode_proposal_fitzhugh_mh90() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20532733431395808, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.14418737173061735, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00390923593967107, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.99951883008858289, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.04546087929823517, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20532733431395808) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.14418737173061735) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00390923593967107) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.99951883008858289) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.04546087929823517) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00007036874417766, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00007036874417766, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00007036874417766) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00007036874417766) <= 1.0e-06);
 
 }
 
@@ -5872,7 +5872,7 @@ static void test_ode_likelihood_fitzhugh_mh91() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.71658327971408653, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.71658327971408653) <= 1.0e-06);
 
   }
 
@@ -5894,38 +5894,38 @@ static void test_ode_proposal_fitzhugh_mh91() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20982985180113978, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17217216460825854, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98526283102899681, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.00951537997626284, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.03514331631582879, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20982985180113978) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17217216460825854) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98526283102899681) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.00951537997626284) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.03514331631582879) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -5943,7 +5943,7 @@ static void test_ode_likelihood_fitzhugh_mh92() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.59925441933529555, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 159.59925441933529555) <= 1.0e-06);
 
   }
 
@@ -5965,38 +5965,38 @@ static void test_ode_proposal_fitzhugh_mh92() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20371742190211445, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17263158703317133, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98724958265889651, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.01658263573955199, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.02213674099041585, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20371742190211445) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17263158703317133) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98724958265889651) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.01658263573955199) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.02213674099041585) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6014,7 +6014,7 @@ static void test_ode_likelihood_fitzhugh_mh93() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.36255789090677126, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.36255789090677126) <= 1.0e-06);
 
   }
 
@@ -6036,38 +6036,38 @@ static void test_ode_proposal_fitzhugh_mh93() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20176742990128435, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17936645142982691, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98888457949194386, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02532642087470638, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.04137251604826275, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20176742990128435) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17936645142982691) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98888457949194386) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02532642087470638) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.04137251604826275) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6085,7 +6085,7 @@ static void test_ode_likelihood_fitzhugh_mh94() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.52133014295694124, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.52133014295694124) <= 1.0e-06);
 
   }
 
@@ -6107,38 +6107,38 @@ static void test_ode_proposal_fitzhugh_mh94() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.22191935609340688, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17079528958892914, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.96876856831889402, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.99606469961045352, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.98285381850726039, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.22191935609340688) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17079528958892914) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.96876856831889402) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.99606469961045352) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.98285381850726039) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6156,7 +6156,7 @@ static void test_ode_likelihood_fitzhugh_mh95() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.83281646433994183, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.83281646433994183) <= 1.0e-06);
 
   }
 
@@ -6178,38 +6178,38 @@ static void test_ode_proposal_fitzhugh_mh95() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19547294452178654, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.18569814945142471, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99217754437537353, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.02264312195953400, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.03005902251403825, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19547294452178654) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.18569814945142471) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99217754437537353) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.02264312195953400) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.03005902251403825) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6227,7 +6227,7 @@ static void test_ode_likelihood_fitzhugh_mh96() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 156.72917508812327014, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 156.72917508812327014) <= 1.0e-06);
 
   }
 
@@ -6249,38 +6249,38 @@ static void test_ode_proposal_fitzhugh_mh96() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20283788213755263, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.12656736920826145, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97789421273976895, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.03680586550547083, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.99458009939375491, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20283788213755263) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.12656736920826145) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97789421273976895) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.03680586550547083) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.99458009939375491) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6298,7 +6298,7 @@ static void test_ode_likelihood_fitzhugh_mh97() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 159.68022569345816919, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 159.68022569345816919) <= 1.0e-06);
 
   }
 
@@ -6320,38 +6320,38 @@ static void test_ode_proposal_fitzhugh_mh97() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.20268471475501823, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.17104628756613346, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.99642809640244634, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.99627071455326310, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.97801628896250548, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.20268471475501823) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.17104628756613346) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.99642809640244634) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.99627071455326310) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.97801628896250548) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6369,7 +6369,7 @@ static void test_ode_likelihood_fitzhugh_mh98() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.20692907158445450, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.20692907158445450) <= 1.0e-06);
 
   }
 
@@ -6391,38 +6391,38 @@ static void test_ode_proposal_fitzhugh_mh98() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21124145744453568, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.19374187871436996, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.98682961983830086, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -0.99295245984145653, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.00596412943166125, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21124145744453568) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.19374187871436996) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.98682961983830086) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -0.99295245984145653) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.00596412943166125) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6440,7 +6440,7 @@ static void test_ode_likelihood_fitzhugh_mh99() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 158.16558670482271509, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 158.16558670482271509) <= 1.0e-06);
 
   }
 
@@ -6462,38 +6462,38 @@ static void test_ode_proposal_fitzhugh_mh99() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.21129476759602570, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.18939007777368663, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 2.97281767809064856, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.00627597539344227, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 0.98581962664890055, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.21129476759602570) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.18939007777368663) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 2.97281767809064856) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.00627597539344227) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 0.98581962664890055) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 
@@ -6511,7 +6511,7 @@ static void test_ode_likelihood_fitzhugh_mh100() {
   CU_ASSERT(error == 0);
 
   // Check log likelihood
-  CU_ASSERT_DOUBLE_EQUAL_REL(likelihood, 157.83075793190198510, 1.0e-06);
+  CU_ASSERT(reldif(likelihood, 157.83075793190198510) <= 1.0e-06);
 
   }
 
@@ -6533,38 +6533,38 @@ static void test_ode_proposal_fitzhugh_mh100() {
   CU_ASSERT(error == 0);
 
   // Check mean
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[0], 0.19757119176057425, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[1], 0.13918690090843786, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[2], 3.00138940148519318, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[3], -1.01809468324147789, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(mean[4], 1.02640066743550951, 1.0e-06);
+  CU_ASSERT(reldif(mean[0], 0.19757119176057425) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[1], 0.13918690090843786) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[2], 3.00138940148519318) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[3], -1.01809468324147789) <= 1.0e-06);
+  CU_ASSERT(reldif(mean[4], 1.02640066743550951) <= 1.0e-06);
 
   // Check covariance
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 0], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[0 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 1], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[1 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 2], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[2 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 3], 0.00002656331146614, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[3 * ldc + 4], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 0], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 1], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 2], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 3], 0.00000000000000000, 1.0e-06);
-  CU_ASSERT_DOUBLE_EQUAL_REL(covariance[4 * ldc + 4], 0.00002656331146614, 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 0], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[0 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 1], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[1 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 2], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[2 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 3], 0.00002656331146614) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[3 * ldc + 4], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 0], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 1], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 2], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 3], 0.00000000000000000) <= 1.0e-06);
+  CU_ASSERT(reldif(covariance[4 * ldc + 4], 0.00002656331146614) <= 1.0e-06);
 
 }
 

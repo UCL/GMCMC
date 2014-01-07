@@ -7,7 +7,7 @@ VPATH = . ../gmcmc
 
 .PHONY: all clean
 
-TESTS = test_ion_model test_ode_model test_eye_model test_rng test_uniform test_normal test_lognormal test_gamma test_mvn
+TESTS = test_ion_model test_ode_model test_eye_model test_cvodes test_rng test_uniform test_normal test_lognormal test_gamma test_mvn
 
 all: $(TESTS)
 
@@ -27,6 +27,10 @@ test_ode_model: test_ode_model.c test_fitzhugh_mh.c test_fitzhugh_mh_main.c test
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(@) $(<) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 test_eye_model: test_eye_model.c test_eye.c test_eye_main.c gmcmc_errno.h gmcmc_eye.h gmcmc_likelihood.h gmcmc_proposal.h gmcmc_model.h gmcmc_distribution.h gmcmc_rng.h ../libgmcmc.so ../libgmcmc_hdf5.so
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(@) $(<) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
+
+test_cvodes: LDLIBS = -lgmcmc $(CUNIT_LDLIBS) -lm
+test_cvodes: test_cvodes.c ../libgmcmc.so
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $(@) $(<) $(LDFLAGS) $(LOADLIBES) $(LDLIBS)
 
 test_rng: test_rng.c gmcmc_rng.h gmcmc_errno.h ../libgmcmc.so ../libgmcmc_hdf5.so

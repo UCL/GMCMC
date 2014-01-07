@@ -7,20 +7,14 @@
 
 #define N 100000000
 
-#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+static inline double reldif(double a, double b) {
+  double c = fabs(a);
+  double d = fabs(b);
+
+  d = fmax(c, d);
+
+  return (d == 0.0) ? 0.0 : fabs(a - b) / d;
+}
 
 static double * X;
 static size_t ldx;
@@ -90,10 +84,10 @@ static void test_mvn_sample0() {
   }
 
   for (size_t i = 0; i < 4; i++)
-    CU_ASSERT_DOUBLE_EQUAL_REL(mean[i], mu[i], 1.0e-03);
+    CU_ASSERT(reldif(mean[i], mu[i]) <= 1.0e-03);
   for (size_t j = 0; j < 4; j++) {
     for (size_t i = 0; i < 4; i++)
-      CU_ASSERT_DOUBLE_EQUAL_REL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+      CU_ASSERT(reldif(cov[j * 4 + i], sigma[j * 4 + i]) <= 1.0e-02);
   }
 }
 
@@ -145,10 +139,10 @@ static void test_mvn_sample1() {
   }
 
   for (size_t i = 0; i < 4; i++)
-    CU_ASSERT_DOUBLE_EQUAL_REL(mean[i], mu[i], 1.0e-03);
+    CU_ASSERT(reldif(mean[i], mu[i]) <= 1.0e-03);
   for (size_t j = 0; j < 4; j++) {
     for (size_t i = 0; i < 4; i++)
-      CU_ASSERT_DOUBLE_EQUAL_REL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+      CU_ASSERT(reldif(cov[j * 4 + i], sigma[j * 4 + i]) <= 1.0e-02);
   }
 }
 
@@ -202,10 +196,10 @@ static void test_mvn_sample2() {
   }
 
   for (size_t i = 0; i < 4; i++)
-    CU_ASSERT_DOUBLE_EQUAL_REL(mean[i], mu[i], 1.0e-03);
+    CU_ASSERT(reldif(mean[i], mu[i]) <= 1.0e-03);
   for (size_t j = 0; j < 4; j++) {
     for (size_t i = 0; i < 4; i++)
-      CU_ASSERT_DOUBLE_EQUAL_REL(cov[j * 4 + i], sigma[j * 4 + i], 1.0e-02);
+      CU_ASSERT(reldif(cov[j * 4 + i], sigma[j * 4 + i]) <= 1.0e-02);
   }
 }
 
@@ -220,7 +214,7 @@ static void test_mvn_logpdf0() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.912086653874059, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.912086653874059) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf1() {
@@ -233,7 +227,7 @@ static void test_mvn_logpdf1() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.675631036383903, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.675631036383903) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv0() {
@@ -244,7 +238,7 @@ static void test_mvn_logpdfv0() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.825013273330061, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.825013273330061) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv1() {
@@ -254,7 +248,7 @@ static void test_mvn_logpdfv1() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -10.156539207554928, 1.0e-07);
+  CU_ASSERT(reldif(res, -10.156539207554928) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs0() {
@@ -265,7 +259,7 @@ static void test_mvn_logpdfs0() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.417619075164975, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.417619075164975) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs1() {
@@ -275,7 +269,7 @@ static void test_mvn_logpdfs1() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -10.040577104592721, 1.0e-07);
+  CU_ASSERT(reldif(res, -10.040577104592721) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf2() {
@@ -289,7 +283,7 @@ static void test_mvn_logpdf2() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -3.490319297943123, 1.0e-07);
+  CU_ASSERT(reldif(res, -3.490319297943123) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf3() {
@@ -302,7 +296,7 @@ static void test_mvn_logpdf3() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -3.518213248559060, 1.0e-07);
+  CU_ASSERT(reldif(res, -3.518213248559060) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv2() {
@@ -313,7 +307,7 @@ static void test_mvn_logpdfv2() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.414657398830830, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.414657398830830) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv3() {
@@ -323,7 +317,7 @@ static void test_mvn_logpdfv3() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.975948878763938, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.975948878763938) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs2() {
@@ -334,7 +328,7 @@ static void test_mvn_logpdfs2() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.508024561090181, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.508024561090181) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs3() {
@@ -344,7 +338,7 @@ static void test_mvn_logpdfs3() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.535754251538330, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.535754251538330) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf4() {
@@ -358,7 +352,7 @@ static void test_mvn_logpdf4() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.645508961179885, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.645508961179885) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf5() {
@@ -371,7 +365,7 @@ static void test_mvn_logpdf5() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -24.265792241902602, 1.0e-07);
+  CU_ASSERT(reldif(res, -24.265792241902602) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv4() {
@@ -382,7 +376,7 @@ static void test_mvn_logpdfv4() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.884754839506989, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.884754839506989) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv5() {
@@ -392,7 +386,7 @@ static void test_mvn_logpdfv5() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -10.258285336967628, 1.0e-07);
+  CU_ASSERT(reldif(res, -10.258285336967628) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs4() {
@@ -403,7 +397,7 @@ static void test_mvn_logpdfs4() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.692469271418531, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.692469271418531) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs5() {
@@ -413,7 +407,7 @@ static void test_mvn_logpdfs5() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.697862599901271, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.697862599901271) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf6() {
@@ -427,7 +421,7 @@ static void test_mvn_logpdf6() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.470070364484704, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.470070364484704) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf7() {
@@ -440,7 +434,7 @@ static void test_mvn_logpdf7() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -34.379190296344014, 1.0e-07);
+  CU_ASSERT(reldif(res, -34.379190296344014) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv6() {
@@ -451,7 +445,7 @@ static void test_mvn_logpdfv6() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -11.763949939229716, 1.0e-07);
+  CU_ASSERT(reldif(res, -11.763949939229716) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv7() {
@@ -461,7 +455,7 @@ static void test_mvn_logpdfv7() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -11.181690571512586, 1.0e-07);
+  CU_ASSERT(reldif(res, -11.181690571512586) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs6() {
@@ -472,7 +466,7 @@ static void test_mvn_logpdfs6() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.820717132139528, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.820717132139528) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs7() {
@@ -482,7 +476,7 @@ static void test_mvn_logpdfs7() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.427542048048114, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.427542048048114) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf8() {
@@ -496,7 +490,7 @@ static void test_mvn_logpdf8() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.909753470048106, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.909753470048106) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf9() {
@@ -509,7 +503,7 @@ static void test_mvn_logpdf9() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -30.178419330265690, 1.0e-07);
+  CU_ASSERT(reldif(res, -30.178419330265690) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv8() {
@@ -520,7 +514,7 @@ static void test_mvn_logpdfv8() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -10.568303923651714, 1.0e-07);
+  CU_ASSERT(reldif(res, -10.568303923651714) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv9() {
@@ -530,7 +524,7 @@ static void test_mvn_logpdfv9() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -15.900518133436520, 1.0e-07);
+  CU_ASSERT(reldif(res, -15.900518133436520) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs8() {
@@ -541,7 +535,7 @@ static void test_mvn_logpdfs8() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.914035490453534, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.914035490453534) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs9() {
@@ -551,7 +545,7 @@ static void test_mvn_logpdfs9() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -11.774259870556167, 1.0e-07);
+  CU_ASSERT(reldif(res, -11.774259870556167) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf10() {
@@ -565,7 +559,7 @@ static void test_mvn_logpdf10() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -5.950388000218717, 1.0e-07);
+  CU_ASSERT(reldif(res, -5.950388000218717) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf11() {
@@ -578,7 +572,7 @@ static void test_mvn_logpdf11() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -17.195541607265184, 1.0e-07);
+  CU_ASSERT(reldif(res, -17.195541607265184) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv10() {
@@ -589,7 +583,7 @@ static void test_mvn_logpdfv10() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.485481367844956, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.485481367844956) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv11() {
@@ -599,7 +593,7 @@ static void test_mvn_logpdfv11() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.471604016919811, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.471604016919811) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs10() {
@@ -610,7 +604,7 @@ static void test_mvn_logpdfs10() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.205281732039815, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.205281732039815) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs11() {
@@ -620,7 +614,7 @@ static void test_mvn_logpdfs11() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.965825686882223, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.965825686882223) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf12() {
@@ -634,7 +628,7 @@ static void test_mvn_logpdf12() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -5.941581523077063, 1.0e-07);
+  CU_ASSERT(reldif(res, -5.941581523077063) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf13() {
@@ -647,7 +641,7 @@ static void test_mvn_logpdf13() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -422.092317586792205, 1.0e-07);
+  CU_ASSERT(reldif(res, -422.092317586792205) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv12() {
@@ -658,7 +652,7 @@ static void test_mvn_logpdfv12() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.526909245050302, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.526909245050302) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv13() {
@@ -668,7 +662,7 @@ static void test_mvn_logpdfv13() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -10.694889541327875, 1.0e-07);
+  CU_ASSERT(reldif(res, -10.694889541327875) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs12() {
@@ -679,7 +673,7 @@ static void test_mvn_logpdfs12() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.211927844581709, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.211927844581709) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs13() {
@@ -689,7 +683,7 @@ static void test_mvn_logpdfs13() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -9.706534168976351, 1.0e-07);
+  CU_ASSERT(reldif(res, -9.706534168976351) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf14() {
@@ -703,7 +697,7 @@ static void test_mvn_logpdf14() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -4.515353667414425, 1.0e-07);
+  CU_ASSERT(reldif(res, -4.515353667414425) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf15() {
@@ -716,7 +710,7 @@ static void test_mvn_logpdf15() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -11.208154829556499, 1.0e-07);
+  CU_ASSERT(reldif(res, -11.208154829556499) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv14() {
@@ -727,7 +721,7 @@ static void test_mvn_logpdfv14() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -5.747460067064008, 1.0e-07);
+  CU_ASSERT(reldif(res, -5.747460067064008) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv15() {
@@ -737,7 +731,7 @@ static void test_mvn_logpdfv15() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.414251536143509, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.414251536143509) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs14() {
@@ -748,7 +742,7 @@ static void test_mvn_logpdfs14() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.814321552197987, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.814321552197987) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs15() {
@@ -758,7 +752,7 @@ static void test_mvn_logpdfs15() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -7.775447902590498, 1.0e-07);
+  CU_ASSERT(reldif(res, -7.775447902590498) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf16() {
@@ -772,7 +766,7 @@ static void test_mvn_logpdf16() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -5.185838951951856, 1.0e-07);
+  CU_ASSERT(reldif(res, -5.185838951951856) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf17() {
@@ -785,7 +779,7 @@ static void test_mvn_logpdf17() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -4.761097043185913, 1.0e-07);
+  CU_ASSERT(reldif(res, -4.761097043185913) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv16() {
@@ -796,7 +790,7 @@ static void test_mvn_logpdfv16() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -5.897516221046564, 1.0e-07);
+  CU_ASSERT(reldif(res, -5.897516221046564) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv17() {
@@ -806,7 +800,7 @@ static void test_mvn_logpdfv17() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.242359312735628, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.242359312735628) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs16() {
@@ -817,7 +811,7 @@ static void test_mvn_logpdfs16() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.059065444885929, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.059065444885929) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs17() {
@@ -827,7 +821,7 @@ static void test_mvn_logpdfs17() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -6.544958038154931, 1.0e-07);
+  CU_ASSERT(reldif(res, -6.544958038154931) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf18() {
@@ -841,7 +835,7 @@ static void test_mvn_logpdf18() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, mu, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -8.191635146964892, 1.0e-07);
+  CU_ASSERT(reldif(res, -8.191635146964892) <= 1.0e-07);
 }
 
 static void test_mvn_logpdf19() {
@@ -854,7 +848,7 @@ static void test_mvn_logpdf19() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdf(4, x, NULL, sigma, 4, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -238.628821843038821, 1.0e-07);
+  CU_ASSERT(reldif(res, -238.628821843038821) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv18() {
@@ -865,7 +859,7 @@ static void test_mvn_logpdfv18() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -16.935998626057145, 1.0e-07);
+  CU_ASSERT(reldif(res, -16.935998626057145) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfv19() {
@@ -875,7 +869,7 @@ static void test_mvn_logpdfv19() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfv(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -14.361715645015897, 1.0e-07);
+  CU_ASSERT(reldif(res, -14.361715645015897) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs18() {
@@ -886,7 +880,7 @@ static void test_mvn_logpdfs18() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, mu, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -13.204832488767380, 1.0e-07);
+  CU_ASSERT(reldif(res, -13.204832488767380) <= 1.0e-07);
 }
 
 static void test_mvn_logpdfs19() {
@@ -896,7 +890,7 @@ static void test_mvn_logpdfs19() {
   double res;
   CU_ASSERT(gmcmc_mvn_logpdfs(4, x, NULL, sigma, &res) == 0);
 
-  CU_ASSERT_DOUBLE_EQUAL(res, -12.226145126684443, 1.0e-07);
+  CU_ASSERT(reldif(res, -12.226145126684443) <= 1.0e-07);
 }
 
 #define CUNIT_ERROR(message) \

@@ -7,26 +7,20 @@
 
 #include <stdlib.h>
 
-#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+static inline double reldif(double a, double b) {
+  double c = fabs(a);
+  double d = fabs(b);
+
+  d = fmax(c, d);
+
+  return (d == 0.0) ? 0.0 : fabs(a - b) / d;
+}
 
 static gmcmc_eye_dataset * data;
 static gmcmc_model * model;
+static gmcmc_eye_model * eye_model;
 
 static int cleanup() {
-  gmcmc_eye_model * eye_model = (gmcmc_eye_model *)gmcmc_model_get_modelspecific(model);
   gmcmc_eye_model_destroy(eye_model);
   gmcmc_model_destroy(model);
   gmcmc_eye_dataset_destroy(data);
@@ -130,7 +124,6 @@ static int init_eye() {
   // Seed the RNG
   gmcmc_prng64_seed(rng, 0);
 
-  gmcmc_eye_model * eye_model;
   if ((gmcmc_eye_model_create(&eye_model, "../data/WNBG05_500Hz.txt",
                               115, 2010, rng)) != 0) {
     gmcmc_eye_dataset_destroy(data);

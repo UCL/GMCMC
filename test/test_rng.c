@@ -6,20 +6,14 @@
 
 #include <stdlib.h>
 
-#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+static inline double reldif(double a, double b) {
+  double c = fabs(a);
+  double d = fabs(b);
+
+  d = fmax(c, d);
+
+  return (d == 0.0) ? 0.0 : fabs(a - b) / d;
+}
 
 #define N 10000000
 
@@ -27,14 +21,14 @@
  * The parallel RNGs under test.
  */
 static gmcmc_prng64 ** rngs;
-static int n;
+static size_t n;
 
 /**
  * Suite cleanup function.
  */
 static int destroy_rngs() {
   if (rngs != NULL) {
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
       gmcmc_prng64_destroy(rngs[i]);
   }
   free(rngs);
@@ -49,9 +43,9 @@ static int create_mt19937() {
   n = gmcmc_prng64_mt19937->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_mt19937->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_mt19937->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_mt19937, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create mt19937", error);
@@ -65,9 +59,9 @@ static int create_mt19937_64() {
   n = gmcmc_prng64_mt19937_64->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_mt19937_64->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_mt19937_64->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_mt19937_64, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create mt19937_64", error);
@@ -81,9 +75,9 @@ static int create_dcmt521() {
   n = gmcmc_prng64_dcmt521->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt521->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt521->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt521, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt521", error);
@@ -97,9 +91,9 @@ static int create_dcmt607() {
   n = gmcmc_prng64_dcmt607->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt607->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt607->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt607, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt607", error);
@@ -113,9 +107,9 @@ static int create_dcmt1279() {
   n = gmcmc_prng64_dcmt1279->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt1279->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt1279->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt1279, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt1279", error);
@@ -129,9 +123,9 @@ static int create_dcmt2203() {
   n = gmcmc_prng64_dcmt2203->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt2203->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt2203->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt2203, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt2203", error);
@@ -145,9 +139,9 @@ static int create_dcmt2281() {
   n = gmcmc_prng64_dcmt2281->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt2281->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt2281->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt2281, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt2281", error);
@@ -161,9 +155,9 @@ static int create_dcmt3217() {
   n = gmcmc_prng64_dcmt2281->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt3217->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt3217->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt3217, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt3217", error);
@@ -177,9 +171,9 @@ static int create_dcmt4253() {
   n = gmcmc_prng64_dcmt4253->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt4253->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt4253->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt4253, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt4253", error);
@@ -193,9 +187,9 @@ static int create_dcmt9689() {
   n = gmcmc_prng64_dcmt9689->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (int i = 0; i < gmcmc_prng64_dcmt9689->max_id; i++) {
+  for (unsigned int i = 0; i < gmcmc_prng64_dcmt9689->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt9689, i)) != 0) {
-      for (int j = 0; j < i; j++)
+      for (unsigned int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt9689", error);
@@ -209,7 +203,7 @@ static int create_dcmt9689() {
  */
 static void test_get() {
   // Test each parallel RNG substream
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
 
     // Seed the RNG
     gmcmc_prng64_seed(rngs[i], 3241);
@@ -223,15 +217,15 @@ static void test_get() {
       CU_ASSERT(x <= rngs[i]->type->max);
 
       // Calculate mean and variance using "online" algorithm (avoids overflow)
-      double delta = x - mean;
-      mean += delta / (j + 1);
-      m2 += delta * (x - mean);
+      double delta = (double)x - mean;
+      mean += delta / (double)(j + 1);
+      m2 += delta * ((double)x - mean);
     }
     double variance = m2 / (N - 1);
 
-    double n = rngs[i]->type->max - rngs[i]->type->min + 1;
-    CU_ASSERT_DOUBLE_EQUAL_REL(mean, (double)(rngs[i]->type->min + rngs[i]->type->max) / 2.0, 1.0e-03);
-    CU_ASSERT_DOUBLE_EQUAL_REL(variance, (n * n - 1.0) / 12.0, 1.0e-03);
+    double n = (double)(rngs[i]->type->max - rngs[i]->type->min + 1);
+    CU_ASSERT(reldif(mean, (double)(rngs[i]->type->min + rngs[i]->type->max) / 2.0) <= 1.0e-03);
+    CU_ASSERT(reldif(variance, (n * n - 1.0) / 12.0) <= 1.0e-03);
   }
 }
 
@@ -240,7 +234,7 @@ static void test_get() {
  */
 static void test_get_double() {
   // Test each parallel RNG substream
-  for (int i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
 
     // Seed the RNG
     gmcmc_prng64_seed(rngs[i], 3241);
@@ -255,13 +249,13 @@ static void test_get_double() {
 
       // Calculate mean and variance using "online" algorithm (avoids overflow)
       double delta = x - mean;
-      mean += delta / (j + 1);
+      mean += delta / (double)(j + 1);
       m2 += delta * (x - mean);
     }
     double variance = m2 / (N - 1);
 
-    CU_ASSERT_DOUBLE_EQUAL_REL(mean, 0.5, 1.0e-03);
-    CU_ASSERT_DOUBLE_EQUAL_REL(variance, 0.0833333, 1.0e-03);
+    CU_ASSERT(reldif(mean, 0.5) <= 1.0e-03);
+    CU_ASSERT(reldif(variance, 0.0833333) <= 1.0e-03);
   }
 }
 

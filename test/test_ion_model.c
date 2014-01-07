@@ -7,26 +7,20 @@
 
 #include <stdlib.h>
 
-#define CU_ASSERT_DOUBLE_EQUAL_ABS(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(((fabs((double)(actual) - (expected)) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_ABS_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_FALSE)
-#define CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(actual, expected, granularity) \
-  CU_assertImplementation(( \
-    fabs(expected) > 0.0 ? \
-    ((fabs((double)(actual) - (expected)) / fabs(expected)) <= fabs((double)(granularity))) : \
-    ((fabs((double)(actual) - (expected))) <= fabs((double)(granularity)))), __LINE__, ("CU_ASSERT_DOUBLE_EQUAL_REL_FATAL(" #actual ","  #expected "," #granularity ")"), __FILE__, "", CU_TRUE)
+static inline double reldif(double a, double b) {
+  double c = fabs(a);
+  double d = fabs(b);
+
+  d = fmax(c, d);
+
+  return (d == 0.0) ? 0.0 : fabs(a - b) / d;
+}
 
 static gmcmc_ion_dataset * data;
 static gmcmc_model * model;
+static gmcmc_ion_model * ion_model;
 
 static int cleanup() {
-  gmcmc_ion_model * ion_model = (gmcmc_ion_model *)gmcmc_model_get_modelspecific(model);
   gmcmc_ion_model_destroy(ion_model);
   gmcmc_model_destroy(model);
   gmcmc_ion_dataset_destroy(data);
@@ -121,7 +115,6 @@ static int init_castillo_katz() {
   /*
    * ION model settings
    */
-  gmcmc_ion_model * ion_model;
   if ((error = gmcmc_ion_model_create(&ion_model, 2, 1, castillo_katz)) != 0) {
     // Clean up
     gmcmc_ion_dataset_destroy(data);

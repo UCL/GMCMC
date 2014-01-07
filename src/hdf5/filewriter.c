@@ -195,7 +195,7 @@ static int write(void * state, size_t iteration, size_t temperature,
 
 static gmcmc_filewriter_type type = { destroy, close, write };
 
-static inline int create_dataset(hid_t root, const char * name, hsize_t rank, hsize_t * dims) {
+static inline int create_dataset(hid_t root, const char * name, int rank, hsize_t * dims) {
   // Create a dataspace for the dataset
   hid_t dataspace;
   if ((dataspace = H5Screate_simple(rank, dims, NULL)) < 0)

@@ -102,7 +102,7 @@ static void test_uniform01() {
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;
-    mean += delta / (j + 1);
+    mean += delta / (double)(j + 1);
     m2 += delta * (x - mean);
   }
   double variance = m2 / (N - 1);
@@ -153,7 +153,7 @@ static void test_uniform11() {
 
     // Calculate mean and variance using "online" algorithm (avoids overflow)
     double delta = x - mean;
-    mean += delta / (j + 1);
+    mean += delta / (double)(j + 1);
     m2 += delta * (x - mean);
   }
   double variance = m2 / (N - 1);

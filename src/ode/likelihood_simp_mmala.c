@@ -197,26 +197,26 @@ static int ode_likelihood_simp_mmala(const void * dataset, const gmcmc_model * m
       // Calculate the gradient of the log-likelihood
       for (size_t i = 0; i < num_observed; i++) {
         double noisecov = gmcmc_ode_dataset_noisecov(dataset, i);
-        g->gradient_log_likelihood[j] -= cblas_ddot(num_timepoints, &simdata[i * lds], 1, &sens_j[i * lds], 1) / noisecov;
+        g->gradient_log_likelihood[j] -= cblas_ddot((int)num_timepoints, &simdata[i * lds], 1, &sens_j[i * lds], 1) / noisecov;
       }
 
       // Calculate gradient of the log prior
-//       const gmcmc_distribution * prior = gmcmc_model_get_prior(model, block[j]);
-//       g->gradient_log_prior[j] = gmcmc_distribution_log_pdf_1st_order(prior, params[block[j]]);
+      const gmcmc_distribution * prior = gmcmc_model_get_prior(model, block[j]);
+      g->gradient_log_prior[j] = gmcmc_distribution_log_pdf_1st_order(prior, params[block[j]]);
 
-//       // Calculate the Hessian of the log prior
-//       g->hessian_log_prior[j] = gmcmc_distribution_log_pdf_2nd_order(prior, params[block[j]]);
-//
-//       // Calculate metric tensor
-//       for (size_t i = j; i < num_sens; i++) {
-//         const double * sens_i = &sensitivities[i * num_species * lds];    // Sensitivities of parameter i
-//         for (size_t k = 0; k < num_observed; k++) {
-//           double noisecov = gmcmc_ode_dataset_noisecov(dataset, k);
-//           g->FI[j * g->ldfi + i] += cblas_ddot(num_timepoints, &sens_i[k * lds], 1, &sens_j[k * lds], 1) / noisecov;
-//         }
-//
-//         g->FI[i * g->ldfi + j] = g->FI[j * g->ldfi + i];
-//       }
+      // Calculate the Hessian of the log prior
+      g->hessian_log_prior[j] = gmcmc_distribution_log_pdf_2nd_order(prior, params[block[j]]);
+
+      // Calculate metric tensor
+      for (size_t i = j; i < num_sens; i++) {
+        const double * sens_i = &sensitivities[i * num_species * lds];    // Sensitivities of parameter i
+        for (size_t k = 0; k < num_observed; k++) {
+          double noisecov = gmcmc_ode_dataset_noisecov(dataset, k);
+          g->FI[j * g->ldfi + i] += cblas_ddot((int)num_timepoints, &sens_i[k * lds], 1, &sens_j[k * lds], 1) / noisecov;
+        }
+
+        g->FI[i * g->ldfi + j] = g->FI[j * g->ldfi + i];
+      }
     }
   }
 
