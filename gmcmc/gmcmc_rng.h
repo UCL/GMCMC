@@ -17,13 +17,13 @@
  * 64-bit parallel RNG type.
  */
 typedef struct {
-  const char * name;                            /**< Name of PRNG algorithm */
-  void (*set)(void *, unsigned int, uint64_t);  /**< Seed function */
-  uint64_t (*get)(void *, unsigned int);        /**< Integer generation function on [min,max] */
-  double (*get_double)(void *, unsigned int);   /**< Uniform real generation function on [0,1) */
-  uint64_t min, max;                            /**< Limits of integer generation function */
-  size_t size;                                  /**< Size of state */
-  unsigned int max_id;                           /**< Number of independent substreams */
+  const char * name;                   /**< Name of PRNG algorithm */
+  void (*set)(void *, int, uint64_t);  /**< Seed function */
+  uint64_t (*get)(void *, int);        /**< Integer generation function on [min,max] */
+  double (*get_double)(void *, int);   /**< Uniform real generation function on [0,1) */
+  uint64_t min, max;                   /**< Limits of integer generation function */
+  size_t size;                         /**< Size of state */
+  int max_id;                          /**< Number of independent substreams */
 } gmcmc_prng64_type;
 
 /**
@@ -34,7 +34,7 @@ typedef struct {
 typedef struct {
   const gmcmc_prng64_type * type;       /**< RNG type */
   void * state;                         /**< RNG state */
-  unsigned int id;                               /**< Parallel RNG stream id */
+  int id;                               /**< Parallel RNG stream id */
 } gmcmc_prng64;
 
 /**
@@ -49,7 +49,7 @@ typedef struct {
  *                      another RNG,
  *         GMCMC_EINVAL if the id is less than zero or greater than type->max_id
  */
-int gmcmc_prng64_create(gmcmc_prng64 **, const gmcmc_prng64_type *, unsigned int);
+int gmcmc_prng64_create(gmcmc_prng64 **, const gmcmc_prng64_type *, int);
 
 /**
  * Creates a new parallel RNG which is a copy of an existing RNG.

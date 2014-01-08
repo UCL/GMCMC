@@ -14,9 +14,6 @@
 
 #include "common.h"
 
-// Whether to infer initial conditions
-#define INFER_ICS
-
 #define MPI_ERROR_CHECK(call, msg) \
   do { \
     int error = (call); \
@@ -33,6 +30,26 @@
       return error; \
     } \
   } while (false)
+
+struct ode_args {
+  bool infer_ics;
+};
+
+static int parse_extra(int c, const char * optarg, void * extra) {
+  (void)optarg;
+  struct ode_args * args = (struct ode_args *)extra;
+  switch (c) {
+    case 100:
+      args->infer_ics = true;
+      return 0;
+  }
+  return '?';
+}
+
+static void print_extra(FILE * stream) {
+  fprintf(stream, "ODE options:\n");
+  fprintf(stream, "  --infer_ics  infer the initial conditions\n");
+}
 
 /**
  * Function to evaluate the right-hand side of the Locke 2005a model.
@@ -63,6 +80,14 @@ int main(int argc, char * argv[]) {
 
   // Default dataset file
   const char * data_file = "data/Locke_Benchmark_Data.mat";
+  // Default extra options
+  struct ode_args extra = {
+    .infer_ics = false
+  };
+  struct option ext_longopts[] = {
+    { "infer_ics", no_argument, NULL, 100 },
+    { NULL, 0, NULL, 0 }
+  };
 
   /*
    * Set up default MCMC options
@@ -87,7 +112,8 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL, NULL, NULL, NULL, NULL)) != 0) {
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL,
+                             ext_longopts, parse_extra, print_extra, &extra)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
@@ -121,11 +147,7 @@ int main(int argc, char * argv[]) {
   /*
    * Common model settings
    */
-#ifdef INFER_ICS
-  const unsigned int num_params = 28;    // Parameters and initial conditions
-#else
-  const unsigned int num_params = 22;    // Just parameters
-#endif
+  const unsigned int num_params = (extra.infer_ics) ? 28 : 22;
 
   // Set up priors for each of the parameters
   gmcmc_distribution ** priors;
@@ -149,79 +171,79 @@ int main(int argc, char * argv[]) {
     }
   }
 
-#ifdef INFER_ICS
-  // Prior for IC 1
-  if ((error = gmcmc_distribution_create_uniform(&priors[22], 0.0, 0.5)) != 0) {
+  if (extra.infer_ics) {
+    // Prior for IC 1
+    if ((error = gmcmc_distribution_create_uniform(&priors[22], 0.0, 0.5)) != 0) {
+        // Clean up
+      for (unsigned int j = 0; j < 22; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      free(temperatures);
+      fputs("Unable to create priors\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -3;
+    }
+
+    // Prior for IC 2
+    if ((error = gmcmc_distribution_create_uniform(&priors[23], 11.0, 16.0)) != 0) {
       // Clean up
-    for (unsigned int j = 0; j < 22; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    free(temperatures);
-    fputs("Unable to create priors\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -3;
-  }
+      for (unsigned int j = 0; j < 23; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      free(temperatures);
+      fputs("Unable to create priors\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -3;
+    }
 
-  // Prior for IC 2
-  if ((error = gmcmc_distribution_create_uniform(&priors[23], 11.0, 16.0)) != 0) {
-    // Clean up
-    for (unsigned int j = 0; j < 23; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    free(temperatures);
-    fputs("Unable to create priors\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -3;
-  }
-
-  // Prior for IC 3
-  if ((error = gmcmc_distribution_create_uniform(&priors[24], 7.0, 12.0)) != 0) {
-    // Clean up
-    for (unsigned int j = 0; j < 24; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    free(temperatures);
-    fputs("Unable to create priors\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -3;
-  }
-
-  // Prior for IC 4
-  if ((error = gmcmc_distribution_create_uniform(&priors[25], 0.0, 4.0)) != 0) {
+    // Prior for IC 3
+    if ((error = gmcmc_distribution_create_uniform(&priors[24], 7.0, 12.0)) != 0) {
       // Clean up
-    for (unsigned int j = 0; j < 25; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    free(temperatures);
-    fputs("Unable to create priors\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -3;
-  }
+      for (unsigned int j = 0; j < 24; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      free(temperatures);
+      fputs("Unable to create priors\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -3;
+    }
 
-  // Prior for IC 5
-  if ((error = gmcmc_distribution_create_uniform(&priors[26], 4.0, 8.0)) != 0) {
-    // Clean up
-    for (unsigned int j = 0; j < 26; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    free(temperatures);
-    fputs("Unable to create priors\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -3;
-  }
+    // Prior for IC 4
+    if ((error = gmcmc_distribution_create_uniform(&priors[25], 0.0, 4.0)) != 0) {
+        // Clean up
+      for (unsigned int j = 0; j < 25; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      free(temperatures);
+      fputs("Unable to create priors\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -3;
+    }
 
-  // Prior for IC 6
-  if ((error = gmcmc_distribution_create_uniform(&priors[27], 0.0, 3.0)) != 0) {
-    // Clean up
-    for (unsigned int j = 0; j < 27; j++)
-      gmcmc_distribution_destroy(priors[j]);
-    free(priors);
-    free(temperatures);
-    fputs("Unable to create priors\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -3;
+    // Prior for IC 5
+    if ((error = gmcmc_distribution_create_uniform(&priors[26], 4.0, 8.0)) != 0) {
+      // Clean up
+      for (unsigned int j = 0; j < 26; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      free(temperatures);
+      fputs("Unable to create priors\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -3;
+    }
+
+    // Prior for IC 6
+    if ((error = gmcmc_distribution_create_uniform(&priors[27], 0.0, 3.0)) != 0) {
+      // Clean up
+      for (unsigned int j = 0; j < 27; j++)
+        gmcmc_distribution_destroy(priors[j]);
+      free(priors);
+      free(temperatures);
+      fputs("Unable to create priors\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -3;
+    }
   }
-#endif
 
   // Load the dataset
   gmcmc_ode_dataset * dataset;
@@ -256,28 +278,37 @@ int main(int argc, char * argv[]) {
   free(priors);
 
   // Set up starting values for all temperatures
-// #ifdef INFER_ICS
-//   // Parameters and initial conditions
-//   double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
-//                        5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
-//                        0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
-//                        5.3527,  0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
-// #else
-//   // Just parameters
-//   double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
-//                        5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
-//                        0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
-//                        5.3527 };
-// #endif
-//   if ((error = gmcmc_model_set_params(model, params)) != 0) {
-//     // Clean up
-//     free(temperatures);
-//     gmcmc_ode_dataset_destroy(dataset);
-//     gmcmc_model_destroy(model);
-//     fputs("Unable to set initial parameter values\n", stderr);
-//     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-//     return -5;
-//   }
+  // Parameters and initial conditions
+  if (extra.infer_ics) {
+    const double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
+                               5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
+                               0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
+                               5.3527,  0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
+    if ((error = gmcmc_model_set_params(model, params)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ode_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      fputs("Unable to set initial parameter values\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+  else {
+    const double params[] = {  3.7051,  9.7142,  7.8618,  3.2829,  6.3907,  1.0631,  0.9271,
+                               5.0376,  7.3892,  0.4716,  4.1307,  5.7775,  4.4555,  7.6121,
+                               0.6187,  7.7768,  9.0002,  3.6414,  5.6429,  8.2453,  1.2789,
+                               5.3527 };
+    if ((error = gmcmc_model_set_params(model, params)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ode_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      fputs("Unable to set initial parameter values\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
 
   // Set initial step size and upper and lower bounds
   gmcmc_model_set_stepsize(model, 0.05);
@@ -297,10 +328,10 @@ int main(int argc, char * argv[]) {
     return -6;
   }
 
-#ifndef INFER_ICS
-  double ics[] = {0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
-  gmcmc_ode_model_set_ics(ode_model, ics);
-#endif
+  if (extra.infer_ics) {
+    const double ics[] = {0.1290, 13.6937,  9.1584,  1.9919,  5.9266,  1.1007 };
+    gmcmc_ode_model_set_ics(ode_model, ics);
+  }
 
   gmcmc_model_set_modelspecific(model, ode_model);
 
@@ -364,7 +395,7 @@ int main(int argc, char * argv[]) {
 
   // Seed the RNG
   time_t seed = time(NULL);
-  gmcmc_prng64_seed(rng, seed);
+  gmcmc_prng64_seed(rng, (uint64_t)seed);
   if (rank == 0)
     fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 

@@ -14,9 +14,6 @@
 
 #include "common.h"
 
-// Whether to use log space for parameter values - helps with very small/large values
-#define LOG10SPACE
-
 #define MPI_ERROR_CHECK(call, msg) \
   do { \
     int error = (call); \
@@ -33,6 +30,29 @@
       return error; \
     } \
   } while (false)
+
+struct ion_args {
+  bool log10space;
+};
+
+static int parse_extra(int c, const char * optarg, void * extra) {
+  (void)optarg;
+  struct ion_args * args = (struct ion_args *)extra;
+  switch (c) {
+    case 100:
+      args->log10space = true;
+      return 0;
+  }
+  return '?';
+}
+
+static void print_extra(FILE * stream) {
+  fprintf(stream, "Ion Channel options:\n");
+  fprintf(stream, "  --log10space  infer the parameters in log space\n");
+}
+
+static struct ion_args extra;   // extra arguments are used in calculate_Q_matrix so need to be file scope
+
 
 /**
  * Calculates the Q matrix from the current parameter values.
@@ -58,6 +78,12 @@ int main(int argc, char * argv[]) {
 
   // Default dataset file
   const char * data_file = "data/ION_dCK_0,5s.h5";
+  // Default extra options
+  extra.log10space = false;
+  struct option ext_longopts[] = {
+    { "log10space", no_argument, NULL, 100 },
+    { NULL, 0, NULL, 0 }
+  };
 
   /*
    * Set up default MCMC options
@@ -82,7 +108,8 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL, NULL, NULL, NULL, NULL)) != 0) {
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL,
+                             ext_longopts, parse_extra, print_extra, &extra)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
@@ -127,35 +154,36 @@ int main(int argc, char * argv[]) {
     return -2;
   }
 
-#ifdef LOG10SPACE
-  // Set up priors for log space
-  for (unsigned int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create_uniform(&priors[i], -2.0, 4.0)) != 0) {
-      // Clean up
-      for (unsigned int j = 0; j < i; j++)
-        gmcmc_distribution_destroy(priors[i]);
-      free(priors);
-      free(temperatures);
-      fputs("Unable to create priors\n", stderr);
-      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-      return -3;
+  if (extra.log10space) {
+    // Set up priors for log space
+    for (unsigned int i = 0; i < num_params; i++) {
+      if ((error = gmcmc_distribution_create_uniform(&priors[i], -2.0, 4.0)) != 0) {
+        // Clean up
+        for (unsigned int j = 0; j < i; j++)
+          gmcmc_distribution_destroy(priors[i]);
+        free(priors);
+        free(temperatures);
+        fputs("Unable to create priors\n", stderr);
+        MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+        return -3;
+      }
     }
   }
-#else
-  // Set up priors for standard space
-  for (unsigned int i = 0; i < num_params; i++) {
-    if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.01, 10000.0)) != 0) {
-      // Clean up
-      for (unsigned int j = 0; j < i; j++)
-        gmcmc_distribution_destroy(priors[i]);
-      free(priors);
-      free(temperatures);
-      fputs("Unable to create priors\n", stderr);
-      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-      return -3;
+  else {
+    // Set up priors for standard space
+    for (unsigned int i = 0; i < num_params; i++) {
+      if ((error = gmcmc_distribution_create_uniform(&priors[i], 0.01, 10000.0)) != 0) {
+        // Clean up
+        for (unsigned int j = 0; j < i; j++)
+          gmcmc_distribution_destroy(priors[i]);
+        free(priors);
+        free(temperatures);
+        fputs("Unable to create priors\n", stderr);
+        MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+        return -3;
+      }
     }
   }
-#endif
 
   // Load the dataset
   gmcmc_ion_dataset * dataset;
@@ -190,19 +218,29 @@ int main(int argc, char * argv[]) {
   free(priors);
 
   // Set up starting values for all temperatures
-#ifdef LOG10SPACE
-  double params[] = { 2.0, 2.0, 3.0, 3.0 };
-#else
-  double params[] = { 100.0, 100.0, 1000.0, 1000.0 };
-#endif
-  if ((error = gmcmc_model_set_params(model, params)) != 0) {
-    // Clean up
-    free(temperatures);
-    gmcmc_ion_dataset_destroy(dataset);
-    gmcmc_model_destroy(model);
-    fputs("Unable to set initial parameter values\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -5;
+  if (extra.log10space) {
+    const double params[] = { 2.0, 2.0, 3.0, 3.0 };
+    if ((error = gmcmc_model_set_params(model, params)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ion_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      fputs("Unable to set initial parameter values\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+  else {
+    const double params[] = { 100.0, 100.0, 1000.0, 1000.0 };
+    if ((error = gmcmc_model_set_params(model, params)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ion_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      fputs("Unable to set initial parameter values\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
   }
 
   // Set initial step size
@@ -281,7 +319,7 @@ int main(int argc, char * argv[]) {
 
   // Seed the RNG
   time_t seed = time(NULL);
-  gmcmc_prng64_seed(rng, seed);
+  gmcmc_prng64_seed(rng, (uint64_t)seed);
   fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 
   // Start timer
@@ -327,17 +365,20 @@ int main(int argc, char * argv[]) {
 
 static void calculate_Q_matrix(const double * params, double * Q, size_t ldq) {
   // Rename for clarity
-#ifdef LOG10SPACE
-  double K_1   = pow(10.0, params[0]);
-  double K_2   = pow(10.0, params[1]);
-  double Beta  = pow(10.0, params[2]);
-  double Alpha = pow(10.0, params[3]);
-#else
-  double K_1   = params[0];
-  double K_2   = params[1];
-  double Beta  = params[2];
-  double Alpha = params[3];
-#endif
+  double K_1, K_2, Beta, Alpha;
+
+  if (extra.log10space) {
+    K_1   = pow(10.0, params[0]);
+    K_2   = pow(10.0, params[1]);
+    Beta  = pow(10.0, params[2]);
+    Alpha = pow(10.0, params[3]);
+  }
+  else {
+    K_1   = params[0];
+    K_2   = params[1];
+    Beta  = params[2];
+    Alpha = params[3];
+  }
 
   // Construct Q matrix
   // 3 states for this model

@@ -14,9 +14,6 @@
 
 #include "common.h"
 
-// Whether to infer initial conditions
-// #define INFER_ICS
-
 #define MPI_ERROR_CHECK(call, msg) \
   do { \
     int error = (call); \
@@ -33,6 +30,26 @@
       return error; \
     } \
   } while (false)
+
+struct ode_args {
+  bool infer_ics;
+};
+
+static int parse_extra(int c, const char * optarg, void * extra) {
+  (void)optarg;
+  struct ode_args * args = (struct ode_args *)extra;
+  switch (c) {
+    case 100:
+      args->infer_ics = true;
+      return 0;
+  }
+  return '?';
+}
+
+static void print_extra(FILE * stream) {
+  fprintf(stream, "ODE options:\n");
+  fprintf(stream, "  --infer_ics  infer the initial conditions\n");
+}
 
 /**
  * Function to evaluate the right-hand side of the Fitz Hugh Nagumo model.
@@ -63,6 +80,14 @@ int main(int argc, char * argv[]) {
 
   // Default dataset file
   const char * data_file = "data/FitzHugh_Benchmark_Data_1000.h5";
+  // Default extra options
+  struct ode_args extra = {
+    .infer_ics = false
+  };
+  struct option ext_longopts[] = {
+    { "infer_ics", no_argument, NULL, 100 },
+    { NULL, 0, NULL, 0 }
+  };
 
   /*
    * Set up default MCMC options
@@ -87,7 +112,8 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL, NULL, NULL, NULL, NULL)) != 0) {
+  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL,
+                             ext_longopts, parse_extra, print_extra, &extra)) != 0) {
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
@@ -121,11 +147,7 @@ int main(int argc, char * argv[]) {
   /*
    * Common model settings
    */
-#ifdef INFER_ICS
-  const unsigned int num_params = 5;    // Parameters and initial conditions
-#else
-  const unsigned int num_params = 3;    // Just parameters
-#endif
+  const unsigned int num_params = (extra.infer_ics) ? 5 : 3;
 
   // Set up priors for each of the parameters
   gmcmc_distribution ** priors;
@@ -149,21 +171,21 @@ int main(int argc, char * argv[]) {
     }
   }
 
-#ifdef INFER_ICS
-  // Set up priors for initial conditions
-  for (unsigned int i = 3; i < 5; i++) {
-    if ((error = gmcmc_distribution_create_normal(&priors[i], 0.0, 2.0)) != 0) {
-      // Clean up
-      for (unsigned int j = 0; j < i; j++)
-        gmcmc_distribution_destroy(priors[j]);
-      free(priors);
-      free(temperatures);
-      fputs("Unable to create priors\n", stderr);
-      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-      return -3;
+  if (extra.infer_ics) {
+    // Set up priors for initial conditions
+    for (unsigned int i = 3; i < 5; i++) {
+      if ((error = gmcmc_distribution_create_normal(&priors[i], 0.0, 2.0)) != 0) {
+        // Clean up
+        for (unsigned int j = 0; j < i; j++)
+          gmcmc_distribution_destroy(priors[j]);
+        free(priors);
+        free(temperatures);
+        fputs("Unable to create priors\n", stderr);
+        MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+        return -3;
+      }
     }
   }
-#endif
 
   // Load the dataset
   gmcmc_ode_dataset * dataset;
@@ -198,19 +220,29 @@ int main(int argc, char * argv[]) {
   free(priors);
 
   // Set up starting values for all temperatures
-#ifdef INFER_ICS
-  double params[] = { 0.2, 0.2, 3.0, -1.0, 1.0 };
-#else
-  double params[] = { 0.2, 0.2, 3.0 };
-#endif
-  if ((error = gmcmc_model_set_params(model, params)) != 0) {
-    // Clean up
-    free(temperatures);
-    gmcmc_ode_dataset_destroy(dataset);
-    gmcmc_model_destroy(model);
-    fputs("Unable to set initial parameter values\n", stderr);
-    MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
-    return -5;
+  if (extra.infer_ics) {
+    const double params[] = { 0.2, 0.2, 3.0, -1.0, 1.0 };
+    if ((error = gmcmc_model_set_params(model, params)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ode_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      fputs("Unable to set initial parameter values\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
+  }
+  else {
+    const double params[] = { 0.2, 0.2, 3.0 };
+    if ((error = gmcmc_model_set_params(model, params)) != 0) {
+      // Clean up
+      free(temperatures);
+      gmcmc_ode_dataset_destroy(dataset);
+      gmcmc_model_destroy(model);
+      fputs("Unable to set initial parameter values\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return -5;
+    }
   }
 
   // Set initial step size
@@ -230,10 +262,10 @@ int main(int argc, char * argv[]) {
     return -6;
   }
 
-#ifndef INFER_ICS
-  double ics[] = { -1.0, 1.0 };
-  gmcmc_ode_model_set_ics(ode_model, ics);
-#endif
+  if (extra.infer_ics) {
+    const double ics[] = { -1.0, 1.0 };
+    gmcmc_ode_model_set_ics(ode_model, ics);
+  }
 
   gmcmc_model_set_modelspecific(model, ode_model);
 

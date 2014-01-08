@@ -18,7 +18,7 @@ typedef struct {
   int i;
 } mt_state;
 
-static void set(void * state, unsigned int id, uint64_t seed) {
+static void set(void * state, int id, uint64_t seed) {
   (void)id;
 
   mt_state * mt = (mt_state *)state;
@@ -32,7 +32,7 @@ static void set(void * state, unsigned int id, uint64_t seed) {
   mt->i = MT_NN;
 }
 
-static uint64_t get(void * state, unsigned int id) {
+static uint64_t get(void * state, int id) {
   mt_state * mt = (mt_state *)state;
   const uint32_t mag01[] = { UINT32_C(0), params[id].aaa };
 
@@ -60,7 +60,7 @@ static uint64_t get(void * state, unsigned int id) {
   return x;
 }
 
-static double get_double(void * state, unsigned int id) {
+static double get_double(void * state, int id) {
   uint64_t a = get(state, id) >> 5;
   uint64_t b = get(state, id) >> 6;
   return ((double)a * 67108864.0 + (double)b) * (1.0 / 9007199254740992.0);

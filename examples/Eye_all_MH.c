@@ -14,9 +14,6 @@
 
 #include "common.h"
 
-// Whether to infer initial conditions
-#define INFER_ICS
-
 #define MPI_ERROR_CHECK(call, msg) \
   do { \
     int error = (call); \
@@ -36,7 +33,7 @@
 
 struct eye_args {
   const char * ph_data;
-  int offset, length;
+  unsigned int offset, length;
 };
 
 static int parse_extra(int c, const char * optarg, void * extra) {
@@ -46,13 +43,13 @@ static int parse_extra(int c, const char * optarg, void * extra) {
       args->ph_data = optarg;
       return 0;
     case 101:
-      if (sscanf(optarg, "%d", &args->offset) != 1) {
+      if (sscanf(optarg, "%u", &args->offset) != 1) {
         fprintf(stderr, "Invalid offset: %s\n", optarg);
         return -1;
       }
       return 0;
     case 102:
-      if (sscanf(optarg, "%d", &args->length) != 1) {
+      if (sscanf(optarg, "%u", &args->length) != 1) {
         fprintf(stderr, "Invalid length: %s\n", optarg);
         return -1;
       }
@@ -62,7 +59,7 @@ static int parse_extra(int c, const char * optarg, void * extra) {
 }
 
 static void print_extra(FILE * stream) {
-  fprintf(stream, "Stochastic eye extra options:\n");
+  fprintf(stream, "Stochastic eye options:\n");
   fprintf(stream, "  --ph_data=<file.txt>  photoreceptor data file\n");
   fprintf(stream, "  --offset=<n>          first photoreceptor to compare\n");
   fprintf(stream, "  --length=<n>          number of photoreceptors to compare\n");
@@ -360,7 +357,7 @@ int main(int argc, char * argv[]) {
 
   // Seed the RNG
   time_t seed = time(NULL);
-  gmcmc_prng64_seed(rng, seed);
+  gmcmc_prng64_seed(rng, (uint64_t)seed);
   fprintf(stdout, "Using PRNG seed: %ld\n", seed);
 
   // Start timer
