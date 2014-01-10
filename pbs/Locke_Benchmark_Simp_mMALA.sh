@@ -14,6 +14,6 @@
 module load mpi intel-suite hdf5
 
 # Run the program using mpiexec (PBS requires absolute paths to the dataset and result files)
-mpiexec ${HOME}/GMCMC/Locke_Benchmark_Simp_mMALA ${HOME}/GMCMC/results/Locke_Simp_mMALA_BurnIn.h5 ${HOME}/GMCMC/results/Locke_Simp_mMALA_Posterior.h5
+mpiexec ${HOME}/GMCMC/Locke_Benchmark_Simp_mMALA --dataset ${HOME}/GMCMC/data/Locke_Benchmark_Data.mat ${HOME}/GMCMC/results/Locke_Simp_mMALA_BurnIn.h5 ${HOME}/GMCMC/results/Locke_Simp_mMALA_Posterior.h5
 
 exit 0

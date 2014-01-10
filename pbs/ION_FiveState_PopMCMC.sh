@@ -14,4 +14,4 @@
 module load mpi intel-suite hdf5
 
 # Run the program using mpiexec (PBS requires absolute paths to the dataset and result files)
-mpiexec ${HOME}/GMCMC/ION_FiveState_PopMCMC -t16 ${HOME}/results/ION_FiveState_PopMCMC_BurnIn.h5 ${HOME}/results/ION_FiveState_PopMCMC_Posterior.h5
+mpiexec ${HOME}/GMCMC/ION_FiveState_PopMCMC --dataset ${HOME}/GMCMC/data/ION_Five_State_True_Data_Long.h5 ${HOME}/results/ION_FiveState_PopMCMC_BurnIn.h5 ${HOME}/results/ION_FiveState_PopMCMC_Posterior.h5

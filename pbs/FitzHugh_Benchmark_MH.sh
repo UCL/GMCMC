@@ -14,4 +14,4 @@
 module load mpi intel-suite hdf5
 
 # Run the program using mpiexec (PBS requires absolute paths to the dataset and result files)
-mpiexec ${HOME}/GMCMC/FitzHugh_Benchmark_MH ${HOME}/GMCMC/results/FitzHugh_MH_BurnIn.h5 ${HOME}/GMCMC/results/FitzHugh_MH_Posterior.h5
+mpiexec ${HOME}/GMCMC/FitzHugh_Benchmark_MH --dataset ${HOME}/GMCMC/data/FitzHugh_Benchmark_Data_1000.h5 ${HOME}/GMCMC/results/FitzHugh_MH_BurnIn.h5 ${HOME}/GMCMC/results/FitzHugh_MH_Posterior.h5

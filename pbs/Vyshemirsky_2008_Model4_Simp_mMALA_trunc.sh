@@ -14,6 +14,6 @@
 module load mpi intel-suite hdf5
 
 # Run the program using mpiexec (PBS requires absolute paths to the dataset and result files)
-mpiexec ${HOME}/GMCMC/Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA_trunc ${HOME}/GMCMC/results/V2008M4_Simp_mMALA_trunc_BurnIn.h5 ${HOME}/GMCMC/results/V2008M4_Simp_mMALA_trunc_Posterior.h5
+mpiexec ${HOME}/GMCMC/Vyshemirsky_2008_Model4_Benchmark_1_Simp_mMALA_trunc --dataset ${HOME}/GMCMC/data/Vyshemirsky_2008_Model4_Benchmark_Data.h5 ${HOME}/GMCMC/results/V2008M4_Simp_mMALA_trunc_BurnIn.h5 ${HOME}/GMCMC/results/V2008M4_Simp_mMALA_trunc_Posterior.h5
 
 exit 0

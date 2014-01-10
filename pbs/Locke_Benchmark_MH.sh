@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# PBS qsub script for Vlad's ODE model using Metropolis Hastings.
+# PBS qsub script for Locke ODE model using Simplified mMALA
 #
 # Specify a maximum execution time of 2 hours
 #PBS -l walltime=2:00:00
@@ -14,6 +14,6 @@
 module load mpi intel-suite hdf5
 
 # Run the program using mpiexec (PBS requires absolute paths to the dataset and result files)
-mpiexec ${HOME}/GMCMC/Vyshemirsky_2008_Model4_Benchmark_1_MH --dataset ${HOME}/GMCMC/data/Vyshemirsky_2008_Model4_Benchmark_Data.h5 ${HOME}/GMCMC/results/V2008M4_MH_BurnIn.h5 ${HOME}/GMCMC/results/V2008M4_MH_Posterior.h5
+mpiexec ${HOME}/GMCMC/Locke_Benchmark_MH --dataset ${HOME}/GMCMC/data/Locke_Benchmark_Data.mat ${HOME}/GMCMC/results/Locke_Simp_mMALA_BurnIn.h5 ${HOME}/GMCMC/results/Locke_Simp_mMALA_Posterior.h5
 
 exit 0

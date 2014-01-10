@@ -14,4 +14,4 @@
 module load mpi intel-suite hdf5
 
 # Run the program using mpiexec (PBS requires absolute paths to the dataset and result files)
-mpiexec ${HOME}/GMCMC/ION_dCK_PopMCMC -t16 --dataset=${HOME}/GMCMC/data/ION_dCK_0,5s.h5 ${HOME}/results/ION_dCK_PopMCMC_BurnIn.h5 ${HOME}/results/ION_dCK_PopMCMC_Posterior.h5
+mpiexec ${HOME}/GMCMC/ION_dCK_PopMCMC --dataset=${HOME}/GMCMC/data/ION_dCK_0,5s.h5 ${HOME}/results/ION_dCK_PopMCMC_BurnIn.h5 ${HOME}/results/ION_dCK_PopMCMC_Posterior.h5
