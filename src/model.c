@@ -1,6 +1,7 @@
 #include <gmcmc/gmcmc_model.h>
 #include <gmcmc/gmcmc_errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <math.h>
 
@@ -269,20 +270,6 @@ size_t gmcmc_model_get_block_size(const gmcmc_model * model, size_t i) {
 }
 
 /**
- * Compares two arguments of type size_t.  For use in qsort.
- */
-static int comparator(const void * x, const void * y) {
-  const size_t * a = (const size_t *)x;
-  const size_t * b = (const size_t *)y;
-  if (*a < *b)
-    return -1;
-  else if (*a > *b)
-    return 1;
-  else
-    return 0;
-}
-
-/**
  * Sets the fixed permutation of parameter indices to use when blocking.
  *
  * @param [in]  model        the model
@@ -295,29 +282,41 @@ static int comparator(const void * x, const void * y) {
  *         GMCMC_ENOMEM if the blocks could not be allocated in the model.
  */
 int gmcmc_model_set_blocks(gmcmc_model * model, const size_t * blocks) {
-  size_t * new_blocks = NULL;
-
   // The blocks should be a valid permutation of the parameter indices - this
-  // is checked by sorting a copy of the blocks
+  // is checked with a modified bucket sort
+  bool * buckets;
+  if ((buckets = calloc(model->n, sizeof(bool))) == NULL)
+    GMCMC_ERROR("Failed to allocate temporary array for sorting blocks", GMCMC_ENOMEM);
+
+  // Go through the block indices checking them against the bucket array
+  for (size_t i = 0; i < model->n; i++) {
+    if (blocks[i] >= model->n) {
+      free(buckets);
+      GMCMC_ERROR("Block index is out of range", GMCMC_EINVAL);
+    }
+    else if (buckets[blocks[i]]) {
+      free(buckets);
+      GMCMC_ERROR("Duplicate block index", GMCMC_EINVAL);
+    }
+    else
+      buckets[blocks[i]] = true;
+  }
+  for (size_t i = 0; i < model->n; i++) {
+    if (!buckets[i]) {
+      free(buckets);
+      GMCMC_ERROR("Missing block index", GMCMC_EINVAL);
+    }
+  }
+
+  free(buckets);
+
   // Allocate an array for a copy of the new blocks
+  size_t * new_blocks;
   if ((new_blocks = malloc(model->n * sizeof(size_t))) == NULL) {
     free(new_blocks);
     GMCMC_ERROR("Failed to allocate new block indices", GMCMC_ENOMEM);
   }
   // Copy the blocks into the new array
-  memcpy(new_blocks, blocks, model->n * sizeof(size_t));
-
-  // Sort the copy
-  qsort(new_blocks, model->n, sizeof(size_t), comparator);
-  // Check that for each parameter index i, the block index matches
-  for (size_t i = 0; i < model->n; i++) {
-    if (i != new_blocks[i]) {
-      free(new_blocks);
-      GMCMC_ERROR("Block indices are invalid", GMCMC_EINVAL);
-    }
-  }
-
-  // Recopy the permutation of the blocks over the sorted blocks
   memcpy(new_blocks, blocks, model->n * sizeof(size_t));
 
   // Update the blocks in the model
