@@ -71,7 +71,11 @@ int main(int argc, char * argv[]) {
   MPI_ERROR_CHECK(MPI_Init(&argc, &argv), "Failed to initialise MPI");
 
   // Handle MPI errors ourselves
+#if MPI_VERSION < 2
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#else
+  MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
 
   // Get the MPI process ID and number of cores
   int rank, size;
@@ -116,8 +120,13 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  if ((error = parse_options(argc, argv, &mcmc_options, &data_file, NULL,
-                             ext_longopts, parse_extra, print_extra, &extra)) != 0) {
+  size_t num_blocks = 0, * block_sizes = NULL, * blocks = NULL;
+  if ((error = parse_options(argc, argv, NULL, ext_longopts,
+                             parse_extra, print_extra, &extra,
+                             &mcmc_options, &data_file,
+                             &num_blocks, &block_sizes, &blocks)) != 0) {
+    free(block_sizes);
+    free(blocks);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return error;
   }
@@ -128,6 +137,8 @@ int main(int argc, char * argv[]) {
   // processes to temperatures so initialise them all here just in case.
   double * temperatures = malloc(mcmc_options.num_temperatures * sizeof(double));
   if (temperatures == NULL) {
+    free(block_sizes);
+    free(blocks);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     fputs("Unable to allocate temperature schedule\n", stderr);
     return -2;
@@ -145,6 +156,7 @@ int main(int argc, char * argv[]) {
   if (rank == 0) {
     fprintf(stdout, "Number of cores: %d\n", size);
     print_options(stdout, &mcmc_options);
+    print_blocks(stdout, num_blocks, block_sizes, blocks);
   }
 
 
@@ -157,6 +169,8 @@ int main(int argc, char * argv[]) {
   if ((priors = malloc(7 * sizeof(gmcmc_distribution *))) == NULL) {
     fputs("Failed to allocate space for priors\n", stderr);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -2;
   }
@@ -166,6 +180,8 @@ int main(int argc, char * argv[]) {
     // Clean up
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -3;
@@ -176,6 +192,8 @@ int main(int argc, char * argv[]) {
     gmcmc_distribution_destroy(priors[0]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -3;
@@ -187,6 +205,8 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -3;
@@ -197,6 +217,8 @@ int main(int argc, char * argv[]) {
     for (unsigned int j = 0; j < 3; j++)
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
+    free(block_sizes);
+    free(blocks);
     free(temperatures);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
@@ -209,6 +231,8 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -3;
@@ -220,6 +244,8 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -3;
@@ -231,6 +257,8 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[j]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to create priors\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -3;
@@ -244,6 +272,8 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     fputs("Unable to load dataset\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
     return -4;
@@ -257,6 +287,8 @@ int main(int argc, char * argv[]) {
       gmcmc_distribution_destroy(priors[i]);
     free(priors);
     free(temperatures);
+    free(block_sizes);
+    free(blocks);
     gmcmc_eye_dataset_destroy(dataset);
     fputs("Unable to create model\n", stderr);
     MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
@@ -267,6 +299,29 @@ int main(int argc, char * argv[]) {
   for (unsigned int i = 0; i < 7; i++)
     gmcmc_distribution_destroy(priors[i]);
   free(priors);
+
+  // Set up blocking
+  if (num_blocks > 0) {
+    if ((error = gmcmc_model_set_blocking(model, num_blocks, block_sizes)) != 0) {
+      free(temperatures);
+      free(block_sizes);
+      free(blocks);
+      gmcmc_eye_dataset_destroy(dataset);
+      fputs("Unable to set blocking\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return error;
+    }
+    free(block_sizes);
+    if ((error = gmcmc_model_set_blocks(model, blocks)) != 0) {
+      free(temperatures);
+      free(blocks);
+      gmcmc_eye_dataset_destroy(dataset);
+      fputs("Unable to set blocks\n", stderr);
+      MPI_ERROR_CHECK(MPI_Finalize(), "Failed to shut down MPI");
+      return error;
+    }
+    free(blocks);
+  }
 
   // Set up starting values for all temperatures
   double params[] = { 3.0, 3.0, 2.0, 50.0, 2.0, 100.0, 2.0 };
