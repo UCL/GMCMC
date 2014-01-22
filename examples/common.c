@@ -61,7 +61,7 @@ static inline void print_help(FILE * stream, const char * exe) {
                   "                                    For fixed blocking <blocks> is a semicolon-terminated list of blocks where each block contains a\n"
                   "                                    comma-separated list of parameters in the block (e.g. --blocking=\"fixed:0,1;2,3;\" specifies two blocks with\n"
                   "                                    parameters 0 and 1 in the first block and parameters 2 and 3 in the second).\n"
-                  "                                    For random blocking <blocks is a semicolon-terminated list of block sizes (e.g. --blocking=\"random:2;1;\"\n"
+                  "                                    For random blocking <blocks> is a semicolon-terminated list of block sizes (e.g. --blocking=\"random:2;1;\"\n"
                   "                                    specifies two random blocks of containing two and one parameters respectively.\n"
                   "                                    In both cases the final terminating semicolon may be omitted.\n", exe);
 }

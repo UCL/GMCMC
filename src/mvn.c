@@ -129,11 +129,12 @@ static inline double log_det(size_t n, const double * C, size_t ldc) {
 /**
  * Calculates the log of the PDF of the multivariate normal distribution at x.
  *
- * @param [in]  n      dimensionality of the distribution
- * @param [in]  x      random vector (length n)
- * @param [in]  mu     mean of the distribution (length n, may be NULL for mean
- *                       of zero)
- * @param [in]  sigma  covariance matrix (n-by-n)
+ * @param [in]  n      dimensionality of the distribution/size of the block
+ * @param [in]  block  only calculate the PDF based on these parameters (NULL to
+ *                       calculate based on all parameters)
+ * @param [in]  x      random vector
+ * @param [in]  mu     mean of the distribution (may be NULL for mean of zero)
+ * @param [in]  sigma  covariance matrix
  * @param [in]  lds    leading dimension of the covariance matrix
  * @param [out] res    result
  *
@@ -141,7 +142,7 @@ static inline double log_det(size_t n, const double * C, size_t ldc) {
  *         GMCMC_ENOMEM if temporary variables could not be allocated,
  *         GMCMC_ELINAL if the covariance matrix is singular.
  */
-static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
+static inline int gmcmc_mvn_logpdf(size_t n, const size_t * block, const double * x,
                                    const double * mu, const double * sigma, size_t lds,
                                    double * res) {
   if (n == 0) {
@@ -179,17 +180,27 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
   double p;
   if (mu == NULL) {
     // Allocate vectors to store x' * inv(Σ)
-    double * xTinv;
-    if ((xTinv = malloc(n * sizeof(double))) == NULL) {
+    double * bx = NULL, * xTinv = NULL;
+    if ((bx = malloc(n * sizeof(double))) == NULL ||
+        (xTinv = malloc(n * sizeof(double))) == NULL) {
+      free(bx);
+      free(xTinv);
       free(inv);
       GMCMC_ERROR("Unable to allocate temporary vector", GMCMC_ENOMEM);
     }
+    if (block == NULL) {
+      for (size_t i = 0; i < n; i++)
+        bx[i] = x[block[i]];
+    }
+    else
+      memcpy(bx, x, n * sizeof(double));
 
     // Use CBLAS DSYMV to compute x' * inv(Σ)
-    cblas_dsymv(CblasColMajor, CblasLower, (lapack_int)n, 1.0, inv, (lapack_int)ldi, x, 1, 0.0, xTinv, 1);
+    cblas_dsymv(CblasColMajor, CblasLower, (lapack_int)n, 1.0, inv, (lapack_int)ldi, bx, 1, 0.0, xTinv, 1);
     // Use CBLAS DDOT to compute x' * inv(Σ) * x
-    p = cblas_ddot((int)n, xTinv, 1, x, 1);
+    p = cblas_ddot((int)n, xTinv, 1, bx, 1);
 
+    free(bx);
     free(xTinv);
   }
   else {
@@ -204,8 +215,14 @@ static inline int gmcmc_mvn_logpdf(size_t n, const double * x,
     }
 
     // x_mu = x - mu
-    for (size_t i = 0; i < n; i++)
-      x_mu[i] = x[i] - mu[i];
+    if (block == NULL) {
+      for (size_t i = 0; i < n; i++)
+        x_mu[i] = x[i] - mu[i];
+    }
+    else {
+      for (size_t i = 0; i < n; i++)
+        x_mu[i] = x[block[i]] - mu[i];
+    }
 
     // Use CBLAS DSYMV to compute (x - mu)' * inv(Σ)
     cblas_dsymv(CblasColMajor, CblasLower, (int)n, 1.0, inv, (int)ldi, x_mu, 1, 0.0, x_muTinv, 1);

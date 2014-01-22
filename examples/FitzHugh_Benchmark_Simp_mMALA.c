@@ -116,7 +116,7 @@ int main(int argc, char * argv[]) {
   mcmc_options.posterior_writer = NULL;
 
   int error;
-  size_t num_blocks, * block_sizes, * blocks;
+  size_t num_blocks = 0, * block_sizes = NULL, * blocks = NULL;
   if ((error = parse_options(argc, argv, NULL, ext_longopts,
                              parse_extra, print_extra, &extra,
                              &mcmc_options, &data_file,

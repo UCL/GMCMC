@@ -423,7 +423,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       // Calculate new given old
       double p_new_given_old;        // p(x'|x)
 
-      if ((error = gmcmc_mvn_logpdf(num_params, params, mean, covariance, ldc,
+      if ((error = gmcmc_mvn_logpdf(block_size, blocks, params, mean, covariance, ldc,
                                     &p_new_given_old)) != 0) {
         free(params);
         free(log_prior);
@@ -463,7 +463,7 @@ static int gmcmc_chain_update(gmcmc_chain * chain, const gmcmc_model * model,
       }
 
 
-      if ((error = gmcmc_mvn_logpdf(num_params, chain->params, mean, covariance,
+      if ((error = gmcmc_mvn_logpdf(block_size, blocks, chain->params, mean, covariance,
                                     ldc, &p_old_given_new)) != 0) {
         free(params);
         free(log_prior);
