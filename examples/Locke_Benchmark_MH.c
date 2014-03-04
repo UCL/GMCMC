@@ -39,7 +39,7 @@ static int parse_extra(int c, const char * optarg, void * extra) {
   (void)optarg;
   struct ode_args * args = (struct ode_args *)extra;
   switch (c) {
-    case 100:
+    case 1000:
       args->infer_ics = true;
       return 0;
   }
@@ -89,7 +89,7 @@ int main(int argc, char * argv[]) {
     .infer_ics = false
   };
   struct option ext_longopts[] = {
-    { "infer_ics", no_argument, NULL, 100 },
+    { "infer_ics", no_argument, NULL, 1000 },
     { NULL, 0, NULL, 0 }
   };
 

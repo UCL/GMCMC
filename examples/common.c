@@ -228,7 +228,7 @@ int parse_options(int argc, char * argv[],
     if ((optstring = malloc((stdlen + 1) * sizeof(char))) == NULL)
       GMCMC_ERROR("Failed to allocate optstring", GMCMC_ENOMEM);
     memcpy(optstring, std_optstring, stdlen * sizeof(char));
-    optstring[stdlen - 1] = '\0';
+    optstring[stdlen] = '\0';
   }
 
   struct option * longopts;
@@ -240,7 +240,7 @@ int parse_options(int argc, char * argv[],
     }
     memcpy(longopts, std_longopts, stdlen * sizeof(struct option));
     memcpy(&longopts[stdlen], ext_longopts, extlen * sizeof(struct option));
-    longopts[stdlen + extlen - 1] = (struct option){ NULL, 0, NULL, 0 };
+    longopts[stdlen + extlen] = (struct option){ NULL, 0, NULL, 0 };
   }
   else {
     const size_t stdlen = optlen(std_longopts);
@@ -323,11 +323,13 @@ int parse_options(int argc, char * argv[],
 //         fprintf(stderr, "Unknown option: %s\n", optarg);
 //         return optind;
       default:
-        if (parse_extra != NULL && parse_extra(c, optarg, extra) == '?') {
-          fprintf(stderr, "Unknown option: %s\n", optarg);
-          free(optstring);
-          free(longopts);
-          return optind;
+        if (parse_extra != NULL) {
+          if (parse_extra(c, optarg, extra) != 0) {
+            fprintf(stderr, "Unknown option: %s\n", optarg);
+            free(optstring);
+            free(longopts);
+            return optind;
+          }
         }
         else {
           print_help(stdout, argv[0]);

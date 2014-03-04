@@ -39,16 +39,16 @@ struct eye_args {
 static int parse_extra(int c, const char * optarg, void * extra) {
   struct eye_args * args = (struct eye_args *)extra;
   switch (c) {
-    case 100:
+    case 1000:
       args->ph_data = optarg;
       return 0;
-    case 101:
+    case 1001:
       if (sscanf(optarg, "%u", &args->offset) != 1) {
         fprintf(stderr, "Invalid offset: %s\n", optarg);
         return -1;
       }
       return 0;
-    case 102:
+    case 1002:
       if (sscanf(optarg, "%u", &args->length) != 1) {
         fprintf(stderr, "Invalid length: %s\n", optarg);
         return -1;
@@ -91,9 +91,9 @@ int main(int argc, char * argv[]) {
     .length  = 2125
   };
   struct option ext_longopts[] = {
-    { "ph_data", required_argument, NULL, 100 },
-    { "offset",  required_argument, NULL, 101 },
-    { "length",  required_argument, NULL, 102 },
+    { "ph_data", required_argument, NULL, 1000 },
+    { "offset",  required_argument, NULL, 1001 },
+    { "length",  required_argument, NULL, 1002 },
     { NULL, 0, NULL, 0 }
   };
 

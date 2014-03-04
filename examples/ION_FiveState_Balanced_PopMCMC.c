@@ -39,7 +39,7 @@ static int parse_extra(int c, const char * optarg, void * extra) {
   (void)optarg;
   struct ion_args * args = (struct ion_args *)extra;
   switch (c) {
-    case 100:
+    case 1000:
       args->log10space = true;
       return 0;
   }
@@ -84,7 +84,7 @@ int main(int argc, char * argv[]) {
   // Default extra options
   extra.log10space = false;
   struct option ext_longopts[] = {
-    { "log10space", no_argument, NULL, 100 },
+    { "log10space", no_argument, NULL, 1000 },
     { NULL, 0, NULL, 0 }
   };
 
