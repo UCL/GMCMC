@@ -31,6 +31,7 @@ Directory structure:
  data/     - datasets for example programs  
  examples/ - source files for example programs  
  gmcmc/    - header files  
- sge/      - Sun Grid Engine scripts for running the examples on the cluster  
+ pbs/      - Portable Batch System scripts for running the examples on Imperial's cluster
+ sge/      - Sun Grid Engine scripts for running the examples on UCL's stats cluster  
  src/      - source files for the libraries  
  test/     - source files for the CUnit tests  
