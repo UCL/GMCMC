@@ -8,7 +8,7 @@ See http://www.hector.ac.uk/cse/distributedcse/reports/UniMCMC/.
 *Dependencies:*  
 
 **Required:**  
- BLAS, CBLAS, LAPACK and LAPACKE (available from [netlib.org](http://netlib.org/))  
+ BLAS, CBLAS, LAPACK and LAPACKE (available from (http://netlib.org/))  
  MPI (either openMPI (http://www.openmpi.org/) or MPICH (http://www.mpich.org/))  
  sundials-2.5.0 or greater (http://computation.llnl.gov/casc/sundials/main.html)  
  C compiler supporting C99 and openmp  
