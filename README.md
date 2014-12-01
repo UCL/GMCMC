@@ -13,7 +13,7 @@ See http://www.hector.ac.uk/cse/distributedcse/reports/UniMCMC/.
  sundials-2.5.0 or greater (http://computation.llnl.gov/casc/sundials/main.html)  
  C compiler supporting C99 and openmp  
  GNU make 3.81 or greater  
- ####Either:  
+ *Either*:  
   MATLAB (to read and write data stored in MATLAB files)  
   HDF5 (to read and write data stored in HDF5 files (http://www.hdfgroup.org/))  
 ###Optional:  
