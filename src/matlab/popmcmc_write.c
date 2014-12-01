@@ -171,7 +171,7 @@ int gmcmc_matlab_popmcmc_write(const gmcmc_popmcmc_options * options, const gmcm
     const char * varname = (i < options->num_burn_in_samples) ? "Samples_BurnIn" : "Samples_Posterior";
     const char * template = (i < options->num_burn_in_samples) ? "%s_BurnIn_%zu-%zu.mat" : "%s_Posterior_%zu-%zu.mat";
     // Format the filename for the samples
-    size_t outputlen = strlen(gmcmc_matlab_outputID) + strlen(template) + 10 + floor(log10(written + 1)) + floor(log10(written + k));
+    size_t outputlen = strlen(gmcmc_matlab_outputID) + strlen(template) + 10 + (size_t)floor(log10((double)(written + 1))) + (size_t)floor(log10((double)(written + k)));
     if ((filename = malloc(outputlen)) == NULL) {
       mxDestroyArray(samples);
       samples = NULL;

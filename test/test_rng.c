@@ -40,12 +40,12 @@ static int destroy_rngs() {
  */
 static int create_mt19937() {
   int error;
-  n = gmcmc_prng64_mt19937->max_id;
+  n = (size_t)gmcmc_prng64_mt19937->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_mt19937->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_mt19937->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_mt19937, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create mt19937", error);
@@ -56,12 +56,12 @@ static int create_mt19937() {
 
 static int create_mt19937_64() {
   int error;
-  n = gmcmc_prng64_mt19937_64->max_id;
+  n = (size_t)gmcmc_prng64_mt19937_64->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_mt19937_64->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_mt19937_64->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_mt19937_64, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create mt19937_64", error);
@@ -72,12 +72,12 @@ static int create_mt19937_64() {
 
 static int create_dcmt521() {
   int error;
-  n = gmcmc_prng64_dcmt521->max_id;
+  n = (size_t)gmcmc_prng64_dcmt521->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt521->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt521->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt521, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt521", error);
@@ -88,12 +88,12 @@ static int create_dcmt521() {
 
 static int create_dcmt607() {
   int error;
-  n = gmcmc_prng64_dcmt607->max_id;
+  n = (size_t)gmcmc_prng64_dcmt607->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt607->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt607->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt607, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt607", error);
@@ -104,12 +104,12 @@ static int create_dcmt607() {
 
 static int create_dcmt1279() {
   int error;
-  n = gmcmc_prng64_dcmt1279->max_id;
+  n = (size_t)gmcmc_prng64_dcmt1279->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt1279->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt1279->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt1279, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt1279", error);
@@ -120,12 +120,12 @@ static int create_dcmt1279() {
 
 static int create_dcmt2203() {
   int error;
-  n = gmcmc_prng64_dcmt2203->max_id;
+  n = (size_t)gmcmc_prng64_dcmt2203->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt2203->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt2203->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt2203, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt2203", error);
@@ -136,12 +136,12 @@ static int create_dcmt2203() {
 
 static int create_dcmt2281() {
   int error;
-  n = gmcmc_prng64_dcmt2281->max_id;
+  n = (size_t)gmcmc_prng64_dcmt2281->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt2281->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt2281->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt2281, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt2281", error);
@@ -152,12 +152,12 @@ static int create_dcmt2281() {
 
 static int create_dcmt3217() {
   int error;
-  n = gmcmc_prng64_dcmt2281->max_id;
+  n = (size_t)gmcmc_prng64_dcmt2281->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt3217->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt3217->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt3217, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt3217", error);
@@ -168,12 +168,12 @@ static int create_dcmt3217() {
 
 static int create_dcmt4253() {
   int error;
-  n = gmcmc_prng64_dcmt4253->max_id;
+  n = (size_t)gmcmc_prng64_dcmt4253->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt4253->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt4253->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt4253, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt4253", error);
@@ -184,12 +184,12 @@ static int create_dcmt4253() {
 
 static int create_dcmt9689() {
   int error;
-  n = gmcmc_prng64_dcmt9689->max_id;
+  n = (size_t)gmcmc_prng64_dcmt9689->max_id;
   if ((rngs = calloc(n, sizeof(gmcmc_prng64 *))) == NULL)
     GMCMC_ERROR("Failed to allocate rngs", GMCMC_ENOMEM);
-  for (unsigned int i = 0; i < gmcmc_prng64_dcmt9689->max_id; i++) {
+  for (int i = 0; i < gmcmc_prng64_dcmt9689->max_id; i++) {
     if ((error = gmcmc_prng64_create(&rngs[i], gmcmc_prng64_dcmt9689, i)) != 0) {
-      for (unsigned int j = 0; j < i; j++)
+      for (int j = 0; j < i; j++)
         gmcmc_prng64_destroy(rngs[j]);
       free(rngs);
       GMCMC_ERROR("Failed to create dcmt9689", error);
