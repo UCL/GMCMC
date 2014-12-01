@@ -19,7 +19,7 @@ Dependencies:
   CUnit (http://cunit.sourceforge.net/.  Only needed to compile tests.)  
 
 To compile:  
-Copy (or symbolically link) make.inc.example to make.inc and edit the paths  
+Copy (or symbolically link) ```make.inc.example``` to ```make.inc``` and edit the paths  
 within to point to where the libraries are installed on your system.  Type  
 ```make``` to compile ```libgmcmc.so``` which contains the parallel geometric population 
 MCMC algorithm and associated models and prior distributions.  Type ```make hdf5```  
