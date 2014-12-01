@@ -20,8 +20,8 @@ Dependencies:
 
 To compile:  
 Copy (or symbolically link) ```make.inc.example``` to ```make.inc``` and edit the paths  
-within to point to where the libraries are installed on your system.  Type  
-```make``` to compile ```libgmcmc.so``` which contains the parallel geometric population 
+within to point to where the libraries are installed on your system.  Type ```make```  
+to compile ```libgmcmc.so``` which contains the parallel geometric population  
 MCMC algorithm and associated models and prior distributions.  Type ```make hdf5```  
 to compile a library defining functions to read/write data stored in HDF5 files.  
 Type ```make matlab``` to compile a library defining functions to read/write data  
