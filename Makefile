@@ -34,9 +34,11 @@ clean:
 	cd test && $(MAKE) clean
 	rm -f examples/common.o $(addprefix examples/,$(addsuffix .o,$(ION_examples) $(ODE_examples) $(EYE_examples))) $(ION_examples) $(ODE_examples) $(EYE_examples)
 
-# install: $(LIBS) $(ION_examples) $(ODE_examples) $(EYE_examples)
-# 	$(foreach lib,$(LIBS),cp $(lib) $(DESTDIR)$(libdir)/$(lib))
-# 	$(foreach bin,$(ION_examples) $(ODE_examples) $(EYE_examples), cp $(bin) $(DESTDIR)$(bindir)/$(bin))
+install: libgmcmc.so libgmcmc_hdf5.so libgmcmc_matlab.so
+	cp -R gmcmc $(DESTDIR)$(includedir)
+	cp libgmcmc.so $(DESTDIR)$(libdir)
+	cp libgmcmc_hdf5.so $(DESTDIR)$(libdir)
+	cp libgmcmc_matlab.so $(DESTDIR)$(libdir)
 
 libgmcmc.so:
 	cd src && $(MAKE) ../libgmcmc.so
