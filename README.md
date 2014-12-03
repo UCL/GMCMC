@@ -5,6 +5,8 @@ C library implementing Geometric Parallel Population MCMC.
 
 See http://www.hector.ac.uk/cse/distributedcse/reports/UniMCMC/.  
 
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.13038.svg)](http://dx.doi.org/10.5281/zenodo.13038)
+
 ##Dependencies:  
 
 ###Required:  
